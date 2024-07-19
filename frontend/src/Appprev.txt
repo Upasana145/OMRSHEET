@@ -1,0 +1,43 @@
+import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// import "bootstrap/dist/css/bootstrap.min.css";
+import Login from "./pages/Signin";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Dashboard from "./pages/Dashboard";
+import Deptartment from "./pages/Deptartment";
+import Calibration from "./pages/Calibration";
+import Prac from "./pages/Prac";
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
+import Mainpage from "./pages/Mainpage";
+import Safty from "./pages/Safty";
+function App() {
+  return (
+    <>
+      <BrowserRouter>
+        <Sidebar />
+        <Header />
+        {/* <Mainpage /> */}
+
+        <div className="master">
+          <Routes>
+            {/* <Route path="/" element={<About />}></Route> */}
+            <Route path="/login" element={<About />}></Route>
+            <Route path="/" element={<Mainpage />}></Route>
+            <Route path="/safty" element={<Safty />}></Route>
+
+            {/* <Route path="/dashboard" element={<Dashboard />}></Route>
+            <Route path="/department" element={<Deptartment />}></Route>
+            <Route path="/calibration" element={<Calibration />}></Route>
+            <Route path="/prac" element={<Prac />}></Route>
+            <Route path="/Header" element={<Header />}></Route> */}
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </>
+  );
+}
+
+export default App;

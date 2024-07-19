@@ -1,0 +1,143 @@
+1. gender,console.log  
+2. fetch get and post API in react with useEffect Hooks
+why useEffect?** 
+3. useMemo Hooks
+4. useRef
+5.useContext -->datatransf -->prop dealing
+6. Redux
+
+why do we use redux morefreq than useContext
+redux-thunk, redux-toolkit
+
+to store the data in cookie
+redux-persist, we can also store in local storage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//imageContainer page  
+
+
+
+
+
+
+import React, { useState } from "react";
+import image from "../Images/image8.jpg";
+import image1 from "../Images/image1.jpg";
+import image3 from "../Images/image3.jpg";
+import image4 from "../Images/image4.jpg";
+import image5 from "../Images/image5.jpg";
+import image6 from "../Images/image6.jpg";
+import image7 from "../Images/image7.jpg";
+
+const Imagecontainer = ({ users, handleButtonClick }) => {
+  console.log(users, "imageCotainerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+  const deptIds = users.map((item, index) => item.dept_id);
+  console.log(deptIds, "deptIds.................");
+
+  // console.log(users.camera, "userssssssssssssscameraaaaa");
+
+  const [popupImage, setPopupImage] = useState(null);
+
+  const openPopup = (imageSrc) => {
+    setPopupImage(imageSrc);
+  };
+
+  const closePopup = () => {
+    setPopupImage(null);
+  };
+
+  return (
+    <div className="imageContainer">
+      <div className="parent">
+        <div className="imagecontainerchild">
+          <div className="img_child">
+            <img src={image3} alt="" onClick={() => openPopup(image3)} />
+            <div className="img_dept">Manufacturing Dept</div>
+            <div className="img_cam">{deptIds}</div>
+          </div>
+        </div>
+        <div className="imagecontainerchild">
+          <div className="img_child">
+            <img src={image5} alt="" onClick={() => openPopup(image5)} />
+            <div className="img_dept">Manufacturing Dept</div>
+            <div className="img_cam">
+              Cam: <span>1</span>
+            </div>
+          </div>
+        </div>
+        <div className="imagecontainerchild">
+          <div className="img_child">
+            <img src={image7} alt="" onClick={() => openPopup(image7)} />
+            <div className="img_dept">Manufacturing Dept</div>
+            <div className="img_cam">
+              Cam: <span>1</span>
+            </div>
+          </div>
+        </div>
+        <div className="imagecontainerchild">
+          <div className="img_child">
+            <img src={image5} alt="" onClick={() => openPopup(image5)} />
+            <div className="img_dept">Manufacturing Dept</div>
+            <div className="img_cam">
+              Cam: <span>1</span>
+            </div>
+          </div>
+        </div>
+        <div className="imagecontainerchild">
+          <div className="img_child">
+            <img src={image3} alt="" onClick={() => openPopup(image3)} />
+            <div className="img_dept">Manufacturing Dept</div>
+            <div className="img_cam">
+              Cam: <span>1</span>
+            </div>
+          </div>
+        </div>
+        <div className="imagecontainerchild">
+          <div className="img_child">
+            <img src={image7} alt="" onClick={() => openPopup(image7)} />
+            <div className="img_dept">Manufacturing Dept</div>
+            <div className="img_cam">
+              Cam: <span>1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {popupImage && (
+        <div className="popup">
+          <span className="close" onClick={closePopup}>
+            &times;
+          </span>
+          <img src={popupImage} alt="" className="popup-image" />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Imagecontainer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
