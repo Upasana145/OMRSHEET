@@ -405,13 +405,13 @@ function ButtonListComponent({
       </li> */}
       <li>
         {selectedBoxIndex !== null && (
-          <div style={{ display: "flex" }}>
+          <div style={{ display: "flex", marginBottom: "10px" }}>
             <input
               type="text"
               placeholder="Enter new name"
               value={newBoxName}
               onChange={(e) => setNewBoxName(e.target.value)}
-              className="form-control mt-3"
+              className="form-control mt-3 rename"
             />
             <button className=" btn btn-rename " onClick={handleRename}>
               Rename

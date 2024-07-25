@@ -122,6 +122,7 @@ ul {
   color: #000;
   background-color: #cbb852;
   border-color: #cbb852;
+  padding: 0px 15px 0px 15px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15),
     0 1px 1px rgba(0, 0, 0, 0.075);
 }
@@ -190,21 +191,29 @@ ul {
   width: 1060px;
   margin-left: 0px;
 }
+.custom-select1 {
+  margin-right: 20px;
+}
 .custom-select {
   width: 100%;
-  padding: 3px;
+  padding: 4px;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fff;
-  font-size: 16px;
+  /* font-size: 16px; */
   color: #333;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  margin-right: 92px;
 }
 
 .custom-select:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.rename {
+  width: 141px;
+  height: 35px;
 }

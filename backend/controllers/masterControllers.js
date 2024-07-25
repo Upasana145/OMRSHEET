@@ -147,12 +147,10 @@ exports.deleteUser = async (req, res) => {
 
 //// POST/api/v1/master/insertomrData
 exports.insertomrData = async (req, res) => {
-  const { template_name, map } = req.body;
-  console.log("Received template_name:", template_name, " and map:", map);
-
-  if (template_name && map) {
+  const { template_name, boxes } = req.body;
+  if (template_name && boxes) {
+    console.log("Inserting Data");
     try {
-      // Query to count the occurrences of the template_name
       const name_count = `SELECT count(template_name) AS count FROM template_image_json WHERE template_name = ?`;
       const result1 = await query({
         query: name_count,
@@ -163,7 +161,7 @@ exports.insertomrData = async (req, res) => {
       // If the template_name exists
       if (result1 && result1[0].count > 0) {
         // Convert the map object to a JSON string
-        const mapString = JSON.stringify(map);
+        const mapString = JSON.stringify(boxes);
 
         // Update the existing record
         const sql = `UPDATE template_image_json SET map = ? WHERE template_name = ?`;
@@ -220,7 +218,7 @@ exports.deleteomrData = async (req, res) => {
     values: [],
   });
 
-  // console.log("hey i am result: ", result1[0].count);
+  console.log("hey i am result: ", result1[0].count);
 
   if (result1 && result1[0].count > 0) {
     try {
@@ -295,7 +293,7 @@ exports.editomrData = async (req, res) => {
 };
 exports.getall = async (req, res) => {
   try {
-    let sql = `SELECT * FROM template_image_json`;
+    let sql = `SELECT * FROM template_image_json WHERE is_deleted = 0`;
 
     const result = await query({
       query: sql,

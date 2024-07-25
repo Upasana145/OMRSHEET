@@ -12,7 +12,7 @@ import Toastify from "toastify-js";
 import axios from "axios";
 import { IoCheckmarkDoneSharp, IoCheckmarkSharp } from "react-icons/io5";
 import { getAPI } from "../utils/fetchapi";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 function Templateimage({ images, template_name }) {
   console.log("hey i am image...", images);
@@ -578,37 +578,39 @@ function Templateimage({ images, template_name }) {
     }
   };
   console.log("hey i am template_name ...", template_name);
-  const handleSave = async (template_name) => {
-    console.log("template_name ...", template_name);
-    console.log("hey i am boxes...", boxes);
-    try {
-      const response = await fetch(
-        "http://localhost:4002/api/v1/master/insertomrData",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+  // const handleSave = async (template_name) => {
+  //   console.log("template_name ...", template_name);
+  //   console.log("hey i am boxes...", boxes);
+  //   try {
+  //     const response = await fetch(
+  //       "http://localhost:4002/api/v1/master/insertomrData",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
 
-          body: JSON.stringify({ template_name, boxes }),
-        }
-      );
-      console.log("API response:", response);
-    } catch (error) {
-      if (error.response) {
-        console.error("Error hitting API:", error.response.data);
-        console.error("Status code:", error.response.status);
-        console.error("Headers:", error.response.headers);
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error("No response received:", error.request);
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.error("Error in setting up the request:", error.message);
-      }
-      console.error("Error config:", error.config);
-    }
-  };
+  //         body: JSON.stringify({ template_name, boxes }),
+  //       }
+  //     );
+  //     // console.log("API response:", response);
+  //     const responseData = await response.json();
+  //     console.log("Response data:", responseData);
+  //   } catch (error) {
+  //     if (error.response) {
+  //       console.error("Error hitting API:", error.response.data);
+  //       console.error("Status code:", error.response.status);
+  //       console.error("Headers:", error.response.headers);
+  //     } else if (error.request) {
+  //       // The request was made but no response was received
+  //       console.error("No response received:", error.request);
+  //     } else {
+  //       // Something happened in setting up the request that triggered an Error
+  //       console.error("Error in setting up the request:", error.message);
+  //     }
+  //     console.error("Error config:", error.config);
+  //   }
+  // };
 
   // *************save****************
 
@@ -627,6 +629,37 @@ function Templateimage({ images, template_name }) {
   //     // toast.error("Something went wrong. Try Again!");
   //   }
   // };
+  const handleSave = async (template_name) => {
+    console.log("Save button clicked");
+    console.log("template_name...", template_name);
+    console.log("hey i am boxes...", boxes);
+    try {
+      const response = await fetch(
+        "http://localhost:4002/api/v1/master/insertomrData",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ template_name, boxes }),
+        }
+      );
+      const responseData = await response.json();
+      console.log("Response data:", responseData);
+      toast.success("Saved successfully!");
+    } catch (error) {
+      if (error.response) {
+        console.error("Error hitting API:", error.response.data);
+        console.error("Status code:", error.response.status);
+        console.error("Headers:", error.response.headers);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+      } else {
+        console.error("Error in setting up the request:", error.message);
+      }
+      console.error("Error config:", error.config);
+    }
+  };
 
   const handleMouseMove = (event) => {
     if (dragging && originalMousePosition) {
@@ -1397,6 +1430,15 @@ function Templateimage({ images, template_name }) {
       setDragging(false);
     }
   };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleButtonClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const [showC, setShowC] = useState(false);
   const toggleC = () => {
@@ -1450,25 +1492,14 @@ function Templateimage({ images, template_name }) {
             // handleSave={handleSave}
           />
         </div>
-
-        <button
-          className="btn btn-icon btn-dark btn-active-color-primary btn-sm me-1"
-          title="drag"
-          name="drag"
-          onClick={() => handleSave(template_name)}
-        >
-          Save
-        </button>
-
-        {/* ****************************************************** */}
-        <div>
+        <div className="custom-select1">
           <h3>Select a Type:</h3>
           <select
             value={selectedFruit}
             onChange={handleChange}
             className="custom-select"
           >
-            <option value="">--Please choose an option--</option>
+            <option value="">Please choose...</option>
             <option value="Question">Question</option>
             <option value="Option">Option</option>
             <option value="Anchor">Anchor</option>
@@ -1477,6 +1508,35 @@ function Templateimage({ images, template_name }) {
           </select>
           {/* {selectedFruit && <p>You selected: {selectedFruit}</p>} */}
         </div>
+
+        <button
+          className="btn btn-dark btn-active-color-primary btn-sm me-1"
+          title="drag"
+          name="drag"
+          onClick={() => handleSave(template_name)}
+        >
+          Save
+        </button>
+        <ToastContainer />
+        <button
+          className="btn-process btn  btn-dark btn-active-color-primary btn-sm me-1"
+          onClick={handleButtonClick}
+        >
+          Processing
+        </button>
+
+        {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Processing</h2>
+              <p>Your process is ongoing. Please wait...</p>
+
+              <button onClick={handleCloseModal}>Close</button>
+            </div>
+          </div>
+        )}
+
+        {/* ****************************************************** */}
 
         <div className="buttons-container">
           {zoomFactor > 1 && (

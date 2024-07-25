@@ -38,7 +38,6 @@ function Safty() {
 
           <Route path="/department" element={<Depts />} />
           <Route path="/addUser" element={<Adduser />} />
-          <Route path="/user" element={<User />} />
 
           <Route
             path="/norecordfound"
@@ -50,6 +49,7 @@ function Safty() {
           <Route path="/addAdmin" element={<AddAdmin />} />
           <Route path="/addReviewer" element={<AddReviewer />} />
           <Route path="/editUser" element={<EditUser />} />
+          <Route path="/user" element={<User />} />
         </Routes>
       </div>
     </>
