@@ -729,7 +729,7 @@ p {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(27 25 25 / 5%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -754,4 +754,7 @@ p {
   border: none;
   font-size: 24px;
   cursor: pointer;
+}
+.btn-transparent {
+  background-color: transparent !important;
 }

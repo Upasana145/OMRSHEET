@@ -3,60 +3,100 @@ const { getISODate } = require("../utils/dateFormat.js");
 const HTML_TEMPLATE = require("../utils/mail-template.js");
 const SENDMAIL = require("../utils/mailSend.js");
 const { resSend } = require("../utils/resSend");
-
-// ye date 17.7.2024 wala code
+const path = require("path");
+const fs = require("fs");
 
 exports.uploadFile = async (req, res) => {
   // Handle Image Upload
   const { template_name, text } = req.body;
-  console.log("Template name:", template_name);
-  console.log("Text data:", text);
+
+  if (!template_name || template_name === "") {
+    return resSend(
+      res,
+      false,
+      200,
+      "Template name is mandatory. ",
+      fileData,
+      null
+    );
+  }
 
   let fileData = {};
 
-  if (req.file) {
-    console.log("Request file path:", req.file.path);
-    console.log("hey i am req.body...", req.file.filename);
-    // Escape backslashes in the file path
-    const escapedPath = req.file.path.replace(/\\/g, "\\\\");
-    try {
-      // Check if the template name already exists
-      let checkSql = `SELECT * FROM template_image_info WHERE template_name = ?`;
-      const existingTemplate = await query({
-        query: checkSql,
-        values: [template_name],
-      });
-      if (existingTemplate.length > 0) {
-        return res
-          .status(400)
-          .json({ message: "Template name already exists" });
-      }
+  if (!req.file) {
+    return resSend(
+      res,
+      false,
+      200,
+      "Please upload a valid image",
+      fileData,
+      null
+    );
+  }
 
-      let sql = `INSERT INTO template_image_info(template_name,t_name,template_image_path) VALUES ('${template_name}', '${req.file.filename}','${escapedPath}')`;
-
-      const result = await query({
-        query: sql,
-        values: [],
-      });
-
-      let sql2 = `INSERT INTO template_image_json(template_name, t_name,template_image_path) VALUES ('${template_name}', '${req.file.filename}','${escapedPath}')`;
-
-      const result2 = await query({
-        query: sql2,
-        values: [],
-      });
-
-      if (result && result2) {
-        resSend(res, true, 200, "File uploaded!", result, null);
-      } else {
-        resSend(res, false, 200, "No Record Found!", result, null);
-      }
-    } catch (error) {
-      console.log(error);
-      resSend(res, false, 400, "Error", error, null);
+  // Escape backslashes in the file path
+  const escapedPath = req.file.path.replace(/\\/g, "\\\\");
+  try {
+    // Check if the template name already exists
+    let checkSql = `SELECT * FROM template_image_info WHERE template_name = ?`;
+    const existingTemplate = await query({
+      query: checkSql,
+      values: [template_name],
+    });
+    if (existingTemplate.length > 0) {
+      return res
+        .status(400)
+        .json({ status: 0, message: "Template name already exists" });
     }
-  } else {
-    resSend(res, false, 200, "Please upload a valid image", fileData, null);
+
+    const folderPath = path.join(
+      process.env.PROJECT_FOLDER_PATH,
+      template_name,
+      "default"
+    );
+
+    // Create folder if it doesn't exist
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+
+    // Move the file from temp to the correct folder
+    const tempPath = req.file.path;
+    let imgName = req.file.filename;
+    const targetPath = path.join(folderPath, imgName);
+
+    try {
+      fs.copyFileSync(tempPath, targetPath);
+      // fs.unlinkSync(tempPath); // Delete the temp file
+
+      console.log(`File uploaded to: ${targetPath}`);
+    } catch (err) {
+      console.error("Err:", err);
+      return res.status(500).send("Error during file operation.");
+    }
+
+    let sql = `INSERT INTO template_image_info(template_name,t_name,template_image_path) VALUES ('${template_name}', '${imgName}','${escapedPath}')`;
+
+    const result = await query({
+      query: sql,
+      values: [],
+    });
+
+    let sql2 = `INSERT INTO template_image_json(template_name, t_name,template_image_path) VALUES ('${template_name}', '${imgName}','${escapedPath}')`;
+
+    const result2 = await query({
+      query: sql2,
+      values: [],
+    });
+
+    if (result && result2) {
+      resSend(res, true, 200, "File uploaded!", result, null);
+    } else {
+      resSend(res, false, 200, "No Record Found!", result, null);
+    }
+  } catch (error) {
+    console.log(error);
+    resSend(res, false, 400, "Error", error, null);
   }
 };
 

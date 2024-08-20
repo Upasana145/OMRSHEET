@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaCommentsDollar, FaSearch } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { RiDragDropFill } from "react-icons/ri";
@@ -36,6 +36,133 @@ function TemplateContent({ users, fetchUsers, templates }) {
       fetchUsers();
     } else {
       toast.error("Department is not deleted! Something went wrong.");
+    }
+  };
+
+  const handleButtonClick = async (temp) => {
+    const { template_name, map, t_name } = temp;
+
+    if (!map || !JSON.parse(map) || map === "") {
+      return toast.warn("Mapping is required.");
+    }
+
+    // Parse the map JSON
+    const parsedMap = JSON.parse(map);
+
+    const generateTypeConfig = (items) => {
+      const config = {};
+
+      items.forEach((item) => {
+        if (item.mode === "parent") {
+          const options = {};
+          if (item.children && item.children.length > 0) {
+            item.children.forEach((child, index) => {
+              options[index] = child.name;
+            });
+            const length = item.children.length;
+            options[length] = "RR";
+            options[length + 1] = "RR";
+            config[item.type] = {
+              OPTIONS: options,
+              LENGTH: length,
+            };
+          } else {
+            config[item.type] = {
+              OPTIONS: { 0: "RR", 1: "RR" },
+              LENGTH: 0,
+            };
+          }
+        }
+      });
+
+      return config;
+    };
+
+    // Generate type_config from the parsed map
+    const typeConfig = generateTypeConfig(parsedMap);
+    const payload = {
+      template: JSON.parse(map),
+      template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
+      data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
+      // type_config: {
+      //   Question: {
+      //     OPTIONS: { 0: "a", 1: "b", 2: "c", 3: "d", 4: "RR", 5: "RR" },
+      //     LENGTH: 4,
+      //   },
+      //   hall_ticket_no_parent: {
+      //     OPTIONS: {
+      //       0: "1",
+      //       1: "2",
+      //       2: "3",
+      //       3: "4",
+      //       4: "5",
+      //       5: "6",
+      //       6: "7",
+      //       7: "8",
+      //       8: "9",
+      //       9: "10",
+      //       10: "RR",
+      //       11: "RR",
+      //     },
+      //     LENGTH: 10,
+      //   },
+      //   test_booklet_parent: {
+      //     OPTIONS: {
+      //       0: "1",
+      //       1: "2",
+      //       2: "3",
+      //       3: "4",
+      //       4: "5",
+      //       5: "6",
+      //       6: "7",
+      //       7: "8",
+      //       8: "9",
+      //       9: "10",
+      //       10: "RR",
+      //       11: "RR",
+      //     },
+      //     LENGTH: 10,
+      //   },
+      //   Form_no_parent: {
+      //     OPTIONS: {
+      //       0: "1",
+      //       1: "2",
+      //       2: "3",
+      //       3: "4",
+      //       4: "5",
+      //       5: "6",
+      //       6: "7",
+      //       7: "8",
+      //       8: "9",
+      //       9: "10",
+      //       10: "RR",
+      //       11: "RR",
+      //     },
+      //     LENGTH: 10,
+      //   },
+      // },
+      type_config: typeConfig,
+    };
+
+    try {
+      const response = await fetch(process.env.REACT_APP_AI_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      console.log("Success:", responseData);
+      toast.success("Processing has been started!");
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An error occurred while processing.");
     }
   };
 
@@ -98,6 +225,15 @@ function TemplateContent({ users, fetchUsers, templates }) {
                     onClick={() => sureToDelete(template.template_name)}
                   >
                     <MdDelete />
+                  </button>
+                  <button
+                    className="btn btn-icon btn-dark btn-active-color-primary btn-sm me-1 "
+                    title="View"
+                    onClick={() => handleButtonClick(template)}
+                    // onClick={handleButtonClick(template)}
+                    style={{ width: "85px" }}
+                  >
+                    Processing
                   </button>
                 </td>
               </tr>

@@ -8,11 +8,11 @@ import {
   FaArrowUp,
   FaArrowDown,
 } from "react-icons/fa";
-import Toastify from "toastify-js";
-import axios from "axios";
-import { IoCheckmarkDoneSharp, IoCheckmarkSharp } from "react-icons/io5";
-import { getAPI } from "../utils/fetchapi";
-import { toast, ToastContainer } from "react-toastify";
+// import Toastify from "toastify-js";
+// import axios from "axios";
+// import { IoCheckmarkDoneSharp, IoCheckmarkSharp } from "react-icons/io5";
+// import { getAPI } from "../utils/fetchapi";
+import { toast } from "react-toastify";
 
 function Templateimage({ images, template_name }) {
   console.log("hey i am image...", images);
@@ -1497,7 +1497,7 @@ function Templateimage({ images, template_name }) {
           <select
             value={selectedFruit}
             onChange={handleChange}
-            className="custom-select"
+            className="custom-select form-select"
           >
             <option value="">Please choose...</option>
             <option value="Question">Question</option>
@@ -1517,9 +1517,8 @@ function Templateimage({ images, template_name }) {
         >
           Save
         </button>
-        <ToastContainer />
         <button
-          className="btn-process btn  btn-dark btn-active-color-primary btn-sm me-1"
+          className="btn-process btn  btn-dark btn-active-color-primary btn-sm me-1  ${isModalOpen ? 'btn-transparent' : ''}`"
           onClick={handleButtonClick}
         >
           Processing

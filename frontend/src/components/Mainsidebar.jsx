@@ -90,7 +90,7 @@ const Sidebar = () => {
               <>
                 <li>
                   {/* <Link to={"/dashboard"}>Dashboard</Link> */}
-                  <Link to={"/calibration"}>Dashboard</Link>
+                  <Link to={"/"}>Dashboard</Link>
                 </li>
 
                 <li>
@@ -103,8 +103,7 @@ const Sidebar = () => {
             {role === "admin" && (
               <>
                 <li>
-                  {/* <Link to={"/dashboard"}>Dashboard</Link> */}
-                  <Link to={"/temp"}>Dashboard</Link>
+                  <Link to={"/"}>Dashboard</Link>
                 </li>
                 <li className="drop" onClick={toggleMasterDropdown}>
                   <span style={{ cursor: "pointer" }}>Master</span>

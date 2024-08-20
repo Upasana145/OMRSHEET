@@ -28,11 +28,14 @@ function Signin() {
       password: vendorPassword,
     };
     let data = await postAPI("auth/login", payload, null);
+    console.log("Data", data?.message);
     if (data.status) {
+      console.log("Data2", data?.message);
       toast.success(data?.message);
       dispatch(loginHandler(data));
       setIsNavigating(false);
     } else {
+      console.log("Data3", data?.message);
       toast.error(data?.message);
       setIsNavigating(false);
     }

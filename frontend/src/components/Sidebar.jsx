@@ -18,7 +18,7 @@ const Sidebar = () => {
     <div>
       <div className="sidebar">
         <div className="sidebar_header">
-          <img src={require("../Images/logo.gif")} />
+          <img src={require("../Images/logo.gif")} alt="OMR Img" />
         </div>
         {/* <div className="sidebar_nav">
           <ul>

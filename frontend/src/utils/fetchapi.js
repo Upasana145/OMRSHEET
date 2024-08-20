@@ -13,6 +13,7 @@ export const postAPI = async (url, payload, token) => {
     },
     data: payload,
   };
+  console.log("path");
 
   return axios
     .request(config)

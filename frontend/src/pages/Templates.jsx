@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Header from "../assets/components/Header";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TemplateContent from "./TemplateContent";
 import { getAPI } from "../utils/fetchapi";
@@ -58,6 +58,7 @@ const Templates = () => {
 
         if (response.ok) {
           const data = await response.json();
+          fetchUsers();
           toast.success("Template added successfully!");
           setTemplates((prevTemplates) => [
             ...prevTemplates,
@@ -100,7 +101,6 @@ const Templates = () => {
   return (
     <>
       <Header title={"Saved Templates"} />
-      <ToastContainer />
       <div className="container my-5">
         <div className="row">
           <div className="col-12 col-md-8">

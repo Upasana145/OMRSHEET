@@ -120,7 +120,7 @@ const AddDept = () => {
                 Role
               </label>
               <select
-                className="form-control"
+                className="form-select"
                 name="role"
                 onChange={handleInputChange}
               >
