@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Dashboard from "./Dashboard";
 
-import Calibration from "./Calibration";
 import Prac from "./Prac";
 import Header from "../components/Header";
 import Sidebar from "../components/Mainsidebar";
@@ -18,10 +17,13 @@ import Templates from "./Templates";
 import Templateimage from "./Templateimage";
 import AddAdmin from "./AddAdmin";
 import AddReviewer from "./AddReviewer";
+import Review from "./Review";
 
 function Safty() {
-  const { role } = useSelector((state) => state.auth);
+  const { username, role } = useSelector((state) => state.auth);
   console.log("mrinmoyauth", role);
+  console.log("i am username..", username);
+
   return (
     <>
       <Sidebar />
@@ -30,7 +32,7 @@ function Safty() {
         <Routes>
           {role === "Reviewer" && (
             <>
-              <Route path="/" element={<Calibration />} />
+              <Route path="/" element={<Review />} />
             </>
           )}
           {role === "admin" && (

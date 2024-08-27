@@ -392,6 +392,7 @@ exports.loginHandler = async (req, res) => {
       values: [],
     });
     if (result && result.length > 0) {
+      console.log("i am result:", result);
       // User exits, check passwords
       const pwIsCorrect = await bcrypt.compare(password, result[0]?.password);
       if (pwIsCorrect) {

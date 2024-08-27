@@ -735,15 +735,16 @@ p {
   align-items: center;
 }
 
-.modal-content {
+.modals-content {
   position: relative;
   background-color: white;
-  padding: 20px;
+  padding: 20px 7px 20px 25px;
   border-radius: 5px;
   text-align: center;
-  max-width: 500px;
-  height: 300px;
+  max-width: 1000px;
+  height: 500px;
   width: 100%;
+  overflow: auto;
 }
 
 .close-button {
@@ -757,4 +758,302 @@ p {
 }
 .btn-transparent {
   background-color: transparent !important;
+}
+.reviews-container {
+  padding: 20px;
+  max-width: 988px;
+  font-family: Arial, sans-serif;
+}
+
+.review-title {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.dropdown-container {
+  margin-bottom: 20px;
+}
+
+.dropdown {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 200px;
+}
+
+.batch-container {
+  margin-bottom: 20px;
+}
+
+.selected-template,
+.selected-batch {
+  color: #555;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.image-gallery {
+  margin-top: 20px;
+}
+
+.image-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.image:hover {
+  transform: scale(1.05);
+}
+.reviews-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+.review-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.dropdown-container {
+  margin-bottom: 20px;
+}
+
+.dropdown {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+.batch-table-container {
+  margin-top: 20px;
+}
+
+.batch-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.batch-table th,
+.batch-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.batch-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.batch-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.view-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.view-button:hover {
+  background-color: #0056b3;
+}
+
+/* after */
+.modals {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  /* overflow: auto; */
+  background-color: rgba(0, 0, 0, 0.4); /* Black with transparency */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px; /* Adjust width as needed */
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.close-button {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.modal-table th,
+.modal-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.table-image {
+  max-width: 100px; /* Adjust size as needed */
+  height: auto;
+  margin: 10px 6px;
+}
+
+.save-button,
+.skip-button {
+  padding: 5px 10px;
+  margin: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.save-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.skip-button {
+  background-color: #f44336;
+  color: white;
+}
+
+/* checkbox styling */
+.checkbox-container {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.checkbox-container label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+.submit-buttons {
+  background-color: #1950e3;
+  color: white;
+  font-weight: 700;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 5px;
+  width: 147px;
+  cursor: pointer;
+  box-shadow: 0px 0px 5px rgb(199 186 111 / 20%);
+  transition: 0.5s;
+  font-size: 18px;
+}
+
+.submit-containers {
+  text-align: center;
+  padding: 10px;
+}
+.cropped {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.status-dropdown {
+  width: 59%;
+  padding: 5px;
+  border: #f5f8fa;
+  /* color: green; */
+  font-weight: 700;
+
+  background-color: #f5f8fa;
+}
+.pending {
+  color: red;
+}
+
+/* Assign to Me button styling */
+.assign-button {
+  background-color: #28a745; /* Green background */
+  color: #fff; /* White text color */
+  padding: 8px 16px; /* Padding for better click area */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 14px; /* Font size */
+  font-weight: bold; /* Bold text */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+/* Hover effect */
+.assign-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+/* Focus effect */
+.assign-button:focus {
+  outline: none; /* Remove default focus outline */
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.5); /* Green shadow focus effect */
+}
+
+/* Active effect */
+.assign-button:active {
+  background-color: #1e7e34; /* Even darker green when clicked */
+}
+
+/* Styling for the button after it's been assigned */
+.assign-button.assigned {
+  background-color: #6c757d; /* Grey background */
+  color: #fff; /* White text */
+  cursor: not-allowed; /* Not-allowed cursor to indicate it's disabled */
+  pointer-events: none; /* Disable clicking */
+}
+
+/* Styling for the assigned username text */
+.assigned-username {
+  font-weight: bold;
+  color: #6c757d; /* Grey color to match the disabled button */
+  font-size: 17px;
 }

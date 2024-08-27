@@ -1,0 +1,14 @@
+Tasks,Completed or Pending
+Role management for admin and reviewer,Completed
+"Template creation, updating, deletion, saving, processing, and viewing",Completed
+Admin dashboard,Completed
+Saving the template in a folder named after the template,Completed
+"Admin master page (CRUD operations on the master table: edit, delete, add, update reviewers and admin)",Completed
+Reviewer frontend page,Completed
+Authentication and authorization for admin and reviewer,Completed
+"Database creation (including processed_omr_result, reviewer_assign, reviewer_reviews, save_data, template_json, etc.)",Completed
+Backend APIs for all completed tasks,Completed
+Processing the template,Completed
+Retrieving data from Kafka and storing correct data in processed_omr_result and incorrect data in review_required table,Pending
+Backend API for the reviewer table,Pending
+Updating the correct JSON (as reviewed and corrected) into processed_omr_result and converting processed OMR results into CSV,Pending

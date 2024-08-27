@@ -12,7 +12,7 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     loginHandler: (state, action) => {
-      console.log("I am  auth.....", action);
+      console.log("I am  auth.....", action.payload.data[0].username);
       state.value = true;
       state.role = action?.payload?.data[0]?.role;
       state.username = action?.payload?.data[0]?.username;
