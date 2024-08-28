@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 20, 2024 at 09:24 AM
+-- Generation Time: Aug 28, 2024 at 06:35 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -48,7 +48,61 @@ INSERT INTO `auth` (`auth_id`, `username`, `email`, `password`, `name`, `role`, 
 (5, 'sumana', 's123@gmail.com', '$2a$10$qzQF3MYP/kTyyvOUwOgmy.fX.HPpWYZiOZw0JNRNPHTc5rMC99rC6', 'sumana', 'Reviewer', 'y', '2024-07-25 15:52:42'),
 (6, 'abc123', 'abc123@gmail.com', '$2a$10$0I3qdxnt2ct9ggK4eNPfgux2ERaeIK3fF5rKfC6Dy3gcAAHUToC/q', 'admin123', 'admin', 'y', '2024-08-07 12:45:08'),
 (7, 'reviewer123', 'reviewer123@gmail.com', '$2a$10$6sNmAOJXyadwOHvejapAe.SUYHC4iBsgyBL9zLC4lpNu82E.VzgAW', 'reviewer123', 'Reviewer', 'y', '2024-08-07 12:46:42'),
-(8, '12', 'mrinmoyghosh102@gmail.com', '$2a$10$jjnxGAU0xsrDbGlBr7xFnOY6kJiygSdQFkUYDfCU1g0h5/znHh20m', 'MGhoshq', 'Reviewer', 'y', '2024-08-08 15:52:48');
+(8, '12', 'mrinmoyghosh102@gmail.com', '$2a$10$jjnxGAU0xsrDbGlBr7xFnOY6kJiygSdQFkUYDfCU1g0h5/znHh20m', 'MGhoshq', 'Reviewer', 'y', '2024-08-08 15:52:48'),
+(9, 'newuser1', 'newuser1@example.com', '$2a$10$JoXIkpTUVSJRyTB.nj/FL.9B9Jdpet7HpURlOQBJWr36e3e/HW0C6', 'New User', 'Reviewer', 'y', '2024-08-26 14:23:08'),
+(10, 'newuser22', 'newuser1@exampl44e.com', '$2a$10$l5/GI5XtNnY9arwIw3RMCutxr6pGb0szvRfiMvC14hoULhwww4NDW', 'New User', 'Reviewer', 'y', '2024-08-26 14:25:50'),
+(11, 'review1', 'upa145@gmail.com', '$2a$10$hOD3FVg5sJoNbKHnDdThcuk8FEUgVBofe2ZXmA9k2znlWTAXGLIFi', 'Riya Singh', 'Reviewer', 'y', '2024-08-26 16:32:14');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `processed_omr_results`
+--
+
+CREATE TABLE `processed_omr_results` (
+  `ID` int(11) NOT NULL,
+  `template_name` varchar(200) NOT NULL,
+  `t_name` varchar(300) NOT NULL,
+  `batch_name` varchar(300) NOT NULL,
+  `question_paper_name` varchar(300) NOT NULL,
+  `result` mediumtext NOT NULL,
+  `flag` varchar(10) NOT NULL DEFAULT '0',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reviewer_assign`
+--
+
+CREATE TABLE `reviewer_assign` (
+  `ID` int(11) NOT NULL,
+  `template_name` varchar(200) NOT NULL,
+  `t_name` varchar(200) NOT NULL,
+  `batch_name` varchar(200) NOT NULL,
+  `assign_to` varchar(200) NOT NULL,
+  `status` varchar(200) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reviewer_reviews`
+--
+
+CREATE TABLE `reviewer_reviews` (
+  `ID` int(11) NOT NULL,
+  `reviewer_id` varchar(200) NOT NULL,
+  `batch_name` varchar(200) NOT NULL,
+  `question_paper_name` varchar(200) NOT NULL,
+  `under_review` mediumtext NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -245,6 +299,18 @@ ALTER TABLE `auth`
   ADD PRIMARY KEY (`auth_id`);
 
 --
+-- Indexes for table `processed_omr_results`
+--
+ALTER TABLE `processed_omr_results`
+  ADD PRIMARY KEY (`ID`);
+
+--
+-- Indexes for table `reviewer_assign`
+--
+ALTER TABLE `reviewer_assign`
+  ADD PRIMARY KEY (`ID`);
+
+--
 -- Indexes for table `save_data`
 --
 ALTER TABLE `save_data`
@@ -270,7 +336,19 @@ ALTER TABLE `template_image_json`
 -- AUTO_INCREMENT for table `auth`
 --
 ALTER TABLE `auth`
-  MODIFY `auth_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `auth_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `processed_omr_results`
+--
+ALTER TABLE `processed_omr_results`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `reviewer_assign`
+--
+ALTER TABLE `reviewer_assign`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `save_data`
