@@ -501,3 +501,275 @@ exports.saveImgToDB = async (req, res) => {
 //     resSend(res, false, 400, "Error", error, null);
 //   }
 // };
+
+//For reviewer page
+exports.allomrimages = async (req, res) => {
+  try {
+    let sql = `SELECT * 
+    FROM template_image_json 
+    WHERE template_name IN (SELECT template_name FROM processed_omr_results);
+    `;
+
+    const result = await query({
+      query: sql,
+      values: [],
+    });
+    console.log(result);
+    if (result && result.length > 0) {
+      // User exits, check passwords
+      resSend(res, true, 200, "Dept list", result, null);
+    } else {
+      resSend(res, false, 200, "No Record Found!", result, null);
+    }
+  } catch (error) {
+    console.log(error);
+    resSend(res, false, 400, "Error", error, null);
+  }
+
+  // Handle Image Upload
+  // const {} = req.body;
+  // try {
+  //   const { ngs } = req.body;
+  //   console.log("Heyy i am NGS...", ngs);
+  //   const { file } = req;
+  //   console.log("Heyy i am file...", file);
+  //   let sql = `SELECT * FROM employee where NGS = '${ngs}'`;
+  //   const result2 = await query({
+  //     query: sql,
+  //     values: [],
+  //   });
+  //   if (result2 && result2.length > 0) {
+  //     // If employee with given NGS exists
+  //     await mailControllerindividual(result2[0]); // Pass the employee details to mailController function
+  //     res.send("MailController function called!");
+  //   } else {
+  //     res.send("No employee found with provided NGS.");
+  //   }
+  // } catch (error) {
+  //   console.log(error);
+  //   resSend(res, false, 400, "Error", error, null);
+  // }
+};
+
+// ye kaam ka h.....29082024
+
+// exports.selectjson = async (req, res) => {
+//   try {
+//     const selectJsonQuery = `
+//       SELECT por.result
+//       FROM processed_omr_results por
+//       JOIN template_image_info tii
+//       ON por.template_name = tii.template_name
+//   `;
+
+//     const result = await query({
+//       query: selectJsonQuery,
+//       values: [],
+//     });
+//     console.log(result);
+//     if (result && result.length > 0) {
+//       // User exits, check passwords
+//       resSend(res, true, 200, "Dept list", result, null);
+//     } else {
+//       resSend(res, false, 200, "No Record Found!", result, null);
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     resSend(res, false, 400, "Error", error, null);
+//   }
+// };
+
+//hello
+
+// exports.selectjson = async (req, res) => {
+//   try {
+//     // Select JSON data from the processed_omr_results table
+//     const selectJsonQuery = `
+//       SELECT por.result
+//       FROM processed_omr_results por
+//       JOIN template_image_info tii
+//       ON por.template_name = tii.template_name
+//     `;
+
+//     const result = await query({
+//       query: selectJsonQuery,
+//       values: [],
+//     });
+
+//     // console.log("hey i am result", result);
+//     const parsedResult = result.map((item) => JSON.parse(item.result));
+//     console.log("hey i am parsed result:-.", parsedResult[0]);
+//     if (parsedResult && parsedResult.length > 0) {
+//       // Filter JSON objects with "parsedResult": "RR" and "flag": true
+//       const dataObject = parsedResult[0];
+//       // const filteredJson = parsedResult.filter((item) => {
+//       //   console.log("i am item", item);
+//       //   return item.result === "RR" && item.flag === true;
+//       // });
+//       const filteredJson = Object.entries(dataObject)
+//         .filter(([key, item]) => item.result === "RR" && item.flag === true)
+//         .map(([key, item]) => item);
+
+//       console.log("hey i am filtered json data...", filteredJson);
+//       if (filteredJson.length > 0) {
+//         // Insert the filtered JSON into the reviewer_reviews table
+//         console.log("Filtered data:", filteredJson);
+
+//         // Prepare the values to be inserted
+//         const values = filteredJson.map((item) => [JSON.stringify(item)]);
+
+//         // Construct the INSERT query with the correct syntax
+//         const insertQuery = `
+//             INSERT INTO reviewer_reviews (under_review)
+//             VALUES ${values.map(() => "(?)").join(", ")}
+//         `;
+
+//         try {
+//           // Execute the insert query
+//           const insertResult = await query({
+//             query: insertQuery,
+//             values: values.flat(), // Flatten the array to match the placeholders
+//           });
+
+//           console.log("Insert result:", insertResult);
+
+//           // Now, fetch the data from the table to log it
+//           const selectQuery = `
+//                 SELECT * FROM reviewer_reviews
+//             `;
+
+//           // Execute the select query to fetch the data
+//           const selectResult = await query({
+//             query: selectQuery,
+//           });
+
+//           console.log("Current data in reviewer_reviews table:", selectResult);
+
+//           resSend(
+//             res,
+//             true,
+//             200,
+//             "Data stored in reviewer_reviews successfully.",
+//             filteredJson,
+//             null
+//           );
+//         } catch (error) {
+//           // Handle errors during query execution
+//           console.error("Error inserting or fetching data:", error);
+//           resSend(
+//             res,
+//             false,
+//             500,
+//             "Error storing or fetching data.",
+//             null,
+//             error
+//           );
+//         }
+//       } else {
+//         resSend(res, false, 200, "No matching JSON found!", parsedResult, null);
+//       }
+//     } else {
+//       resSend(res, false, 200, "No Record Found!", parsedResult, null);
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     resSend(res, false, 400, "Error", error, null);
+//   }
+// };
+exports.selectjson = async (req, res) => {
+  try {
+    // Select JSON data from the processed_omr_results table
+    const selectJsonQuery = `
+      SELECT por.template_name, por.result
+      FROM processed_omr_results por
+      JOIN template_image_info tii
+      ON por.template_name = tii.template_name
+    `;
+
+    const result = await query({
+      query: selectJsonQuery,
+      values: [],
+    });
+
+    // Parse the results
+    const parsedResult = result.map((item) => ({
+      template_name: item.template_name,
+      data: JSON.parse(item.result),
+    }));
+
+    console.log("Parsed result:", parsedResult);
+
+    if (parsedResult && parsedResult.length > 0) {
+      // Filter JSON objects with "result": "RR" and "flag": true
+      const dataObject = parsedResult[0].data;
+      const filteredJson = Object.entries(dataObject)
+        .filter(([key, item]) => item.result === "RR" && item.flag === true)
+        .map(([key, item]) => item);
+
+      console.log("Filtered JSON data:", filteredJson);
+
+      if (filteredJson.length > 0) {
+        // Prepare the values to be inserted
+        const values = filteredJson.flatMap((item) => [
+          JSON.stringify(item), // under_review
+          parsedResult[0].template_name, // template_name
+        ]);
+
+        // Construct the INSERT query with the correct syntax
+        const insertQuery = `
+            INSERT INTO reviewer_reviews (under_review, template_name)
+            VALUES ${filteredJson.map(() => "(?, ?)").join(", ")}
+        `;
+
+        try {
+          // Execute the insert query
+          const insertResult = await query({
+            query: insertQuery,
+            values: values,
+          });
+
+          console.log("Insert result:", insertResult);
+
+          // Now, fetch the data from the table to log it
+          const selectQuery = `
+                SELECT * FROM reviewer_reviews
+            `;
+
+          // Execute the select query to fetch the data
+          const selectResult = await query({
+            query: selectQuery,
+          });
+
+          console.log("Current data in reviewer_reviews table:", selectResult);
+
+          resSend(
+            res,
+            true,
+            200,
+            "Data stored in reviewer_reviews successfully.",
+            filteredJson,
+            null
+          );
+        } catch (error) {
+          // Handle errors during query execution
+          console.error("Error inserting or fetching data:", error);
+          resSend(
+            res,
+            false,
+            500,
+            "Error storing or fetching data.",
+            null,
+            error
+          );
+        }
+      } else {
+        resSend(res, false, 200, "No matching JSON found!", parsedResult, null);
+      }
+    } else {
+      resSend(res, false, 200, "No Record Found!", parsedResult, null);
+    }
+  } catch (error) {
+    console.log(error);
+    resSend(res, false, 400, "Error", error, null);
+  }
+};

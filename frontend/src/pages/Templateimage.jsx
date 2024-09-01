@@ -647,6 +647,7 @@ function Templateimage({ images, template_name }) {
       const responseData = await response.json();
       console.log("Response data:", responseData);
       toast.success("Saved successfully!");
+      window.location.href = "/";
     } catch (error) {
       if (error.response) {
         console.error("Error hitting API:", error.response.data);
@@ -1432,9 +1433,9 @@ function Templateimage({ images, template_name }) {
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleButtonClick = () => {
-    setIsModalOpen(true);
-  };
+  // const handleButtonClick = () => {
+  //   setIsModalOpen(true);
+  // };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -1517,12 +1518,12 @@ function Templateimage({ images, template_name }) {
         >
           Save
         </button>
-        <button
+        {/* <button
           className="btn-process btn  btn-dark btn-active-color-primary btn-sm me-1  ${isModalOpen ? 'btn-transparent' : ''}`"
           onClick={handleButtonClick}
         >
           Processing
-        </button>
+        </button> */}
 
         {isModalOpen && (
           <div className="modal-overlay">

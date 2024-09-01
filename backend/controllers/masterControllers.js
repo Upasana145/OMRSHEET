@@ -337,3 +337,78 @@ exports.getspecifictemp = async (req, res) => {
 };
 
 // POST/api/v1/master/getallomrdata
+
+// selectjson
+
+// exports.selectjson = async (req, res) => {
+//   const selectJsonQuery = `
+//   SELECT por.result
+//   FROM processed_omr_results por
+//   JOIN template_image_info tii
+//   ON por.template_name = tii.template_name
+// `;
+
+//   // Step 2: Execute the query
+//   db.query(selectJsonQuery, (err, results) => {
+//     if (err) {
+//       console.error("Error fetching JSON data:", err);
+//       return res.status(500).json({ message: "Internal server error" });
+//     }
+
+//     if (results.length === 0) {
+//       return res.status(404).json({ message: "No matching JSON data found" });
+//     }
+
+//     // Step 3: Return the selected JSON data
+//     res.status(200).json(results);
+//   });
+// };
+
+exports.getalltempbatch = async (req, res) => {
+  try {
+    let sql = `SELECT * FROM reviewer_assign`;
+    const result = await query({
+      query: sql,
+      values: [],
+    });
+    if (result && result.length > 0) {
+      // User exits, check passwords
+      resSend(res, true, 200, "all data", result, null);
+    } else {
+      resSend(res, false, 200, "No Record Found!", result, null);
+    }
+  } catch (error) {
+    console.log(error);
+    resSend(res, false, 400, "Error", error, null);
+  }
+};
+
+//  all the batches corresponding to the template_name
+exports.alltempbatches = async (req, res) => {
+  try {
+    // Extract template_name from req.body
+    const { template_name } = req.body;
+
+    // SQL query to select batch_name corresponding to template_name from the reviewer_assign table
+    let sql = `
+      SELECT batch_name 
+      FROM reviewer_assign 
+      WHERE template_name = ?
+    `;
+
+    const result = await query({
+      query: sql,
+      values: [template_name], // Passing the template_name as a value to the query
+    });
+
+    if (result && result.length > 0) {
+      // Send response with the result
+      resSend(res, true, 200, "All batch names found", result, null);
+    } else {
+      resSend(res, false, 200, "No Record Found!", result, null);
+    }
+  } catch (error) {
+    console.log(error);
+    resSend(res, false, 400, "Error", error, null);
+  }
+};

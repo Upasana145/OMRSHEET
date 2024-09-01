@@ -13,6 +13,9 @@ const {
   deleteomrData,
   getall,
   getspecifictemp,
+  selectjson,
+  getalltempbatch,
+  alltempbatches,
 } = require("../controllers/masterControllers");
 const router = express.Router();
 
@@ -32,7 +35,11 @@ router.post("/insertomrData", insertomrData);
 router.post("/editomrData", editomrData);
 // Delete
 router.post("/deleteomrData", deleteomrData);
+
+router.get("/getalltempbatch", getalltempbatch);
+router.post("/alltempbatches", alltempbatches);
+
 router.get("/getall", getall);
 router.post("/getspecifictemp", getspecifictemp);
-
+// router.get("/select-json", selectjson);
 module.exports = router;
