@@ -391,7 +391,7 @@ exports.alltempbatches = async (req, res) => {
 
     // SQL query to select batch_name corresponding to template_name from the reviewer_assign table
     let sql = `
-      SELECT batch_name 
+      SELECT * 
       FROM reviewer_assign 
       WHERE template_name = ?
     `;
@@ -412,3 +412,269 @@ exports.alltempbatches = async (req, res) => {
     resSend(res, false, 400, "Error", error, null);
   }
 };
+
+
+// updatestatusbatches
+
+exports.updatestatusbatches = async (req, res) => {
+  try {
+    // Extract template_name, batch_name, and status from req.body
+    const { template_name, batch_name, status } = req.body;
+
+    // SQL query to select batch_name corresponding to template_name from the reviewer_assign table
+    let selectSql = `
+      SELECT * 
+      FROM reviewer_assign 
+      WHERE template_name = ? && batch_name = ?
+    `;
+
+    const result = await query({
+      query: selectSql,
+      values: [template_name, batch_name], // Passing the template_name and batch_name as values to the query
+    });
+
+    if (result && result.length > 0) {
+      // If the record is found, update the status
+      let updateSql = `
+        UPDATE reviewer_assign 
+        SET status = ? 
+        WHERE template_name = ? && batch_name = ?
+      `;
+
+      await query({
+        query: updateSql,
+        values: [status, template_name, batch_name], // Passing the status, template_name, and batch_name to the query
+      });
+
+      // Send response with the updated status
+      return resSend(res, true, 200, "Status updated successfully", null, null);
+    } else {
+      // Send response when no record is found
+      return resSend(res, false, 200, "No Record Found!", null, null);
+    }
+  } catch (error) {
+    console.log(error);
+    return resSend(res, false, 400, "Error", error, null);
+  }
+};
+
+
+//reviewer assign
+
+exports.reviewerassign = async (req, res) => {
+  try {
+    // Extract template_name, batch_name, and status from req.body
+    const { template_name, batch_name, assign_to } = req.body;
+
+    // SQL query to select batch_name corresponding to template_name from the reviewer_assign table
+    let selectSql = `
+      SELECT * 
+      FROM reviewer_assign 
+      WHERE template_name = ? && batch_name = ?
+    `;
+
+    const result = await query({
+      query: selectSql,
+      values: [template_name, batch_name], // Passing the template_name and batch_name as values to the query
+    });
+
+    if (result && result.length > 0) {
+      // If the record is found, update the status
+      let updateSql = `
+        UPDATE reviewer_assign 
+        SET assign_to = ? 
+        WHERE template_name = ? && batch_name = ?
+      `;
+
+      await query({
+        query: updateSql,
+        values: [assign_to ,template_name, batch_name], // Passing the status, template_name, and batch_name to the query
+      });
+
+      // Send response with the updated status
+      return resSend(res, true, 200, " assign_to successfully", null, null);
+    } else {
+      // Send response when no record is found
+      return resSend(res, false, 200, "No Record Found!", null, null);
+    }
+  } catch (error) {
+    console.log(error);
+    return resSend(res, false, 400, "Error", error, null);
+  }
+};
+
+
+// 
+// proc_omr_result_data
+
+// http://localhost:4002/api/v1/master/proc_data
+exports.proc_omr_result_data = async (req, res) => {
+  try {
+    const { template_name, batch_name } = req.body;
+
+    // Validate input
+    if (!template_name || !batch_name) {
+      return resSend(res, false, 400, "Template name and batch name are required.", null, null);
+    }
+
+    // SQL query to select data
+    const selectSql = `
+      SELECT * 
+      FROM processed_omr_results
+      WHERE template_name = ? AND batch_name = ?
+    `;
+
+    // Execute the SQL query with parameterized values
+    const result = await query({
+      query: selectSql,
+      values: [template_name, batch_name],
+    });
+
+    console.log("Query result:", result);
+
+    // Check if the result contains multiple rows
+    if (result && result.length > 0) {
+      return resSend(
+        res,
+        true,
+        200,
+        "Processed OMR results corresponding to the given template name and batch name.",
+        result, // Return all matching rows
+        null
+      );
+    } else {
+      // Send response when no record is found
+      return resSend(res, false, 404, "No records found for the given template name and batch name.", null, null);
+    }
+  } catch (error) {
+    console.error("Error in proc_omr_result_data:", error);
+    return resSend(res, false, 500, "Internal server error.", error, null);
+  }
+};
+
+
+
+
+
+exports.reviewer_reviews_ques_name = async (req, res) => {
+  try {
+    const { batch_name, question_paper_name } = req.body;
+
+    console.log("batch name... ",batch_name, "...question paper name...", question_paper_name);
+  if (!batch_name || !question_paper_name) {
+    return res.status(400).json({ error: 'Batch and question_paper_name are required' });
+  }
+
+  // SQL query
+  // const sqlqu = `
+  //   SELECT rr.*
+  //   FROM reviewer_reviews rr
+  //   JOIN processed_omr_results por
+  //   ON rr.template_name = por.template_name
+  //      AND rr.batch_name = por.batch_name
+  //      AND rr.question_paper_name = por.question_paper_name
+  //   WHERE rr.batch_name = ? AND rr.question_paper_name = ?;
+  // `;
+
+  // const sqlqu = `
+  //   SELECT rr.*
+  //   FROM reviewer_reviews rr
+  //   JOIN processed_omr_results por
+  //   ON rr.template_name = por.template_name
+  //   WHERE rr.batch_name = ? AND rr.question_paper_name = ?;
+  // `;
+
+
+
+  const sqlqu = `
+  SELECT *
+  FROM reviewer_reviews 
+  WHERE batch_name = ? AND question_paper_name = ?;
+`;
+    // Execute the SQL query with parameterized values
+    const result = await query({
+      query: sqlqu,
+      values: [batch_name , question_paper_name],
+    });
+
+    console.log("Query result:", result);
+
+    // Check if the result contains multiple rows
+    if (result && result.length > 0) {
+      return resSend(
+        res,
+        true,
+        200,
+        "Processed OMR results corresponding to the given template name and batch name.",
+        result, // Return all matching rows
+        null
+      );
+    } else {
+      // Send response when no record is found
+      return resSend(res, false, 404, "No records found for the given template name and batch name.", null, null);
+    }
+  } catch (error) {
+    console.log("hello");
+    console.error("Error in proc_omr_result_data:", error);
+    return resSend(res, false, 500, "Internal server error.", error, null);
+  }
+};
+
+
+
+
+exports.reviewer_reviews_data_batchwise = async (req, res) => {
+  try {
+    const { batch_name} = req.body;
+
+  if (!batch_name ) {
+    return res.status(400).json({ error: 'Batch and question_paper_name are required' });
+  }
+
+  const sqlqu = `
+    SELECT rr.*
+    FROM reviewer_reviews rr
+    JOIN processed_omr_results por
+    ON rr.template_name = por.template_name
+       AND rr.batch_name = por.batch_name
+    WHERE rr.batch_name = ? ;
+  `;
+    // Execute the SQL query with parameterized values
+    const result = await query({
+      query: sqlqu,
+      values: [batch_name ],
+    });
+
+    console.log("Query result:", result);
+
+    // Check if the result contains multiple rows
+    if (result && result.length > 0) {
+      return resSend(
+        res,
+        true,
+        200,
+        "Processed OMR results corresponding to the given template name and batch name.",
+        result, // Return all matching rows
+        null
+      );
+    } else {
+      // Send response when no record is found
+      return resSend(res, false, 404, "No records found for the given template name and batch name.", null, null);
+    }
+  } catch (error) {
+    console.log("hello");
+    console.error("Error in proc_omr_result_data:", error);
+    return resSend(res, false, 500, "Internal server error.", error, null);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
