@@ -18,6 +18,8 @@ import Templateimage from "./Templateimage";
 import AddAdmin from "./AddAdmin";
 import AddReviewer from "./AddReviewer";
 import Review from "./Review";
+import OMRSheet from "./omr/OMRSheet";
+import Add from "./omr/Add";
 
 function Safty() {
   const { username, role } = useSelector((state) => state.auth);
@@ -56,6 +58,8 @@ function Safty() {
               <Route path="/addReviewer" element={<AddReviewer />} />
               <Route path="/editUser" element={<EditUser />} />
               <Route path="/user" element={<User />} />
+              <Route path="/omr" element={<OMRSheet />} />
+              <Route path="/omr-upload" element={<Add />} />
             </>
           )}
         </Routes>

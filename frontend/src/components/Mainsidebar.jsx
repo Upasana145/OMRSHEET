@@ -125,7 +125,7 @@ const Sidebar = () => {
                       <li>
                         <Link to={"/user"}>User</Link>
                         {/* <Link to={"/department"}>Departments</Link> */}
-                        {/* <Link to={"/addAdmin"}>Admin</Link> */}
+                        <Link to={"/omr"}>OMR Sheet</Link>
                       </li>
                     </ul>
                   )}
