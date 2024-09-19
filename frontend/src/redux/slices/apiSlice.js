@@ -47,7 +47,7 @@ export const fetchRecords = createAsyncThunk(
     'omr/fetchRecords',
     async ({indicatorPath, page = 1, limit = 10 }, { rejectWithValue }) => {
       try { 
-        const apiUrl = `${process.env.REACT_APP_API_URI}${indicatorPath}?page=${page}&limit=${limit}`; 
+        const apiUrl = `${process.env.REACT_APP_API_URI}${indicatorPath}?page=${page}&limit=${limit}`;         
         const response = await axios.get(apiUrl); 
         return response.data;
       } catch (error) { 
