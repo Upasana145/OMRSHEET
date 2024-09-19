@@ -21,6 +21,7 @@ const {
   proc_omr_result_data,
   reviewer_reviews_data_batchwise,
   reviewer_reviews_ques_name,
+  updatestatussubmit
 
 } = require("../controllers/masterControllers");
 const router = express.Router();
@@ -48,6 +49,7 @@ router.post("/alltempbatches", alltempbatches);
 
 router.post("/updatestatusbatches", updatestatusbatches);
 router.post("/reviewerassign", reviewerassign);
+router.post("/updatestatussubmit",updatestatussubmit );
 
 
 

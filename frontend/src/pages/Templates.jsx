@@ -41,6 +41,7 @@ const Templates = () => {
 
   const handleAddForm = async () => {
     if (template_name && imageFile) {
+      console.log("hey i am imageFile.......imageFile......................................",imageFile)
       setIsLoading(true);
 
       const formData = new FormData();
@@ -48,8 +49,10 @@ const Templates = () => {
       formData.append("image", imageFile);
 
       try {
-        const response = await fetch(
-          "http://localhost:4002/api/v1/upload/images",
+        // const response = await fetch(
+        //   "http://localhost:4002/api/v1/upload/images",
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URI}/upload/images`,
           {
             method: "POST",
             body: formData,

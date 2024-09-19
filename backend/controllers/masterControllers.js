@@ -458,6 +458,56 @@ exports.updatestatusbatches = async (req, res) => {
   }
 };
 
+exports.updatestatussubmit = async (req, res) => {
+  try {
+    // Extract template_name and batch_name from req.body
+    const { template_name, batch_name } = req.body;
+
+    // SQL query to select flags corresponding to template_name and batch_name
+    let selectSql = `
+      SELECT flag 
+      FROM processed_omr_results
+      WHERE template_name = ? AND batch_name = ?
+    `;
+
+    const result = await query({
+      query: selectSql,
+      values: [template_name, batch_name], // Passing the template_name and batch_name as values to the query
+    });
+
+    if (result && result.length > 0) {
+      // Check if all flags are "1"
+      const allFlagsAreOne = result.every((row) => row.flag === "1");
+
+      if (allFlagsAreOne) {
+        // Run update query if all flags are "1"
+        let updateSql = `
+          UPDATE reviewer_assign 
+          SET status = "Complete"
+          WHERE template_name = ? AND batch_name = ?
+        `;
+
+        await query({
+          query: updateSql,
+          values: [template_name, batch_name], // Passing template_name and batch_name to the query
+        });
+
+        return resSend(res, true, 200, "Status updated successfully", result, null);
+      } else {
+        // If not all flags are "1", return response without updating
+        return resSend(res, true, 200, "Not all flags are '1', status not updated", result, null);
+      }
+    } else {
+      // Send response when no record is found
+      return resSend(res, false, 200, "No Record Found!", null, null);
+    }
+  } catch (error) {
+    console.log(error);
+    return resSend(res, false, 400, "Error", error, null);
+  }
+};
+
+
 
 //reviewer assign
 

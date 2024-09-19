@@ -18,6 +18,8 @@ import Templateimage from "./Templateimage";
 import AddAdmin from "./AddAdmin";
 import AddReviewer from "./AddReviewer";
 import Review from "./Review";
+import ReviewModal from "./ReviewModal";
+import ReviewQuestionPaper from "./ReviewQuestionPaper";
 
 function Safty() {
   const { username, role } = useSelector((state) => state.auth);
@@ -33,6 +35,10 @@ function Safty() {
           {role === "Reviewer" && (
             <>
               <Route path="/" element={<Review />} />
+              <Route path="/reviewmodal" element={<ReviewModal />} />
+              <Route path="/reviewquestionpaper" element={<ReviewQuestionPaper />} />
+
+
             </>
           )}
           {role === "admin" && (
