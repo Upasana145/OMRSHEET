@@ -175,6 +175,7 @@ const Imagecontainer = ({ users, handleButtonClick, selectedFilter }) => {
                 {console.log(item?.image)}
                 <img
                   src={`http://10.12.1.151:4002/uploads/${item?.image}`}
+                  
                   alt=""
                   onClick={() =>
                     openPopup(`http://10.12.1.151:4002/uploads/${item?.image}`)

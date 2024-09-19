@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import img from "../Images/OMRsheet.jpg"; // Dummy image
 import cropimg from "../Images/omrsheet (1).jpg"; // Dummy image
 import ReviewModal from "./ReviewModal";
+import { toast } from "react-toastify";
 
 const Review = () => {
   const [templateNames, setTemplateNames] = useState([]);
@@ -20,7 +21,9 @@ const Review = () => {
 
     if (templateName) {
       try {
-        const response = await fetch("http://localhost:4002/api/v1/master/alltempbatches", {
+        // const response = await fetch("http://localhost:4002/api/v1/master/alltempbatches", {
+          const response = await fetch(`${process.env.REACT_APP_API_URI}/master/alltempbatches`, {
+
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -55,6 +58,9 @@ const Review = () => {
 
 
   const handleViewClick = async (batch) => {
+    if(batches[batch].assign_to !== username){
+return toast.error("You are not authorised!");
+    }
     console.log("hey i am batch...", batch);
     console.log("hey i am ...selectedTemplate", selectedTemplate);
     
@@ -69,7 +75,8 @@ const Review = () => {
 
   
     try {
-      const response = await fetch("http://localhost:4002/api/v1/master/proc_data", {
+      // const response = await fetch("http://localhost:4002/api/v1/master/proc_data", {
+        const response = await fetch(`${process.env.REACT_APP_API_URI}/master/proc_data`, {
         method: "POST", 
         headers: {
           "Content-Type": "application/json",
@@ -83,6 +90,7 @@ const Review = () => {
         
       } else {
         console.error("Failed to fetch data:", response.statusText);
+        toast.error("You are not authorised!");
       }
     } catch (error) {
       console.error("An error occurred while fetching data:", error);
@@ -91,7 +99,8 @@ const Review = () => {
 
   const fetchImages = async (batch) => {
     try {
-      const response = await fetch("http://localhost:4002/api/v1/master/proc_data", {
+      // const response = await fetch("http://localhost:4002/api/v1/master/proc_data", {
+        const response = await fetch(`${process.env.REACT_APP_API_URI}/master/proc_data`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -124,7 +133,8 @@ console.log("hey i am imagesssssssssssssssss", images)
     if (confirmation) {
       try {
         // Send a request to update the assignment and status in the backend
-        const response = await fetch("http://localhost:4002/api/v1/master/reviewerassign", {
+        // const response = await fetch("http://localhost:4002/api/v1/master/reviewerassign", {
+          const response = await fetch(`${process.env.REACT_APP_API_URI}/master/reviewerassign`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -144,7 +154,9 @@ console.log("hey i am imagesssssssssssssssss", images)
         }
 
         // Update the status to 'Work in process' after assignment
-        const response1 = await fetch("http://localhost:4002/api/v1/master/updatestatusbatches", {
+        // const response1 = await fetch("http://localhost:4002/api/v1/master/updatestatusbatches", {
+          const response1 = await fetch(`${process.env.REACT_APP_API_URI}/master/updatestatusbatches`, {
+
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -190,7 +202,8 @@ console.log("hey i am imagesssssssssssssssss", images)
           },
         },
       }));
-      const response = await fetch("http://localhost:4002/api/v1/master/updatestatusbatches", {
+      // const response = await fetch("http://localhost:4002/api/v1/master/updatestatusbatches", {
+        const response = await fetch(`${process.env.REACT_APP_API_URI}/master/updatestatusbatches`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -230,7 +243,8 @@ console.log("hey i am imagesssssssssssssssss", images)
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await fetch("http://localhost:4002/api/v1/master/getalltempbatch");
+        // const response = await fetch("http://localhost:4002/api/v1/master/getalltempbatch");
+        const response = await fetch(`${process.env.REACT_APP_API_URI}/master/getalltempbatch`);
         const data = await response.json();
 
         console.log("API Response Data:", data);
@@ -247,6 +261,8 @@ console.log("hey i am imagesssssssssssssssss", images)
     fetchTemplates();
   }, []);
 
+
+ 
   return (
     <div className="reviews-container">
       <h1 className="review-title">Reviewer page</h1>
@@ -283,8 +299,8 @@ console.log("hey i am imagesssssssssssssssss", images)
                     {batches[batch].status}
                   </td>
                   <td>
-                    {batches[batch].assign_to === username ? (
-                      <span>{username}</span> // Display username if assigned
+                    {batches[batch].assign_to ? (
+                      <span>{batches[batch].assign_to}</span> // Display username if assigned
                     ) : (
                       <button
                         className="assign-button"
@@ -298,9 +314,7 @@ console.log("hey i am imagesssssssssssssssss", images)
                   <td>
                     <button
                       className="view-button"
-                      onClick={() => handleViewClick(batch)}
-                      disabled={batches[batch].assign_to !== username} 
-                     
+                      onClick={() => handleViewClick(batch)}                     
                     >
                       View
                     </button>

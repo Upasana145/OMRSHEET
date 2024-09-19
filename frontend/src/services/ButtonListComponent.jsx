@@ -413,9 +413,10 @@ function ButtonListComponent({
               onChange={(e) => setNewBoxName(e.target.value)}
               className="form-control mt-3 rename"
             />
-            <button className=" btn btn-rename " onClick={handleRename}>
+            <button className=" btn-rename " onClick={handleRename}>
               Rename
             </button>
+          
           </div>
         )}
       </li>

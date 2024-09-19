@@ -1100,8 +1100,8 @@ p {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
-  width: 1300px;
-  max-height: 90%;
+  width: 100vw;
+  max-height: 99vh;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -1162,3 +1162,64 @@ p {
   vertical-align: middle;
 }
 
+.btn-rename {
+  background-color: #007bff; /* Bootstrap primary color or your preferred color */
+  color: #fff; /* Text color */
+  border: none; /* Remove border */
+  border-radius: 4px; /* Rounded corners */
+  padding: 8px 9px; /* Padding for size */
+  font-size: 1rem; /* Font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transition */
+  margin-left: 10px;
+}
+
+.btn-rename:hover {
+  background-color: #0056b3; /* Darker shade for hover effect */
+}
+
+.btn-rename:focus {
+  outline: none; /* Remove default focus outline */
+  box-shadow: 0 0 0 3px rgba(38, 143, 255, 0.5); /* Custom focus outline */
+}
+
+.btn-rename:active {
+  background-color: #004080; /* Even darker shade for active state */
+}
+
+
+.completed {
+  color: green;
+}
+
+.pending {
+  color: red;
+}
+
+.submit-section1 {
+  display: flex;
+  justify-content: center; /* Center the button horizontally */
+  margin-top: 20px; /* Add some space above the button */
+}
+
+.submit-button1 {
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+  border: none; /* Remove borders */
+  padding: 10px 20px; /* Add some padding */
+  text-align: center; /* Center the text */
+  font-size: 16px; /* Set font size */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s ease; /* Smooth transition on hover */
+  width: 160px;
+}
+
+.submit-button1:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+.submit-button1:disabled {
+  background-color: #ccc; /* Gray background when disabled */
+  cursor: not-allowed; /* Change cursor to not-allowed when disabled */
+}

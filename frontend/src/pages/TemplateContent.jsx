@@ -84,6 +84,7 @@ function TemplateContent({ users, fetchUsers, templates }) {
       template: JSON.parse(map),
       template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
       data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
+     
       // type_config: {
       //   Question: {
       //     OPTIONS: { 0: "a", 1: "b", 2: "c", 3: "d", 4: "RR", 5: "RR" },
