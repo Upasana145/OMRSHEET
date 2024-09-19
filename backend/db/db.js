@@ -12,9 +12,11 @@ async function query({ query, values = [] }) {
 
   try {
     const [results] = await db.execute(query, values);
+    console.log('conentedd')
     await db.end();
     return results;
   } catch (error) {
+    console.log('regjected')
     return { error };
   }
 }

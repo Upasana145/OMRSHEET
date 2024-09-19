@@ -41,6 +41,8 @@ function TemplateContent({ users, fetchUsers, templates }) {
 
   const handleButtonClick = async (temp) => {
     const { template_name, map, t_name } = temp;
+    console.log("this is map:",temp);
+    
 
     if (!map || !JSON.parse(map) || map === "") {
       return toast.warn("Mapping is required.");
@@ -83,6 +85,7 @@ function TemplateContent({ users, fetchUsers, templates }) {
     const payload = {
       template: JSON.parse(map),
       template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
+      //data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
       data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
      
       // type_config: {
@@ -144,7 +147,8 @@ function TemplateContent({ users, fetchUsers, templates }) {
       // },
       type_config: typeConfig,
     };
-
+    console.log("I am payload",payload);
+    
     try {
       const response = await fetch(process.env.REACT_APP_AI_API, {
         method: "POST",
