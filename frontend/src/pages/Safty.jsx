@@ -18,8 +18,13 @@ import Templateimage from "./Templateimage";
 import AddAdmin from "./AddAdmin";
 import AddReviewer from "./AddReviewer";
 import Review from "./Review";
+<<<<<<< HEAD
 import OMRSheet from "./omr/OMRSheet";
 import Add from "./omr/Add";
+=======
+import ReviewModal from "./ReviewModal";
+import ReviewQuestionPaper from "./ReviewQuestionPaper";
+>>>>>>> ce572a49707e5234165cd18e4f289ee159c402ec
 
 function Safty() {
   const { username, role } = useSelector((state) => state.auth);
@@ -35,6 +40,10 @@ function Safty() {
           {role === "Reviewer" && (
             <>
               <Route path="/" element={<Review />} />
+              <Route path="/reviewmodal" element={<ReviewModal />} />
+              <Route path="/reviewquestionpaper" element={<ReviewQuestionPaper />} />
+
+
             </>
           )}
           {role === "admin" && (
