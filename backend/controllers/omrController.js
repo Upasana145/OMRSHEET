@@ -83,9 +83,13 @@ exports.getOMRResults = async (req, res) => {
           o.ques_paper_image_path, 
           o.created_at, 
           o.updated_at, 
-          t.template_name 
+          o.template_name,
+          o.t_name,
+          o.result,
+          j.map
         FROM processed_omr_results o
-        JOIN template_image_info t ON o.template_id = t.ID
+       -- JOIN template_image_info t ON o.template_id = t.ID
+        JOIN template_image_json j ON o.template_id = j.ID
         LIMIT ${pageSize} OFFSET ${offset}
       `;
 

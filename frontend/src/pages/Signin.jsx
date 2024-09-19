@@ -27,6 +27,7 @@ function Signin() {
       username: vendorLogin,
       password: vendorPassword,
     };
+    console.log("I am payload***********",payload);
     let data = await postAPI("auth/login", payload, null);
     console.log("Data", data?.message);
     if (data.status) {
