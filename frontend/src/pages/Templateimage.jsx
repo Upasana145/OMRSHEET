@@ -469,6 +469,33 @@ function Templateimage({ images, template_name }) {
   //   }
   // };
 
+
+  // ***********************
+
+
+
+  const toRoman = (num) => {
+    const lookup = { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 };
+    let roman = '';
+    for (let i in lookup) {
+      while (num >= lookup[i]) {
+        roman += i;
+        num -= lookup[i];
+      }
+    }
+    return roman;
+  };
+
+  const toAlphanumeric = (count) => {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const letter = alphabet[Math.floor(count / 26)];
+    const number = (count % 26) + 1;
+    return `${letter}${number}`;
+  };
+
+
+
+
   const handleMouseUp = () => {
     if (dragging && drMode) {
       setDragging(false);
@@ -498,6 +525,7 @@ function Templateimage({ images, template_name }) {
               end: { ...endCoordinates },
               mode: "parent",
               type: selectedFruit, // Use selected fruit as the type
+              namingScheme: selectedNamingScheme, // New property for naming children
               height: Math.abs(endCoordinates.y - startCoordinates.y),
               width: Math.abs(endCoordinates.x - startCoordinates.x),
               children: [],
@@ -505,6 +533,7 @@ function Templateimage({ images, template_name }) {
           } else if (drawingModechild) {
             newBox = {
               id: generateUniqueId(),
+              name: newBoxName,
               start: { ...startCoordinates },
               end: { ...endCoordinates },
               mode: "child",
@@ -532,11 +561,31 @@ function Templateimage({ images, template_name }) {
                   newBox.end.y < box.end.y
               );
 
-              // Generate the sequential name for the child
+              // // Generate the sequential name for the child
+              // const parentBox = boxes[parentIndex];
+              // const childName = String.fromCharCode(
+              //   97 + parentBox.children.length
+              // ); // 'a' is char code 97
               const parentBox = boxes[parentIndex];
-              const childName = String.fromCharCode(
-                97 + parentBox.children.length
-              ); // 'a' is char code 97
+              const childCount = parentBox.children.length;
+
+              // Assign the name based on parent's `namingScheme`
+              let childName;
+              switch (parentBox.namingScheme) { // Now using 'namingScheme' instead of 'type'
+                case "roman":
+                  childName = toRoman(childCount + 1); // Roman numerals
+                  break;
+                case "alphanumeric":
+                  childName = toAlphanumeric(childCount); // Alphanumeric names
+                  break;
+                case "number":
+                  childName = (childCount + 1).toString(); // Numeric names
+                  break;
+                case "alphabet":
+                default:
+                  childName = String.fromCharCode(97 + childCount); // Alphabetic names
+                  break;
+              }
 
               newBox.name = childName;
 
@@ -577,6 +626,7 @@ function Templateimage({ images, template_name }) {
       }
     }
   };
+  // ************************
   console.log("hey i am template_name ...", template_name);
   // const handleSave = async (template_name) => {
   //   console.log("template_name ...", template_name);
@@ -634,9 +684,12 @@ function Templateimage({ images, template_name }) {
     console.log("template_name...", template_name);
     console.log("hey i am boxes...", boxes);
     try {
+      // const response = await fetch(
+      //   "http://localhost:4002/api/v1/master/insertomrData",
       const response = await fetch(
-        "http://localhost:4002/api/v1/master/insertomrData",
+        `${process.env.REACT_APP_API_URI}/master/insertomrData`,
         {
+
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -842,6 +895,7 @@ function Templateimage({ images, template_name }) {
     };
   }, [handleKeyDown]);
 
+
   const draw = () => {
     const canvas = document.getElementById("canvas");
     const context = canvas.getContext("2d");
@@ -949,6 +1003,9 @@ function Templateimage({ images, template_name }) {
       );
     }
   };
+
+
+
 
   //  selected box , copy ,paste
   const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
@@ -1227,17 +1284,38 @@ function Templateimage({ images, template_name }) {
     }
   }, [images]);
 
+  // const handleRename = (e) => {
+  //   // console.log("hey i am e.target.value of rename...", e.target);
+  //   if (selectedBoxIndex !== null && newBoxName.trim() !== "") {
+  //     setBoxes((prevBoxes) => {
+  //       const newBoxes = [...prevBoxes];
+
+  //       newBoxes[selectedBoxIndex].name = newBoxName.trim();
+  //       // console.log("hey i am newBoxessssssssssss", newBoxes);
+  //       return newBoxes;
+  //     });
+  //     setNewBoxName(""); // Reset the new name input field
+  //   }
+  // };
+
   const handleRename = (e) => {
-    // console.log("hey i am e.target.value of rename...", e.target);
-    if (selectedBoxIndex !== null && newBoxName.trim() !== "") {
+    // Check if a box is selected
+    if (selectedBoxIndex !== null) {
       setBoxes((prevBoxes) => {
         const newBoxes = [...prevBoxes];
 
-        newBoxes[selectedBoxIndex].name = newBoxName.trim();
-        // console.log("hey i am newBoxessssssssssss", newBoxes);
+        // If the newBoxName is not given, set name as an empty string
+        if (newBoxName.trim() === "") {
+          newBoxes[selectedBoxIndex].name = ""; // Set name to an empty string
+        } else {
+          newBoxes[selectedBoxIndex].name = newBoxName.trim(); // Set name to the trimmed input
+        }
+
         return newBoxes;
       });
-      setNewBoxName(""); // Reset the new name input field
+
+      // Reset the new name input field
+      setNewBoxName("");
     }
   };
 
@@ -1450,9 +1528,16 @@ function Templateimage({ images, template_name }) {
     setShowCG(!showCG);
   };
   const [selectedFruit, setSelectedFruit] = useState("");
+  const [selectedNamingScheme, setSelectedNamingScheme] = useState("");
+
+
 
   const handleChange = (event) => {
     setSelectedFruit(event.target.value);
+  };
+
+  const handleChangename = (event) => {
+    setSelectedNamingScheme(event.target.value);
   };
   return (
     <>
@@ -1490,11 +1575,16 @@ function Templateimage({ images, template_name }) {
             toggleDrMode={toggleDrMode}
             handleUndo={handleUndo}
             isCopyDisabled={boxes.length === 0} // Pass the disabled prop based on the condition
-            // handleSave={handleSave}
+          // handleSave={handleSave}
           />
         </div>
         <div className="custom-select1">
-          <h3>Select a Type:</h3>
+           <label
+            htmlFor="namingSchemeSelect"
+            style={{ fontSize: '0.9rem' }} // Adjust the font size as needed
+          >
+            Select a type:
+          </label>
           <select
             value={selectedFruit}
             onChange={handleChange}
@@ -1505,7 +1595,30 @@ function Templateimage({ images, template_name }) {
             <option value="Option">Option</option>
             <option value="Anchor">Anchor</option>
             <option value="Roll Number">Roll Number</option>
+            <option value="Center Code">hall_ticket_no_parent</option>
             <option value="Center Code">Center Code</option>
+            <option value="Center Code">test_booklet_parent</option>
+            {/* <option value="Center Code">Center Code</option> */}
+          </select>
+          {/* {selectedFruit && <p>You selected: {selectedFruit}</p>} */}
+        </div>
+        <div className="custom-select1">
+          <label
+            htmlFor="namingSchemeSelect"
+            style={{ fontSize: '0.9rem' }} // Adjust the font size as needed
+          >
+            Select Naming Scheme:
+          </label>
+          <select
+            value={selectedNamingScheme}
+            onChange={handleChangename}
+            className="custom-select form-select"
+          >
+            <option value="">Please choose...</option>
+            <option value="roman">Roman Numerals</option>
+            {/* <option value="alphanumeric">Alphanumeric</option> */}
+            <option value="number">Numeric</option>
+            <option value="alphabet">Alphabetic</option>
           </select>
           {/* {selectedFruit && <p>You selected: {selectedFruit}</p>} */}
         </div>
@@ -1575,10 +1688,10 @@ function Templateimage({ images, template_name }) {
                   drMode && dragging
                     ? "grabbing"
                     : dragging
-                    ? "move"
-                    : drMode
-                    ? "grab"
-                    : "auto",
+                      ? "move"
+                      : drMode
+                        ? "grab"
+                        : "auto",
 
                 //  cursor:  dragging ? "grab" : "auto",
               }}
