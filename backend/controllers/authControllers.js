@@ -375,8 +375,8 @@ const HTML_TEMPLATE = require("../utils/mail-template.js");
 const SENDMAIL = require("../utils/mailSend.js");
 const HTML_TEMPLATE2 = require("../utils/mail-template2.js");
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (id,userId) => {
+  return jwt.sign({ id,userId }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
 };
@@ -385,7 +385,7 @@ const generateToken = (id) => {
 exports.loginHandler = async (req, res) => {
   const { username, password } = req.body;
   try {
-    let sql = `SELECT username, password, name, role FROM auth WHERE username= '${username}' and isActive = 'y'`;
+    let sql = `SELECT auth_id,username, password, name, role FROM auth WHERE username= '${username}' and isActive = 'y'`;
 
     const result = await query({
       query: sql,
@@ -394,9 +394,11 @@ exports.loginHandler = async (req, res) => {
     if (result && result.length > 0) {
       console.log("i am result:", result);
       // User exits, check passwords
+      
       const pwIsCorrect = await bcrypt.compare(password, result[0]?.password);
       if (pwIsCorrect) {
-        const token = generateToken(username);
+        const token = generateToken(username,result[0]?.auth_id);
+        req.loginUser = result[0]?.auth_id;
         resSend(res, true, 200, "Login Successful", result, token);
       } else {
         resSend(res, false, 200, "Password is invalid!", result, null);
