@@ -5,7 +5,7 @@ const router = express.Router();
 const path = require('path');
  
  
-router.get("/results", getKafkaResults);
+router.post("/results", getKafkaResults);
 
 
 module.exports = router;

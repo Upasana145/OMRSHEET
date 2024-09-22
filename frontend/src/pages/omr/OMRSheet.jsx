@@ -192,7 +192,7 @@ const OMRSheet = () => {
   const handleButtonClick = async (temp) => {
     
     
-    const { template_name, map, t_name, batch_name } = temp;
+    const { template_name, map, t_name, batch_name, ID } = temp;
     
     if (!map || !JSON.parse(map) || map === "") {
       return toast.warn("Mapping is required.");
@@ -239,7 +239,8 @@ const OMRSheet = () => {
       data_path: `${process.env.REACT_APP_AI_DATA}${template_name}/${batch_name}`,
       t_name: `${t_name}`,
       type_config: typeConfig,
-      batch_name: `${batch_name}`
+      batch_name: `${batch_name}`,
+      // processed_omr_result_id: `${ID}`
     };   
 
     try {
@@ -329,7 +330,7 @@ const OMRSheet = () => {
             ))}
           </tbody>
         </table>
-
+          
         <Modal show={!!selectedImage} onHide={handleClose}>
           <Modal.Header closeButton>
             <Modal.Title>OMR Sheet Image</Modal.Title>
