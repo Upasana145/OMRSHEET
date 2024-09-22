@@ -8,24 +8,34 @@ const ensureDirectoryExists = (dirPath) => {
   }
 };
 
-
 exports.uploadOMR = async (req, res) => {
+
   const { template_id, batch_name, files } = req.body; 
+
   if (!template_id || !batch_name || !files || !Array.isArray(files)) {
     return res.status(400).json({ error: 'Invalid request data' });
   }
 
   try {
-    const sql = `SELECT template_name FROM template_image_info WHERE ID = ?`;
+    const sql = `SELECT template_name FROM template_image_json WHERE ID = ?`;
     const result = await query({ query: sql, values: [template_id] }); 
+
     if (result.length === 0) {
       return res.status(422).json({ message: 'Invalid template ID' });
     }
 
     const template_name = result[0].template_name;
-    const batchDir = path.join(__dirname, '../uploads', template_name, batch_name); 
+    // const batchDir = path.join(__dirname, '../uploads', template_name, batch_name); 
+    const batchDir = path.join(
+      process.env.PROJECT_FOLDER_PATH,
+      template_name,
+      batch_name,
+    );
+
     ensureDirectoryExists(batchDir); 
+    
     const fileEntries = [];
+
     for (const file of files) {
       if (!file.base64 || !file.fileName) {
         console.warn('File is missing base64 data or filename:', file);
@@ -33,22 +43,25 @@ exports.uploadOMR = async (req, res) => {
       } 
       const base64Data = file.base64.replace(/^data:image\/jpeg;base64,/, '');
       const filePath = path.join(batchDir, file.fileName);
+      // const tempPath = file.fileName;
 
       try { 
         fs.writeFileSync(filePath, base64Data, 'base64'); 
-        const relativeFilePath = path.join('uploads', template_name, batch_name, file.fileName); 
+        // fs.copyFileSync(tempPath, filePath);
+        // const relativeFilePath = path.join('uploads', template_name, batch_name, file.fileName); 
         await query({
           query: `INSERT INTO processed_omr_results (template_name, template_id, batch_name, ques_paper_image_path) VALUES (?, ?, ?, ?)`,
-          values: [template_name, template_id, batch_name, relativeFilePath]
+          values: [template_name, template_id, batch_name, filePath]
         }); 
 
         fileEntries.push({
           template_id,
           batch_name,
-          file_path: relativeFilePath,
+          file_path: filePath,
         });
 
       } catch (writeError) {
+        console.log(writeError);
         res.status(422).json({ message: 'Unable to upload', files: fileEntries }); 
       }
     }
