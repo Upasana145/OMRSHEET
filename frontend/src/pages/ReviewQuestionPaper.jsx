@@ -105,6 +105,53 @@ const renderInputBasedOnType = (image) => {
   return null;
 };
 
+// const renderInputBasedOnType = (image) => {
+//   console.log("hey I am imageeeee....", image);
+
+//   // Parse the under_review field safely
+//   const parsedData = parseUnderReview(image.under_review);
+
+//   // Check if parsedData exists and is an object before trying to access its keys
+//   if (!parsedData || typeof parsedData !== 'object' || Object.keys(parsedData).length === 0) {
+//     return null; // Return null if parsedData is undefined, null, or empty
+//   }
+
+//   // Get the first key's value (assuming the JSON structure contains a single object key like "htn10")
+//   const dataKey = Object.keys(parsedData)[0]; // Get the first key (e.g., "htn10")
+//   const actualData = parsedData[dataKey]; // Extract the actual data
+
+//   // Check if actualData exists
+//   if (!actualData) return null;
+
+//   const { type, coord, result } = actualData; // Use actualData for further processing
+
+//   // Check if the status is "1" or "2"
+//   const isStatusOneOrTwo = image.status === "1" || image.status === "2";
+
+//   if (type === "hall_ticket_no_parent" || (type === "Question" && coord)) {
+//     return Object.keys(coord)
+//       .filter((key) => key.length === 1 && key.match(/[a-z]/)) // filter for single lowercase letters
+//       .map((key, index) => {
+//         const isChecked = isStatusOneOrTwo && result && result.toLowerCase() === key;
+//         return (
+//           <label key={index} style={{ marginRight: "8px" }}>
+//             <input
+//               type="checkbox"
+//               name={key}
+//               value={key}
+//               onChange={() => handleCheckboxChange(image.ID, key.toUpperCase())}
+//               checked={isChecked || (selectedOptions[image.ID] || []).includes(key.toUpperCase())}
+//             />
+//             {key.toUpperCase()}
+//           </label>
+//         );
+//       });
+//   } else if (type === "Rollnumber") {
+//     return <input type="text" placeholder="Enter Rollnumber" />;
+//   }
+
+//   return null;
+// };
 
   const [croppedImageUrl, setCroppedImageUrl] = useState(null);
   const [resizedImageUrl, setResizedImageUrl] = useState(null); // New state for resized image

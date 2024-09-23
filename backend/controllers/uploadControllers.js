@@ -5,6 +5,7 @@ const SENDMAIL = require("../utils/mailSend.js");
 const { resSend } = require("../utils/resSend");
 const path = require("path");
 const fs = require("fs");
+const { Parser } = require("json2csv");
 
 
 
@@ -1158,6 +1159,7 @@ exports.allomrimages = async (req, res) => {
 // };
 
 
+
 exports.seperate_result = async (req, res) => {
   try {
     const { template_name, batch_name, question_paper_name } = req.body;
@@ -1260,6 +1262,111 @@ exports.seperate_result = async (req, res) => {
     resSend(res, false, 400, "Error", error, null);
   }
 };
+
+// exports.seperate_result = async (req, res) => {
+//   try {
+//     const { template_name, batch_name, question_paper_name } = req.body;
+
+//     const selectJsonQuery = `
+//       SELECT result 
+//       FROM processed_omr_results 
+//       WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
+//     `;
+
+//     const result = await query({
+//       query: selectJsonQuery,
+//       values: [template_name, batch_name, question_paper_name],
+//     });
+
+//     console.log("Parsed result:", result);
+
+//     const parsedResult = result.map((item) => ({
+//       data: JSON.parse(item.result),
+//     }));
+
+//     if (parsedResult && parsedResult.length > 0) {
+//       // Access the first result's data object
+//       const dataObject = parsedResult[0].data;
+
+//       // Filter JSON objects with "result": "RR" and "flag": true, including the key
+//       const filteredJsonRR = Object.entries(dataObject)
+//         .filter(([key, item]) => item.result === "RR" && item.flag === true)
+//         .map(([key, item]) => ({ [key]: item }));
+
+//       // Filter JSON objects except those with "result": "RR", including the key
+//       const filteredJsonCorrect = Object.entries(dataObject)
+//         .filter(([key, item]) => item.result !== "RR")
+//         .map(([key, item]) => ({ [key]: item }));
+
+//       // Insert "RR" data into the reviewer_reviews table
+//       if (filteredJsonRR.length > 0) {
+//         const valuesRR = filteredJsonRR.flatMap((item) => [
+//           JSON.stringify(item), // under_review
+//           template_name,
+//           batch_name,
+//           question_paper_name,
+//         ]);
+
+//         console.log("Insert values for reviewer_reviews:", valuesRR);
+
+//         const insertRRQuery = `
+//           INSERT INTO reviewer_reviews (under_review, template_name, batch_name, question_paper_name)
+//           VALUES ${filteredJsonRR.map(() => "(?, ?, ?, ?)").join(", ")}
+//         `;
+
+//         try {
+//           const insertRRResult = await query({
+//             query: insertRRQuery,
+//             values: valuesRR,
+//           });
+
+//           console.log("Insert result for reviewer_reviews:", insertRRResult);
+//         } catch (error) {
+//           console.error("Error inserting into reviewer_reviews:", error);
+//           return resSend(res, false, 500, "Error storing RR data.", null, error);
+//         }
+//       }
+
+//       // Update correct results in the processed_omr_results table
+//       if (filteredJsonCorrect.length > 0) {
+//         const correctDataJson = JSON.stringify(filteredJsonCorrect);
+//         const updateCorrectQuery = `
+//           UPDATE processed_omr_results
+//           SET correct_result = ?
+//           WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
+//         `;
+
+//         try {
+//           const updateCorrectResult = await query({
+//             query: updateCorrectQuery,
+//             values: [correctDataJson, template_name, batch_name, question_paper_name],
+//           });
+
+//           console.log("Update result for correct_result:", updateCorrectResult);
+
+//           resSend(
+//             res,
+//             true,
+//             200,
+//             "Data stored successfully. RR data in reviewer_reviews and correct data in processed_omr_results.",
+//             { under_review: filteredJsonRR, correct_result: filteredJsonCorrect },
+//             null
+//           );
+//         } catch (error) {
+//           console.error("Error updating correct_result:", error);
+//           return resSend(res, false, 500, "Error storing correct data.", null, error);
+//         }
+//       } else {
+//         resSend(res, false, 200, "No matching JSON found for correct data!", parsedResult, null);
+//       }
+//     } else {
+//       resSend(res, false, 200, "No Record Found!", parsedResult, null);
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     resSend(res, false, 400, "Error", error, null);
+//   }
+// };
 
 
 // exports.updateJsonResult = async (req, res) => {
@@ -1672,4 +1779,66 @@ exports.submitupdateJsonResult = async (req, res) => {
     console.log(error);
     resSend(res, false, 400, "Error", error, null);
   }
+};
+
+
+// csvresult
+exports.csvresult = async (req, res) => {
+
+try {
+  const {t_name} = req.body; // expecting the JSON data in the request body
+
+  if (!t_name|| t_name === "") {
+      return res.status(400).json({ error: 'Invalid template_name' });
+  }
+
+  const SelectJsonQuery = `
+
+  SELECT correct_result   from processed_omr_results 
+  WHERE t_name = ? AND flag = 0
+`;
+
+let result = await query({
+  query: SelectJsonQuery,
+  values: [t_name],
+});
+if(result && result.length>0){
+  return  res.status(200).json({ status : 0, details: "All batches are not processed yet!" });
+}
+console.log("result....",result);
+
+
+
+
+  // Prepare data for CSV: extract headers (keys) and corresponding result values
+  const csvHeaders = [];
+  const csvValues = [];
+
+  // Extract headers and result values from the JSON object
+  for (const key in jsonData[0]) {
+      csvHeaders.push(key); // headers like Qn1, Qn2, htn8
+      csvValues.push(jsonData[0][key].result); // corresponding result values like "b", "c", "a"
+  }
+
+  // Create CSV format
+  const csv = `${csvHeaders.join(',')}\n"${csvValues.join('","')}"`;
+
+  // Send the CSV as a downloadable response
+  const filePath = path.join(__dirname, '../uploads', 'resultx.csv');
+  fs.writeFileSync(filePath, csv); // save CSV to file system
+
+  // Send the file for download
+  res.download(filePath, 'result.csv', (err) => {
+      if (err) {
+          console.error('Error sending the file:', err);
+          res.status(500).send('Error downloading the file.');
+      }
+  });
+
+} catch (err) {
+  console.error('Error converting JSON to CSV:', err);
+  res.status(500).json({ error: 'Error converting JSON to CSV', details: err.message });
+}
+
+
 };
