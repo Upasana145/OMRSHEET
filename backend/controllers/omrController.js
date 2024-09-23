@@ -106,8 +106,8 @@ exports.getOMRResults = async (req, res) => {
           o.ques_paper_image_path, 
           o.created_at, 
           o.updated_at, 
-          o.template_name,
-          o.t_name,
+          j.template_name,
+          j.t_name,
           o.result,
           j.map
         FROM processed_omr_results o
