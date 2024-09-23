@@ -1,4 +1,5 @@
 const { Kafka } = require('kafkajs');
+require('dotenv').config(); // Load environment variables
 
 // Initialize Kafka client
 const kafka = new Kafka({
@@ -26,13 +27,34 @@ const run = async () => {
         value: message.value.toString(),
         key: message.key.toString(),
       });
+      const payload = {
+        value: message.value.toString(),
+        key: message.key.toString(),
+      };
+
+      const action = await fetch(`${process.env.REACT_APP_API_URI}/kafka/results`, {
+      // const action = await fetch(`http://localhost:4002/api/v1/kafka/results`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log('API URI:', process.env.REACT_APP_API_URI); 
+      
+      if (!action.ok) {
+        console.error('Failed to send data:', action.statusText);
+      } else {
+        console.log('Data sent successfully');
+      }
+      
     },
   });
 };
 
-// Handle errors
-consumer.on('consumer.crash', (error) => {
-  console.error('Consumer crashed', error);
-});
+  // Handle errors
+  consumer.on('consumer.crash', (error) => {
+    console.error('Consumer crashed', error);
+  });
 
 run().catch(console.error);
