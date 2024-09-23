@@ -33,7 +33,7 @@ const run = async () => {
       };
 
       // const action = await fetch(`${process.env.REACT_APP_API_URI}/kafka/results`, {
-      const action = await fetch(`http://localhost:4002/api/v1/kafka/results`, {
+      const action = await fetch(`http://157.173.222.15:4002/api/v1/kafka/results`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
