@@ -117,7 +117,9 @@ const Add = () => {
                 base64: fileObj.fileimage
             }));
 
-
+            uploadData.forEach(file => {
+                const sizeInBytes = (file.fileSize.split(' ')[0] * (file.fileSize.includes('KB') ? 1024 : 1));
+            });
 
             try {
                 setIsSubmiting(true)
@@ -129,7 +131,7 @@ const Add = () => {
                 const headers = {
                     'Content-Type': 'multipart/form-data'
                 };
-
+                  
                 const action = await dispatch(createData({ indicatorPath: '/omr/upload', payload, headers }));
                 if (createData.fulfilled.match(action)) {
                     toast.success(action.payload.message);
@@ -140,7 +142,6 @@ const Add = () => {
                     toast.error('File upload failed. Please try again.');
                 }
             } catch (error) {
-                console.error('File upload failed:', error);
                 toast.error('File upload failed. Please try again.');
             } finally {
                 setIsSubmiting(false)
@@ -221,6 +222,8 @@ const Add = () => {
                                                     onChange={(e) => handleChangeInput(e, 'batch_name')}
                                                     className="form-control"
                                                     name="batch_name"
+                                                    value={formData.batch_name ||  null}
+                                                    placeholder="Enter Batch Name"
                                                 />
                                             </div>
                                         </div>
