@@ -293,7 +293,7 @@ exports.editomrData = async (req, res) => {
 };
 exports.getall = async (req, res) => {
   try {
-    let sql = `SELECT * FROM template_image_json WHERE is_deleted = 0`;
+    let sql = `SELECT * FROM template_image_json WHERE is_deleted = 0 ORDER BY ID DESC`;
 
     const result = await query({
       query: sql,
