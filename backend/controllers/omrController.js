@@ -31,7 +31,8 @@ exports.uploadOMR = async (req, res) => {
       template_name,
       batch_name
     );
-
+    console.log(batchDir);
+    
     ensureDirectoryExists(batchDir);
 
     const fileEntries = [];
@@ -74,6 +75,7 @@ exports.uploadOMR = async (req, res) => {
         files: fileEntries,
       });
   } catch (error) {
+    console.log("error ",error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
