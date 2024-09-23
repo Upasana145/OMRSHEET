@@ -10,7 +10,8 @@ const {
   updateJsonResult,
   submitupdateJsonResult,
   getupdateJsonResult,
-  processcropimage
+  processcropimage,
+  csvresult,
 } = require("../controllers/uploadControllers");
 const { upload } = require("../utils/fileUpload");
 const router = express.Router();
@@ -33,5 +34,6 @@ router.post("/updateJsonResult", updateJsonResult );
 router.get("/getupdateJsonResult", getupdateJsonResult );
 router.post("/submitupdateJsonResult", submitupdateJsonResult );
 // router.post("/reviewerstatus", reviewerstatus );
+router.post("/csvresult", csvresult );
 
 module.exports = router;

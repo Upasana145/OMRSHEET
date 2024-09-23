@@ -1,0 +1,61 @@
+  // *************************con
+//   try {
+//     const jsonData = req.body; // assuming you're sending JSON data in the request body
+
+//     if (!jsonData || jsonData.length === 0) {
+//         return res.status(400).json({ error: 'Invalid or empty JSON data' });
+//     }
+
+//     // Specify the fields you want in your CSV
+//     const fields = Object.keys(jsonData[0]);
+//     const opts = { fields };
+
+//     // Initialize the Parser
+//     const parser = new Parser(opts);
+    
+//     // Convert the JSON to CSV
+//     const csv = parser.parse(jsonData);
+
+//     // Send the CSV as a response
+//     res.header('Content-Type', 'text/csv');
+//     res.attachment('result.csv');
+//     res.status(200).send(csv);
+// } catch (err) {
+//     console.error('Error converting JSON to CSV:', err);
+//     res.status(500).json({ error: 'Error converting JSON to CSV', details: err.message });
+// }
+// *********************************************************************
+// this is working and generating result
+// try {
+//   const jsonData = req.body; // assuming you're sending JSON data in the request body
+
+//   if (!jsonData || jsonData.length === 0) {
+//       return res.status(400).json({ error: 'Invalid or empty JSON data' });
+//   }
+
+//   const fields = Object.keys(jsonData[0]);
+//   const opts = { fields };
+
+//   // Create a new parser
+//   const parser = new Parser(opts);
+//   const csv = parser.parse(jsonData);
+
+//   // Define the path where you will save the file
+//   const filePath = path.join(__dirname, '../uploads', 'result.csv');
+
+//   // Save the CSV to the file system
+//   fs.writeFileSync(filePath, csv);
+
+//   // Send the file for download
+//   res.download(filePath, 'result.csv', (err) => {
+//       if (err) {
+//           console.error('Error sending the file:', err);
+//           res.status(500).send('Error downloading the file.');
+//       }
+//   });
+
+// } catch (err) {
+//   console.error('Error converting JSON to CSV:', err);
+//   res.status(500).json({ error: 'Error converting JSON to CSV', details: err.message });
+// }
+// ********************************************************************** 
