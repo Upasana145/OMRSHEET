@@ -3,7 +3,6 @@ const { uploadOMR, getOMRResults} = require('../controllers/omrController');
 const multer = require('multer');
 const router = express.Router(); 
 const path = require('path');
-
  
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -15,14 +14,26 @@ const storage = multer.diskStorage({
   }
 });
 
-
-const upload = multer({ 
+function fileFilter(req, file, cb) {
+  if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/png"
+  ) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only jpeg, jpg and png files are allowed!"), false);
+  }
+}
+ 
+const upload = multer({
   storage: storage,
-  limits: {
-    fileSize: 25 * 1024 * 1024, // 10 MB limit (adjust as needed)
-    fields: 100, // max number of fields (adjust as needed)
-  },
-}); 
+  fileFilter: fileFilter,
+  limits: {    
+      fileSize: 1024 * 1024 * 5,
+      fieldSize: 1024 * 1024 * 10
+      }
+});
 
 router.post("/upload", upload.array("omr_files"), uploadOMR);
 router.get("/sheet", getOMRResults);

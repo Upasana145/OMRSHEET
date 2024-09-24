@@ -190,7 +190,7 @@ const OMRSheet = () => {
   };
 
   const handleButtonClick = async (temp) => {
-    
+    console.log("temp",temp);
     
     const { template_name, map, t_name, batch_name, ID } = temp;
     
@@ -242,7 +242,7 @@ const OMRSheet = () => {
       batch_name: `${batch_name}`,
       // processed_omr_result_id: `${ID}`
     };   
-
+    console.log("payload",payload);
     try {
       const response = await fetch(process.env.REACT_APP_AI_API, {
         method: "POST",
