@@ -30,12 +30,13 @@ exports.getKafkaResults = async (req, res) => {
   try {
     const childSql = `SELECT template_name FROM processed_omr_results WHERE t_name = ? AND batch_name = ? `;
     const childResult = await query({ query: childSql, values: [t_name, batch_name] });
-
+    console.log('template_name',childResult[0].template_name);
+    
     if (!childResult || childResult.length === 0 || childResult[0].length === 0) {
       return res.status(422).json({ message: 'Invalid Request: No Template found' });
-    }else{
-      const template_name = childResult[0].template_name;
     }
+
+    const template_name = childResult[0].template_name;
     
     const question_paper_name = path.join(
       process.env.PROJECT_FOLDER_PATH,
@@ -53,7 +54,8 @@ exports.getKafkaResults = async (req, res) => {
     if (!result || result.length === 0 || result[0].length === 0) {
       return res.status(422).json({ message: 'Invalid Request: No records found' });
     }
-
+    console.log("value",value);
+    
     await query({
       query: `UPDATE processed_omr_results SET result = ? WHERE t_name = ? AND batch_name ? AND question_paper_name = ?`,
       values: [value, t_name, batch_name, question_paper_name]
