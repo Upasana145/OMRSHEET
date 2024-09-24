@@ -24,21 +24,60 @@ const [flagData1, setFlagData] = useState(null);
   }, [tickStatus, data]); // Make sure the hook depends on the necessary state and props
   console.log("data.data....", data.data);
 
+  // const parseUnderReview = (under_review) => {
+  //   console.log("hey buddy i am underrevieeeeeeeeeeeeeeeee",under_review);
+  //   try {
+  //     if (typeof under_review === "string") {
+  //       const parsedData = JSON.parse(under_review);
+  //       if (parsedData && parsedData.coord) {
+  //         return parsedData;
+  //       }
+  //       return null;
+  //     }
+  //     return null;
+  //   } catch (error) {
+  //     console.error("Error parsing under_review:", error);
+  //     return null;
+  //   }
+  // };
+
   const parseUnderReview = (under_review) => {
+    console.log("Received under_review data:", under_review);
+  
     try {
       if (typeof under_review === "string") {
         const parsedData = JSON.parse(under_review);
+  
+        // Check if the data is wrapped in an additional key like "htn10"
+        const keys = Object.keys(parsedData);
+        if (keys.length === 1 && typeof parsedData[keys[0]] === 'object') {
+          const innerData = parsedData[keys[0]]; // Extract the inner object
+          if (innerData && innerData.coord) {
+            return innerData; // Return the inner object
+          }
+        } 
+        
+        // If no nested key, return the parsedData directly
         if (parsedData && parsedData.coord) {
           return parsedData;
         }
-        return null;
+  
+        return null; // Return null if no coord found
       }
+  
       return null;
     } catch (error) {
       console.error("Error parsing under_review:", error);
       return null;
     }
   };
+  
+
+
+
+
+
+
 
   const handleCheckboxChange = (imageId, option) => {
     setSelectedOptions((prevState) => {
@@ -69,9 +108,7 @@ const [flagData1, setFlagData] = useState(null);
   
 const renderInputBasedOnType = (image) => {
   console.log("hey i am imageeeee....", image);
-
   const parsedData = parseUnderReview(image.under_review);
-
   if (!parsedData) return null;
 
   const { type, coord, result } = parsedData;
@@ -105,52 +142,62 @@ const renderInputBasedOnType = (image) => {
   return null;
 };
 
+// ****************************************
+// Main rendering function
 // const renderInputBasedOnType = (image) => {
-//   console.log("hey I am imageeeee....", image);
+//   console.log("Rendering image data: ", image);
 
-//   // Parse the under_review field safely
-//   const parsedData = parseUnderReview(image.under_review);
+//   // Loop through the dynamic keys in the image object
+//   return Object.keys(image).map((key) => {
+//     // Parse the under_review field if needed
+//     const parsedData = image[key].under_review 
+//       ? parseUnderReview(image[key].under_review) 
+//       : image[key];
 
-//   // Check if parsedData exists and is an object before trying to access its keys
-//   if (!parsedData || typeof parsedData !== 'object' || Object.keys(parsedData).length === 0) {
-//     return null; // Return null if parsedData is undefined, null, or empty
-//   }
+//     // if (!parsedData) return null;
+//     if (!parsedData) {
+//       console.log("No parsed data for key:", key); // Debugging log
+//       return null;
+//     }
 
-//   // Get the first key's value (assuming the JSON structure contains a single object key like "htn10")
-//   const dataKey = Object.keys(parsedData)[0]; // Get the first key (e.g., "htn10")
-//   const actualData = parsedData[dataKey]; // Extract the actual data
 
-//   // Check if actualData exists
-//   if (!actualData) return null;
+//     const { type, coord, result } = parsedData;
+//     // Check if the status is "1" or "2"
+//     const isStatusOneOrTwo = image.status === "1" || image.status === "2";
 
-//   const { type, coord, result } = actualData; // Use actualData for further processing
+//     // Render checkboxes dynamically based on "coord" object
+//     if (type === "hall_ticket_no_parent" || (type === "Question" && coord)) {
+//       return (
+//         <div key={key}>
+//           {Object.keys(coord)
+//             .filter((coordKey) => coordKey.length === 1 && coordKey.match(/[a-z]/))
+//             .map((coordKey, index) => {
+//               const isChecked =
+//                 isStatusOneOrTwo && result && result.toLowerCase() === coordKey;
+//               return (
+//                 <label key={index} style={{ marginRight: "8px" }}>
+//                   <input
+//                     type="checkbox"
+//                     name={coordKey}
+//                     value={coordKey}
+//                     onChange={() =>
+//                       handleCheckboxChange(parsedData.ID, coordKey.toUpperCase())
+//                     }
+//                     checked={
+//                       isChecked ||
+//                       (selectedOptions[parsedData.ID] || []).includes(coordKey.toUpperCase())
+//                     }
+//                   />
+//                   {coordKey.toUpperCase()}
+//                 </label>
+//               );
+//             })}
+//         </div>
+//       );
+//     }
 
-//   // Check if the status is "1" or "2"
-//   const isStatusOneOrTwo = image.status === "1" || image.status === "2";
-
-//   if (type === "hall_ticket_no_parent" || (type === "Question" && coord)) {
-//     return Object.keys(coord)
-//       .filter((key) => key.length === 1 && key.match(/[a-z]/)) // filter for single lowercase letters
-//       .map((key, index) => {
-//         const isChecked = isStatusOneOrTwo && result && result.toLowerCase() === key;
-//         return (
-//           <label key={index} style={{ marginRight: "8px" }}>
-//             <input
-//               type="checkbox"
-//               name={key}
-//               value={key}
-//               onChange={() => handleCheckboxChange(image.ID, key.toUpperCase())}
-//               checked={isChecked || (selectedOptions[image.ID] || []).includes(key.toUpperCase())}
-//             />
-//             {key.toUpperCase()}
-//           </label>
-//         );
-//       });
-//   } else if (type === "Rollnumber") {
-//     return <input type="text" placeholder="Enter Rollnumber" />;
-//   }
-
-//   return null;
+//     return null;
+//   });
 // };
 
   const [croppedImageUrl, setCroppedImageUrl] = useState(null);
@@ -258,7 +305,7 @@ const renderInputBasedOnType = (image) => {
 
         // Crop the image after saving
         const coordinates = parseUnderReview(image.under_review)?.coord?.region;
-        console.log("hey i am coordinates",coordinates);
+        console.log("hey i am coordinatessssssssssssssssss",coordinates);
         if (coordinates) {
           cropImage(
             `${process.env.REACT_APP_FILE_URI}${image.ques_paper_image_path}`,

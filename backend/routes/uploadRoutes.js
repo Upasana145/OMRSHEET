@@ -19,10 +19,8 @@ const router = express.Router();
 // router.post("/", upload.single("image"), uploadFile);
 router.post("/save", saveImgToDB);
 
-// for omrsheet new 17.7.2024
 router.post("/images", upload.single("image"), uploadFile);
-// router.post("/test", upload.single("image"), testUpload);
-// jis omr pe processesing hoga uska endpoint
+
 router.post("/processomrimages", upload.single("image"), uploadprocessomrimages);
 router.post("/processcropimage", upload.single("image"), processcropimage);
 

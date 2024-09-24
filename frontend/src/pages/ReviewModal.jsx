@@ -59,22 +59,51 @@ const canvasRef = useRef(null);
     }
   }, [showModal, images]);
 
+  // const parseUnderReview = (under_review) => {
+  //   try {
+  //     if (typeof under_review === "string") {
+  //       const parsedData = JSON.parse(under_review);
+  //       if (parsedData && parsedData.coord) {
+  //         return parsedData;
+  //       }
+  //       return null;
+  //     }
+  //     return null;
+  //   } catch (error) {
+  //     console.error("Error parsing under_review:", error);
+  //     return null;
+  //   }
+  // };
   const parseUnderReview = (under_review) => {
+    console.log("Received under_review data:", under_review);
+  
     try {
       if (typeof under_review === "string") {
         const parsedData = JSON.parse(under_review);
+  
+        // Check if the data is wrapped in an additional key like "htn10"
+        const keys = Object.keys(parsedData);
+        if (keys.length === 1 && typeof parsedData[keys[0]] === 'object') {
+          const innerData = parsedData[keys[0]]; // Extract the inner object
+          if (innerData && innerData.coord) {
+            return innerData; // Return the inner object
+          }
+        } 
+        
+        // If no nested key, return the parsedData directly
         if (parsedData && parsedData.coord) {
           return parsedData;
         }
-        return null;
+  
+        return null; // Return null if no coord found
       }
+  
       return null;
     } catch (error) {
       console.error("Error parsing under_review:", error);
       return null;
     }
   };
-
   const handleViewClick = async (image) => {
     console.log("hey i am image details bunny...",images );
     const { ques_paper_image_path, question_paper_name, batch_name } = image;
@@ -199,6 +228,8 @@ const canvasRef = useRef(null);
   
       // Get crop coordinates from under_review
       const coordinates = parseUnderReview(item.under_review)?.coord?.region;
+
+      console.log("heyyyyyyyyyyyyyyyyyyy i am co-ordinatessssssssss",coordinates );
   
       // If coordinates exist, apply cropping
       if (coordinates) {
