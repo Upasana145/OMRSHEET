@@ -40,11 +40,13 @@ const run = async () => {
         },
         body: JSON.stringify(payload),
       });
-      console.log('payload', payload); 
+      // console.log('payload', payload); 
       console.log('action', action); 
       
       if (!action.ok) {
-        console.error('Failed to send data:', action.statusText);
+        // console.log('Sending payload:', JSON.stringify(payload, null, 2));
+        const errorBody = await action.text();
+        console.error('Failed to send data:', action.statusText, errorBody);
       } else {
         console.log('Data sent successfully');
       }
