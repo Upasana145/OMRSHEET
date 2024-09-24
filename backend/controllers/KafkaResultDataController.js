@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const { query } = require("../db/db.js");
-const axios = require('axios');
 
 exports.getKafkaResults = async (req, res) => {
   // Log relevant request details
