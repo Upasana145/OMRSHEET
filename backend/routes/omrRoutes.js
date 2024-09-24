@@ -32,7 +32,7 @@ const upload = multer({
   limits: {    
       fileSize: 1024 * 1024 * 5,
       fieldSize: 1024 * 1024 * 10
-      }
+    }
 });
 
 router.post("/upload", upload.array("omr_files"), uploadOMR);
