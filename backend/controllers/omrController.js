@@ -16,7 +16,7 @@ exports.uploadOMR = async (req, res) => {
   }
 
   try {
-    const sql = `SELECT template_name FROM template_image_json WHERE ID = ?`;
+    const sql = `SELECT template_name,t_name FROM template_image_json WHERE ID = ?`;
     const result = await query({ query: sql, values: [template_id] });
 
     if (result.length === 0) {
@@ -24,6 +24,7 @@ exports.uploadOMR = async (req, res) => {
     }
 
     const template_name = result[0].template_name;
+    const t_name = result[0].t_name;
     // const batchDir = path.join(__dirname, '../uploads', template_name, batch_name);
     const batchDir = path.join(
       __dirname,
@@ -51,8 +52,8 @@ exports.uploadOMR = async (req, res) => {
         // fs.copyFileSync(tempPath, filePath);
         // const relativeFilePath = path.join('uploads', template_name, batch_name, file.fileName);
         await query({
-          query: `INSERT INTO processed_omr_results (template_name, template_id, batch_name, ques_paper_image_path) VALUES (?, ?, ?, ?)`,
-          values: [template_name, template_id, batch_name, filePath],
+          query: `INSERT INTO processed_omr_results (template_name, template_id, batch_name, ques_paper_image_path, t_name) VALUES (?, ?, ?, ?, ?)`,
+          values: [template_name, template_id, batch_name, filePath, t_name],
         });
 
         fileEntries.push({
