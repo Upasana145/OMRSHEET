@@ -24,17 +24,26 @@ exports.getKafkaResults = async (req, res) => {
   // Accessing individual parts
   const t_name = parts[0];
   const batch_name = parts[1];
-  //const question_paper_name = parts[2];
-  const question_paper_name = path.join(
-    process.env.PROJECT_FOLDER_PATH,
-    template_name,
-    batch_name,
-    parts[2]
-  );
-
+  //const question_paper_name = parts[2]; 
  
   //Result Insertion Started
   try {
+    const childSql = `SELECT template_name FROM processed_omr_results WHERE t_name = ? AND batch_name = ? `;
+    const childResult = await query({ query: childSql, values: [t_name, batch_name] });
+
+    if (!childResult || childResult.length === 0 || childResult[0].length === 0) {
+      return res.status(422).json({ message: 'Invalid Request: No Template found' });
+    }else{
+      const template_name = childResult[0].template_name;
+    }
+    
+    const question_paper_name = path.join(
+      process.env.PROJECT_FOLDER_PATH,
+      template_name,
+      batch_name,
+      parts[2]
+    );
+    
     const sql = `SELECT count(ID) as length FROM processed_omr_results WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`;
     const result = await query({ query: sql, values: [t_name, batch_name, question_paper_name] });
     console.log('t_name', t_name);
