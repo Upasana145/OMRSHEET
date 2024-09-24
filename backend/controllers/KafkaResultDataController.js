@@ -40,12 +40,6 @@ exports.getKafkaResults = async (req, res) => {
       query: `UPDATE processed_omr_results SET result = ? WHERE template_name = ? AND batch_name ? AND question_paper_name = ?`,
       values: [value, template_name, batch_name, question_paper_name]
     });
-
-    const sendSql = `SELECT ques_paper_image_path, t_name FROM processed_omr_results WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?`;
-    const fetchResult = await query({ query: sendSql, values: [template_name, batch_name, question_paper_name] });
-    
-    
-    // const response = await axios.post('http://157.173.222.15:4002/uploads/seperate_result', { body: JSON.stringify(payload),});
     
     console.log("Inserted successfully");
     return res.status(200).json({ message: 'Result inserted successfully' });
