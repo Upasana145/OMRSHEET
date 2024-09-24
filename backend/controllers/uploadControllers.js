@@ -211,7 +211,6 @@ exports.uploadFile = async (req, res) => {
     }
 
     const folderPath = path.join(
-      __dirname,
       process.env.PROJECT_FOLDER_PATH,
       template_name,
       "default"

@@ -27,7 +27,6 @@ exports.uploadOMR = async (req, res) => {
     const t_name = result[0].t_name;
     // const batchDir = path.join(__dirname, '../uploads', template_name, batch_name);
     const batchDir = path.join(
-      __dirname,
       process.env.PROJECT_FOLDER_PATH,
       template_name,
       batch_name

@@ -157,6 +157,8 @@ const OMRSheet = () => {
       if (fetchRecords.fulfilled.match(action)) { 
         console.log("action:",action);
         setItems(action.payload.results);
+        console.log("setItems", setItems);
+        
         setPagination(action.payload.pagination);
         setCurrentPage(page);
       } else {
@@ -203,7 +205,7 @@ const OMRSheet = () => {
     
     const generateTypeConfig = (items) => {
       const config = {};
-
+      
       items.forEach((item) => {
         if (item.mode === "parent") {
           const options = {};
