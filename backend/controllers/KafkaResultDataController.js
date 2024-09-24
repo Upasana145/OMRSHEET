@@ -29,9 +29,12 @@ exports.getKafkaResults = async (req, res) => {
  
   //Result Insertion Started
   try {
-    const sql = `SELECT count(ID) as length FROM processed_omr_results WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?`;
+    const sql = `SELECT count(ID) as length FROM processed_omr_results WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`;
     const result = await query({ query: sql, values: [template_name, batch_name, question_paper_name] });
-
+    console.log('template_name', template_name);
+    console.log('batch_name', batch_name);
+    console.log('question_paper_name', question_paper_name);
+    
     if (!result || result.length === 0 || result[0].length === 0) {
       return res.status(422).json({ message: 'Invalid Request: No records found' });
     }
