@@ -44,13 +44,7 @@ exports.getKafkaResults = async (req, res) => {
     const sendSql = `SELECT ques_paper_image_path, t_name FROM processed_omr_results WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?`;
     const fetchResult = await query({ query: sendSql, values: [template_name, batch_name, question_paper_name] });
     
-    const payload = {
-      template_name: template_name,
-      batch_name: batch_name,
-      question_paper_name: question_paper_name,
-      ques_paper_image_path: fetchResult[0].ques_paper_image_path,
-      t_name: fetchResult[0].t_name,
-    };
+    
     // const response = await axios.post('http://157.173.222.15:4002/uploads/seperate_result', { body: JSON.stringify(payload),});
     
     console.log("Inserted successfully");
