@@ -50,7 +50,7 @@ exports.uploadOMR = async (req, res) => {
         fs.writeFileSync(filePath, base64Data, "base64");
         // fs.copyFileSync(tempPath, filePath);
         // const relativeFilePath = path.join('uploads', template_name, batch_name, file.fileName);
-        await query({
+        const demoQuery = await query({
           query: `INSERT INTO processed_omr_results (template_name, template_id, batch_name, question_paper_name, ques_paper_image_path, t_name) VALUES (?, ?, ?, ?, ?, ?)`,
           values: [
             template_name,
@@ -61,6 +61,7 @@ exports.uploadOMR = async (req, res) => {
             t_name,
           ],
         });
+        console.log("demoQuery", demoQuery);
 
         fileEntries.push({
           template_id,
