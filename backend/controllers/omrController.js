@@ -32,7 +32,7 @@ exports.uploadOMR = async (req, res) => {
       batch_name
     );
     console.log(batchDir);
-    
+
     ensureDirectoryExists(batchDir);
 
     const fileEntries = [];
@@ -52,7 +52,14 @@ exports.uploadOMR = async (req, res) => {
         // const relativeFilePath = path.join('uploads', template_name, batch_name, file.fileName);
         await query({
           query: `INSERT INTO processed_omr_results (template_name, template_id, batch_name, question_paper_name, ques_paper_image_path, t_name) VALUES (?, ?, ?, ?, ?, ?)`,
-          values: [template_name, template_id, batch_name, filePath, filePath, t_name],
+          values: [
+            template_name,
+            template_id,
+            batch_name,
+            file.fileName,
+            file.fileName,
+            t_name,
+          ],
         });
 
         fileEntries.push({
@@ -68,14 +75,12 @@ exports.uploadOMR = async (req, res) => {
       }
     }
 
-    res
-      .status(200)
-      .json({
-        message: "OMR sheets uploaded successfully",
-        files: fileEntries,
-      });
+    res.status(200).json({
+      message: "OMR sheets uploaded successfully",
+      files: fileEntries,
+    });
   } catch (error) {
-    console.log("error ",error);
+    console.log("error ", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
