@@ -6,7 +6,7 @@ import { navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { postAPI } from "../utils/fetchapi";
 import swal from "sweetalert";
-import Papa from 'papaparse';
+import Papa from "papaparse";
 function TemplateContent({ users, fetchUsers, templates }) {
   const sureToDelete = (id) => {
     console.log("i am priniting id.....", id);
@@ -41,8 +41,7 @@ function TemplateContent({ users, fetchUsers, templates }) {
 
   const handleButtonClick = async (temp) => {
     const { template_name, map, t_name } = temp;
-    console.log("this is map:",temp);
-    
+    console.log("this is map:", temp);
 
     if (!map || !JSON.parse(map) || map === "") {
       return toast.warn("Mapping is required.");
@@ -87,7 +86,7 @@ function TemplateContent({ users, fetchUsers, templates }) {
       template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
       //data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
       data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
-     
+
       // type_config: {
       //   Question: {
       //     OPTIONS: { 0: "a", 1: "b", 2: "c", 3: "d", 4: "RR", 5: "RR" },
@@ -147,8 +146,8 @@ function TemplateContent({ users, fetchUsers, templates }) {
       // },
       type_config: typeConfig,
     };
-    console.log("I am payload",payload);
-    
+    console.log("I am payload", payload);
+
     try {
       const response = await fetch(process.env.REACT_APP_AI_API, {
         method: "POST",
@@ -196,122 +195,127 @@ function TemplateContent({ users, fetchUsers, templates }) {
       id: 1,
       name: "John Doe",
       age: 30,
-      email: "john@example.com"
+      email: "john@example.com",
     },
     {
       id: 2,
       name: "Jane Smith",
       age: 25,
-      email: "jane@example.com"
-    }
+      email: "jane@example.com",
+    },
   ];
 
   // const convertToCSV = (data, templateName) => {
   //   const csvRows = [];
   //   // Add headers
   //   csvRows.push('batch_name,correct_result');
-  
+
   //   data.forEach(item => {
   //     const batchName = item.batch_name;
   //     const correctResult = JSON.parse(item.correct_result);
   //     const correctResultString = JSON.stringify(correctResult); // Convert to string if needed
-  
+
   //     // Add rows
   //     csvRows.push(`${batchName},"${correctResultString}"`); // Use quotes for correct_result
   //   });
-  
+
   //   return csvRows.join('\n'); // Join rows with newline
   // };
-  
 
   const convertToCSV = (data, templateName) => {
     const csvRows = [];
     const headersSet = new Set(); // To keep track of unique headers
-  
+
     // First, gather all unique question keys for headers
-    data.forEach(item => {
-      const correctResult = JSON.parse(item.correct_result);
-      correctResult.forEach(q => {
-        for (const key in q) {
-          headersSet.add(key); // Add each question key to the set
-        }
-      });
+    data.forEach((item) => {
+      if (item?.correct_result && item.correct_result !== "") {
+        const correctResult = JSON.parse(item.correct_result);
+        correctResult.forEach((q) => {
+          for (const key in q) {
+            headersSet.add(key); // Add each question key to the set
+          }
+        });
+      }
     });
-  
+
     // Convert the set to an array and sort headers
     const headers = Array.from(headersSet).sort();
-    csvRows.push(['batch_name', ...headers].join(',')); // Add headers to the CSV
-  
+    csvRows.push(["batch_name", ...headers].join(",")); // Add headers to the CSV
+
     // Now populate the rows
-    data.forEach(item => {
-      const batchName = item.batch_name;
-      const correctResult = JSON.parse(item.correct_result);
-      
-      // Create an object to hold results for the current item
-      const results = {};
-      correctResult.forEach(q => {
-        for (const key in q) {
-          results[key] = q[key].result; // Extract result for each question
-        }
-      });
-  
-      // Create a row with batch name and results, ensuring to fill missing results with empty strings
-      const row = [batchName];
-      headers.forEach(header => {
-        row.push(results[header] || ''); // Push result or empty string if not exists
-      });
-      
-      csvRows.push(row.join(',')); // Join row with commas
+    data.forEach((item) => {
+      if (item?.correct_result && item.correct_result !== "") {
+        const batchName = item.batch_name;
+        const correctResult = JSON.parse(item.correct_result);
+
+        // Create an object to hold results for the current item
+        const results = {};
+        correctResult.forEach((q) => {
+          for (const key in q) {
+            results[key] = q[key].result; // Extract result for each question
+          }
+        });
+
+        // Create a row with batch name and results, ensuring to fill missing results with empty strings
+        const row = [batchName];
+        headers.forEach((header) => {
+          row.push(results[header] || ""); // Push result or empty string if not exists
+        });
+
+        csvRows.push(row.join(","));
+      }
     });
-  
-    return csvRows.join('\n'); // Join rows with newline
+
+    return csvRows.join("\n"); // Join rows with newline
   };
-  
 
   const downloadCSV = (data, templateName) => {
     const csvContent = convertToCSV(data, templateName);
-    
+
     // Create a blob with CSV content
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    
+
     // Create a link element
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${templateName}.csv`); // Set the CSV file name
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${templateName}.csv`); // Set the CSV file name
     document.body.appendChild(link); // Append link to body
     link.click(); // Simulate click to download
     document.body.removeChild(link); // Clean up
   };
-  
+
   const handleDownload = async (temp) => {
     const { template_name, map, t_name } = temp;
     console.log("This is t_name:", t_name);
-  
+
     try {
       // Prepare the request payload
       const payload = {
         t_name: t_name, // Pass the t_name to the API
       };
-  
+
       // Make the API call to the specified endpoint
-      const response = await fetch('http://localhost:4002/api/v1/upload/csvresult', {
-        method: 'POST', // Use POST method
-        headers: {
-          'Content-Type': 'application/json', // Set content type to JSON
-        },
-        body: JSON.stringify(payload), // Convert payload to JSON
-      });
-  
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/upload/csvresult`,
+        {
+          method: "POST", // Use POST method
+          headers: {
+            "Content-Type": "application/json", // Set content type to JSON
+          },
+          body: JSON.stringify(payload), // Convert payload to JSON
+        }
+      );
+
       // Check if the response is okay
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
-  
+
       // Parse the JSON response
       const data = await response.json();
       console.log("Response from API:", data);
-  
+
       // Handle the data as needed (e.g., download CSV or notify user)
       if (data.status === 1) {
         // Process the data if available
@@ -326,30 +330,20 @@ function TemplateContent({ users, fetchUsers, templates }) {
       console.error("Failed to fetch data from the API:", error);
     }
   };
-  
-//   const handleDownload = async (temp) => {
-//     const { template_name, map, t_name } = temp;
-//     console.log("this is map:",temp);
-    
 
+  //   const handleDownload = async (temp) => {
+  //     const { template_name, map, t_name } = temp;
+  //     console.log("this is map:",temp);
 
+  //   const csv = Papa.unparse(jsonData);
 
-
-
-
-
-
-
-//   const csv = Papa.unparse(jsonData);
-
-//   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-//   const url = URL.createObjectURL(blob);
-//   const link = document.createElement('a');
-//   link.setAttribute('href', url);
-//   link.setAttribute('download', 'data.csv');
-//   link.click();
-// };
-
+  //   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement('a');
+  //   link.setAttribute('href', url);
+  //   link.setAttribute('download', 'data.csv');
+  //   link.click();
+  // };
 
   return (
     <div>
@@ -407,16 +401,10 @@ function TemplateContent({ users, fetchUsers, templates }) {
                     // onClick={handleButtonClick(template)}
                     // onClick={handleDownload}
                     onClick={() => handleDownload(template)}
-
                     style={{ width: "85px" }}
                   >
                     Export to csv
                   </button>
-
-
-
-
-
                 </td>
               </tr>
             ))}
