@@ -163,6 +163,7 @@ a {
   top: 0;
   left: 0;
   bottom: 0;
+  overflow-y: scroll;
 }
 
 .sidebar_header {
@@ -1058,30 +1059,20 @@ p {
   font-size: 17px;
 }
 
-
 .view-button {
   padding: 9px 44px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-weight: 700;
-    
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 700;
 }
 
 .view-button:hover {
   background-color: #0056b3;
 }
-
-
-
-
-
-
-
-
 
 .details-modal {
   position: fixed;
@@ -1187,7 +1178,6 @@ p {
   background-color: #004080; /* Even darker shade for active state */
 }
 
-
 .completed {
   color: green;
 }
@@ -1203,7 +1193,7 @@ p {
 }
 
 .submit-button1 {
-  background-color: #4CAF50; /* Green background */
+  background-color: #4caf50; /* Green background */
   color: white; /* White text */
   border: none; /* Remove borders */
   padding: 10px 20px; /* Add some padding */
