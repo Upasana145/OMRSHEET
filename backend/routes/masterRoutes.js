@@ -21,7 +21,8 @@ const {
   proc_omr_result_data,
   reviewer_reviews_data_batchwise,
   reviewer_reviews_ques_name,
-  updatestatussubmit
+  updatestatussubmit,
+  processFoldersAndImages
 
 } = require("../controllers/masterControllers");
 const router = express.Router();
@@ -59,7 +60,15 @@ router.post("/updatestatussubmit",updatestatussubmit );
 router.post("/proc_data", proc_omr_result_data);
 router.post("/revbatchdata", reviewer_reviews_data_batchwise);
 router.post("/revquesname", reviewer_reviews_ques_name);
+// Define a route to trigger the folder and image processing
 
+
+router.post("/process-images", processFoldersAndImages);
+
+// app.get('/process-images', (req, res) => {
+//   processFoldersAndImages();
+//   res.send('Image processing started. Check console for details.');
+// });
 
 
 
