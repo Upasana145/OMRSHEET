@@ -188,7 +188,7 @@ ul {
   display: block;
 }
 .header {
-  width: 1060px;
+  width: 100%;
   margin-left: 0px;
 }
 .custom-select1 {

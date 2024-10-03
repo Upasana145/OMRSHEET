@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { Kafka } = require("kafkajs");
+const { Kafka, logLevel } = require("kafkajs");
 const { query } = require("./db/db.js");
 
 const processJsonResults = (dataObject) => {
@@ -179,50 +179,35 @@ const getKafkaResults = async (key, value) => {
     return { status: false, message: error.message };
   }
 };
-
 const kafkaListenerHandler = () => {
   const kafka = new Kafka({
     brokers: ["157.173.222.15:9092"],
   });
 
   // Create a consumer instance
-  const consumer = kafka.consumer({ groupId: "test-group" });
+  const consumer = kafka.consumer({
+    groupId: `test-group-${Date.now()}`,
+    sessionTimeout: 30000,
+    heartbeatInterval: 3000,
+    autoCommit: true,
+  });
 
   // Function to listen to Kafka messages
   const run = async () => {
-    await consumer.connect();
-    await consumer.subscribe({ topic: "testtopic", fromBeginning: true });
+    await consumer.connect().catch((error) => {
+      console.error("Error connecting to Kafka broker:", error);
+    });
+    await consumer
+      .subscribe({ topic: "testtopic", fromBeginning: true })
+      .then(() => console.log("Subscribed to topic"))
+      .catch((error) => {
+        console.error("Error subscribing to topic:", error);
+      });
 
     // Consume messages from the topic
     await consumer.run({
-      // eachBatch: async ({
-      //   batch,
-      //   resolveOffset,
-      //   heartbeat,
-      //   isRunning,
-      //   isStale,
-      // }) => {
-      //   console.log("Consumed ", batch);
-      //   for (let message of batch.messages) {
-      //     try {
-      //       let response = await getKafkaResults(
-      //         message.key.toString(),
-      //         message.value.toString()
-      //       );
-      //       if (response?.status) {
-      //         console.log("response: " + response.message);
-      //       } else {
-      //         console.error("response: " + response.message);
-      //       }
-      //       resolveOffset(message.offset);
-      //       await heartbeat();
-      //     } catch (error) {
-      //       console.error("Error processing message: ", error);
-      //     }
-      //   }
-      // },
       eachMessage: async ({ topic, partition, message }) => {
-        console.log({
+        console.log("HELLO", {
           topic,
           partition,
           offset: message.offset,
@@ -230,25 +215,40 @@ const kafkaListenerHandler = () => {
           key: message.key.toString(),
         });
         try {
-          let response = await getKafkaResults(
-            message.key.toString(),
-            message.value.toString()
-          );
-          if (response?.status) {
-            console.log("response: " + response.message);
-          } else {
-            console.error("response: " + response.message);
-          }
+          await consumer.commitOffsets([
+            {
+              topic,
+              partition,
+              offset: (parseInt(message.offset) + 1).toString(),
+            },
+          ]);
+          // let response = await getKafkaResults(
+          //   message.key.toString(),
+          //   message.value.toString()
+          // );
+          // if (response?.status) {
+          //   console.log("response: " + response.message);
+          // } else {
+          //   console.error("response: " + response.message);
+          // }
         } catch (error) {
           console.error("Error processing message: ", error);
         }
       },
+      maxWaitTimeInMs: 5000,
     });
   };
 
   // Handle errors
   consumer.on("consumer.crash", (error) => {
     console.error("Consumer crashed", error);
+  });
+  consumer.on("consumer.connect", () => {
+    console.log("Consumer connected successfully");
+  });
+
+  consumer.on("consumer.disconnect", () => {
+    console.log("Consumer disconnected");
   });
 
   run().catch(console.error);
