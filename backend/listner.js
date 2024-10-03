@@ -1,5 +1,4 @@
 const { Kafka } = require("kafkajs");
-//require('dotenv').config(); // Load environment variables
 
 // Initialize Kafka client
 const kafka = new Kafka({
@@ -7,7 +6,7 @@ const kafka = new Kafka({
 });
 
 // Create a consumer instance
-const consumer = kafka.consumer({ groupId: "test-group" });
+const consumer = kafka.consumer({ groupId: "my-group-id" });
 
 // Function to listen to Kafka messages
 const run = async () => {
