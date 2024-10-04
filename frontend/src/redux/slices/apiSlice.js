@@ -14,6 +14,7 @@ export const createData = createAsyncThunk(
             };
 
             const apiUrl = `${process.env.REACT_APP_API_URI}${indicatorPath}`
+            console.log("hey i am apiUrl...", apiUrl);
             const response = await axios.post(apiUrl, payload, {
                 headers:defaultHeaders
             });
@@ -34,7 +35,7 @@ export const getData = createAsyncThunk(
             const apiUrl = `${process.env.REACT_APP_API_URI}${indicatorPath}`
             console.log('apiUrl',apiUrl)
             const response = await axios.get(apiUrl);
-
+            
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
