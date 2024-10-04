@@ -84,29 +84,28 @@ const OMRSheet = () => {
   };
 
   const handleButtonClick = async (temp) => {
-    const { template_name, map, t_name, batch_name, ID } = temp;
+    const { template_name, map, t_name, batch_name } = temp;
 
     if (!map || !JSON.parse(map) || map === "") {
       return toast.warn("Mapping is required.");
     }
-
-    // Parse the map JSON
-    const parsedMap = JSON.parse(map);
-
-    // Generate type_config from the parsed map
-    const typeConfig = generateTypeConfig(parsedMap);
-    const payload = {
-      template: JSON.parse(map),
-      template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
-      //data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
-      data_path: `${process.env.REACT_APP_AI_DATA}${template_name}/${batch_name}`,
-      t_name: `${t_name}`,
-      type_config: typeConfig,
-      batch_name: `${batch_name}`,
-      // processed_omr_result_id: `${ID}`
-    };
-
+    console.log("map", map);
     try {
+      // Parse the map JSON
+      const parsedMap = JSON.parse(map);
+
+      // Generate type_config from the parsed map
+      const typeConfig = generateTypeConfig(parsedMap);
+      const payload = {
+        template: JSON.parse(map),
+        template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
+        //data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
+        data_path: `${process.env.REACT_APP_AI_DATA}${template_name}/${batch_name}`,
+        t_name: `${t_name}`,
+        type_config: typeConfig,
+        batch_name: `${batch_name}`,
+        // processed_omr_result_id: `${ID}`
+      };
       const response = await fetch(process.env.REACT_APP_AI_API, {
         method: "POST",
         headers: {
@@ -149,14 +148,14 @@ const OMRSheet = () => {
 
         <table className="table table-striped table-bordered table-hover">
           <thead>
-            <tr>
+            {/* <tr>
               <PaginationControl
                 currentPage={currentPage}
                 pagination={pagination}
                 handlePageChange={handlePageChange}
                 isNextDisabled={isLastPage}
               />
-            </tr>
+            </tr> */}
             <tr>
               <th scope="col">Template Name</th>
               <th scope="col">Batch Name</th>
