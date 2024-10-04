@@ -5,149 +5,163 @@ import { createData, getData } from "../../redux/slices/apiSlice";
 import { toast } from "react-toastify";
 
 const Add = () => {
-    const dispatch = useDispatch();
-    const [selectedfile, SetSelectedFile] = useState([]);
-    const [Files, SetFiles] = useState([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const dispatch = useDispatch();
+  const [selectedfile, SetSelectedFile] = useState([]);
+  const [Files, SetFiles] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [formData, setFormData] = useState({
-        template: {},
-        batch_name: null,
-    });
-    const [templateOptions, setTemplateOptions] = useState([]);
+  const [formData, setFormData] = useState({
+    template: {},
+    batch_name: null,
+  });
+  const [templateOptions, setTemplateOptions] = useState([]);
 
-    useEffect(() => {
-        async function fetchData() {
-            const action = await dispatch(getData({ indicatorPath: '/templates' }));
-            if (getData.fulfilled.match(action)) {
-                setTemplateOptions(action.payload.results.map((item) => ({
-                    value: item?.template_id,
-                    label: `${item?.template_name}`,
-                })));
-            } else {
-                toast.error('Unable to fetch templates. Please try again.');
-            }
+  useEffect(() => {
+    async function fetchData() {
+      const action = await dispatch(getData({ indicatorPath: "/templates" }));
+      if (getData.fulfilled.match(action)) {
+        setTemplateOptions(
+          action.payload.results.map((item) => ({
+            value: item?.template_id,
+            label: `${item?.template_name}`,
+          }))
+        );
+      } else {
+        toast.error("Unable to fetch templates. Please try again.");
+      }
+    }
+    fetchData();
+  }, [dispatch]);
+
+  const FileUploadSubmit = async (e) => {
+    e.preventDefault();
+    // if (!formData.template.value) {
+    //     toast.error('Please select a template. Please try again.');
+    //     return;
+    // }
+
+    if (!formData.template.label) {
+      toast.error("Please enter a batch name. Please try again.");
+      return;
+    }
+
+    // if (!selectedfile.length > 0) {
+    //     toast.error('At least one file is required. Please try again.');
+    //     return;
+    // }
+
+    // e.target.reset();  // Reset form after submission
+
+    try {
+      setIsSubmitting(true);
+
+      // Send the request to process images
+      const processPayload = {
+        template_name: formData.template.label,
+      };
+
+      // Log the template_name before sending the API request
+      console.log("Template name being sent:", processPayload.template_name);
+
+      const processAction = await dispatch(
+        createData({
+          indicatorPath: "/master/process-images",
+          payload: processPayload,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+      );
+      console.log("createData", createData);
+
+      if (createData.fulfilled.match(processAction)) {
+        // toast.success('Image processing initiated successfully.');
+        const serverMessage = processAction.payload?.message;
+
+        // Check if the response contains the message for missing files
+        if (serverMessage?.includes("No files found")) {
+          toast.error(serverMessage); // Show error toast if no files are found
+        } else {
+          toast.success("Image processing initiated successfully.");
         }
-        fetchData();
-    }, [dispatch]);
+      } else {
+        toast.error("Image processing failed. Please try again.");
+      }
+    } catch (error) {
+      toast.error("File upload and processing failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    const FileUploadSubmit = async (e) => {
-        e.preventDefault();
-        // if (!formData.template.value) {
-        //     toast.error('Please select a template. Please try again.');
-        //     return;
-        // }
+  const handleOnChangeParentInput = useCallback((e, field) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: e,
+    }));
+  }, []);
 
-        if (!formData.template.label) {
-            toast.error('Please enter a batch name. Please try again.');
-            return;
-        }
-
-        // if (!selectedfile.length > 0) {
-        //     toast.error('At least one file is required. Please try again.');
-        //     return;
-        // }
-
-        // e.target.reset();  // Reset form after submission
-
-        try {
-            setIsSubmitting(true);
-
-            // Send the request to process images
-            const processPayload = {
-                template_name: formData.template.label // Assuming template_name is the label
-            };
-
-            // Log the template_name before sending the API request
-            console.log("Template name being sent:", processPayload.template_name);
-
-            const processAction = await dispatch(createData({
-                indicatorPath: '/master/process-images',
-                payload: processPayload,
-                method: 'POST',  // Specify that it's a POST request
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }));
-
-            if (createData.fulfilled.match(processAction)) {
-               // toast.success('Image processing initiated successfully.');
-               const serverMessage = processAction.payload?.message;
-            
-               // Check if the response contains the message for missing files
-               if (serverMessage?.includes('No files found')) {
-                   toast.error(serverMessage);  // Show error toast if no files are found
-               } else {
-                   toast.success('Image processing initiated successfully.');
-               }
-            } else {
-                toast.error('Image processing failed. Please try again.');
-            }
-
-        } catch (error) {
-            toast.error('File upload and processing failed. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleOnChangeParentInput = useCallback((e, field) => {
-        setFormData(prevData => ({
-            ...prevData,
-            [field]: e
-        }));
-    }, []);
-
-    return (
-        <div className="fileupload-view">
-            <div className="row justify-content-center m-0">
-                <div className="col-md-12">
-                    <div className="card mt-5">
-                        <div className="card-body">
-                            <div className="kb-data-box">
-                                <div className="kb-modal-data-title">
-                                    <div className="kb-data-title">
-                                        <h6>Upload OMR Sheet</h6>
-                                    </div>
-                                </div>
-                                <form onSubmit={FileUploadSubmit}>
-                                    <div className="row">
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor='template_id' className="mr-3 pe-7">Select Template Name</label>
-                                            <Select
-                                                className="custome-input-height wide-input5 custome-border"
-                                                id="template_name"
-                                                name="template_name"
-                                                options={[{ label: "Select Template", value: null }, ...templateOptions]}
-                                                onChange={(selectedOption) => handleOnChangeParentInput(selectedOption, 'template')}
-                                                value={formData.template || { label: "Select Template", value: null }}
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-6 mt-5">
-                                            <div className="kb-buttons-box">
-                                                <button type="submit" className="btn btn-primary form-submit" disabled={isSubmitting}>
-                                                    {isSubmitting ? 'Processing...' : 'Processing'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-
-                            </div>
-                        </div>
-                    </div>
+  return (
+    <div className="fileupload-view">
+      <div className="row justify-content-center m-0">
+        <div className="col-md-12">
+          <div className="card mt-5">
+            <div className="card-body">
+              <div className="kb-data-box">
+                <div className="kb-modal-data-title">
+                  <div className="kb-data-title">
+                    <h6>Upload OMR Sheet</h6>
+                  </div>
                 </div>
+                <form onSubmit={FileUploadSubmit}>
+                  <div className="row">
+                    <div className="form-group col-md-6">
+                      <label htmlFor="template_id" className="mr-3 pe-7">
+                        Select Template Name
+                      </label>
+                      <Select
+                        className="custome-input-height wide-input5 custome-border"
+                        id="template_name"
+                        name="template_name"
+                        options={[
+                          { label: "Select Template", value: null },
+                          ...templateOptions,
+                        ]}
+                        onChange={(selectedOption) =>
+                          handleOnChangeParentInput(selectedOption, "template")
+                        }
+                        value={
+                          formData.template || {
+                            label: "Select Template",
+                            value: null,
+                          }
+                        }
+                      />
+                    </div>
+                    <div className="form-group col-md-6 mt-5">
+                      <div className="kb-buttons-box">
+                        <button
+                          type="submit"
+                          className="btn btn-primary form-submit"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? "Processing..." : "Processing"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default Add;
-
-
-
-
-
 
 // import React, { useState, useEffect, useCallback } from "react";
 // import Select from "react-select";
@@ -169,7 +183,7 @@ export default Add;
 //     useEffect(() => {
 //         async function fetchData() {
 //             const action = await dispatch(getData({ indicatorPath: '/templates' }));
-            
+
 //             if (getData.fulfilled.match(action)) {
 //                 const mappedResults = action.payload.results.map((item) => {
 //                     console.log(item);
@@ -179,8 +193,7 @@ export default Add;
 //                     };
 //                 });
 //             }
-            
-            
+
 //             if (getData.fulfilled.match(action)) {
 //                 console.log("hey i am action...", action);
 //                 setTemplateOptions(action.payload.results.map((item) => ({
@@ -194,7 +207,6 @@ export default Add;
 //         }
 //         fetchData();
 //     }, [])
-
 
 //     const filesizes = (bytes, decimals = 2) => {
 //         if (bytes === 0) return '0 Bytes';
@@ -235,7 +247,6 @@ export default Add;
 //         }
 //     }
 
-
 //     const DeleteSelectFile = (id) => {
 //         if (window.confirm("Are you sure you want to delete this Image?")) {
 //             const result = selectedfile.filter((data) => data.id !== id);
@@ -261,7 +272,7 @@ export default Add;
 //             toast.error('At least one file required. Please try again.');
 //             return;
 //         }
-//         // form reset on submit 
+//         // form reset on submit
 //         e.target.reset();
 //         if (selectedfile.length > 0) {
 //             for (let index = 0; index < selectedfile.length; index++) {
@@ -271,7 +282,7 @@ export default Add;
 //                         selectedfile[index]
 //                     ]
 //                 })
-//             } 
+//             }
 //             const uploadData = selectedfile.map((fileObj) => ({
 //                 fileName: fileObj.filename,
 //                 fileType: fileObj.filetype,
@@ -293,7 +304,7 @@ export default Add;
 //                 const headers = {
 //                     'Content-Type': 'multipart/form-data'
 //                 };
-                  
+
 //                 const action = await dispatch(createData({ indicatorPath: '/omr/upload', payload, headers }));
 //                 if (createData.fulfilled.match(action)) {
 //                     toast.success(action.payload.message);
@@ -312,7 +323,6 @@ export default Add;
 //             toast.warning('Please select file');
 //         }
 //     }
-
 
 //     const DeleteFile = async (id) => {
 //         if (window.confirm("Are you sure you want to delete this Image?")) {
@@ -334,7 +344,6 @@ export default Add;
 //             return updatedData;
 //         });
 //     }, [setFormData]);
-
 
 //     return (
 
@@ -372,7 +381,6 @@ export default Add;
 //                                             </div>
 //                                         </div>
 
-                                  
 //                                         <div className="form-group col-md-6 mt-5">
 //                                             <div className="kb-buttons-box">
 //                                                 <button type="submit" className={`btn btn-primary form-submit`} >processing</button>
@@ -417,26 +425,11 @@ export default Add;
 //     );
 // }
 
-
 // export default Add;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //phle wala code
 
-// 
+//
 // import React, { useState, useEffect, useCallback } from "react";
 // import Select from "react-select";
 // import { useDispatch } from "react-redux";
@@ -457,7 +450,7 @@ export default Add;
 //     useEffect(() => {
 //         async function fetchData() {
 //             const action = await dispatch(getData({ indicatorPath: '/templates' }));
-            
+
 //             // if (getData.fulfilled.match(action)) {
 //             //     const mappedResults = action.payload.results.map((item) => {
 //             //         console.log(item);
@@ -467,8 +460,7 @@ export default Add;
 //             //         };
 //             //     });
 //             // }
-            
-            
+
 //             if (getData.fulfilled.match(action)) {
 //                 console.log("hey i am action...", action);
 //                 setTemplateOptions(action.payload.results.map((item) => ({
@@ -482,7 +474,6 @@ export default Add;
 //         }
 //         fetchData();
 //     }, [])
-
 
 //     const filesizes = (bytes, decimals = 2) => {
 //         if (bytes === 0) return '0 Bytes';
@@ -523,7 +514,6 @@ export default Add;
 //         }
 //     }
 
-
 //     const DeleteSelectFile = (id) => {
 //         if (window.confirm("Are you sure you want to delete this Image?")) {
 //             const result = selectedfile.filter((data) => data.id !== id);
@@ -549,7 +539,7 @@ export default Add;
 //             toast.error('At least one file required. Please try again.');
 //             return;
 //         }
-//         // form reset on submit 
+//         // form reset on submit
 //         e.target.reset();
 //         if (selectedfile.length > 0) {
 //             for (let index = 0; index < selectedfile.length; index++) {
@@ -559,7 +549,7 @@ export default Add;
 //                         selectedfile[index]
 //                     ]
 //                 })
-//             } 
+//             }
 //             const uploadData = selectedfile.map((fileObj) => ({
 //                 fileName: fileObj.filename,
 //                 fileType: fileObj.filetype,
@@ -581,7 +571,7 @@ export default Add;
 //                 const headers = {
 //                     'Content-Type': 'multipart/form-data'
 //                 };
-                  
+
 //                 const action = await dispatch(createData({ indicatorPath: '/omr/upload', payload, headers }));
 //                 if (createData.fulfilled.match(action)) {
 //                     toast.success(action.payload.message);
@@ -600,7 +590,6 @@ export default Add;
 //             toast.warning('Please select file');
 //         }
 //     }
-
 
 //     const DeleteFile = async (id) => {
 //         if (window.confirm("Are you sure you want to delete this Image?")) {
@@ -622,7 +611,6 @@ export default Add;
 //             return updatedData;
 //         });
 //     }, [setFormData]);
-
 
 //     return (
 
@@ -759,6 +747,5 @@ export default Add;
 
 //     );
 // }
-
 
 // export default Add;
