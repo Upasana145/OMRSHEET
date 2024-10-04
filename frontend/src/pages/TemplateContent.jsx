@@ -205,69 +205,54 @@ function TemplateContent({ users, fetchUsers, templates }) {
     },
   ];
 
-  // const convertToCSV = (data, templateName) => {
-  //   const csvRows = [];
-  //   // Add headers
-  //   csvRows.push('batch_name,correct_result');
+const convertToCSV = (data, templateName) => {
+  console.log("hey i am data..........", data);
+  const csvRows = [];
+  const headersSet = new Set(); // To keep track of unique headers
 
-  //   data.forEach(item => {
-  //     const batchName = item.batch_name;
-  //     const correctResult = JSON.parse(item.correct_result);
-  //     const correctResultString = JSON.stringify(correctResult); // Convert to string if needed
+  data.forEach((item) => {
+    if (item?.correct_result && item.correct_result !== "") {
+      const correctResult = JSON.parse(item.correct_result);
+      correctResult.forEach((q) => {
+        for (const key in q) {
+          headersSet.add(key); 
+        }
+      });
+    }
+  });
 
-  //     // Add rows
-  //     csvRows.push(`${batchName},"${correctResultString}"`); // Use quotes for correct_result
-  //   });
+ 
+  const headers = Array.from(headersSet).sort();
+  csvRows.push(["batch_name", "question_paper_name", ...headers].join(",")); // Add headers to the CSV
 
-  //   return csvRows.join('\n'); // Join rows with newline
-  // };
+ 
+  data.forEach((item) => {
+    if (item?.correct_result && item.correct_result !== "") {
+      const batchName = item.batch_name;
+      const questionPaperName = item.question_paper_name;
+      console.log("heyyyyyyyyyy i am item...", item);
+      const correctResult = JSON.parse(item.correct_result);
 
-  const convertToCSV = (data, templateName) => {
-    const csvRows = [];
-    const headersSet = new Set(); // To keep track of unique headers
+      // Create an object to hold results for the current item
+      const results = {};
+      correctResult.forEach((q) => {
+        for (const key in q) {
+          results[key] = q[key].result; // Extract result for each question
+        }
+      });
 
-    // First, gather all unique question keys for headers
-    data.forEach((item) => {
-      if (item?.correct_result && item.correct_result !== "") {
-        const correctResult = JSON.parse(item.correct_result);
-        correctResult.forEach((q) => {
-          for (const key in q) {
-            headersSet.add(key); // Add each question key to the set
-          }
-        });
-      }
-    });
+      // Create a row with batch name, question paper name, and results
+      const row = [batchName, questionPaperName];
+      headers.forEach((header) => {
+        row.push(results[header] || ""); // Push result or empty string if not exists
+      });
 
-    // Convert the set to an array and sort headers
-    const headers = Array.from(headersSet).sort();
-    csvRows.push(["batch_name", ...headers].join(",")); // Add headers to the CSV
+      csvRows.push(row.join(",")); // Add the row to csvRows
+    }
+  });
 
-    // Now populate the rows
-    data.forEach((item) => {
-      if (item?.correct_result && item.correct_result !== "") {
-        const batchName = item.batch_name;
-        const correctResult = JSON.parse(item.correct_result);
-
-        // Create an object to hold results for the current item
-        const results = {};
-        correctResult.forEach((q) => {
-          for (const key in q) {
-            results[key] = q[key].result; // Extract result for each question
-          }
-        });
-
-        // Create a row with batch name and results, ensuring to fill missing results with empty strings
-        const row = [batchName];
-        headers.forEach((header) => {
-          row.push(results[header] || ""); // Push result or empty string if not exists
-        });
-
-        csvRows.push(row.join(","));
-      }
-    });
-
-    return csvRows.join("\n"); // Join rows with newline
-  };
+  return csvRows.join("\n"); // Join rows with newline
+};
 
   const downloadCSV = (data, templateName) => {
     const csvContent = convertToCSV(data, templateName);
