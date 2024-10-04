@@ -1,7 +1,8 @@
 const { resSend } = require("../utils/resSend");
 const { query } = require("../db/db.js");
 const { dateSqlType } = require("../utils/dateFormat");
-
+const path = require("path");
+const fs = require('fs');
 // GET /api/v1/master/dept
 exports.getDept = async (req, res) => {
   try {
@@ -222,7 +223,7 @@ exports.deleteomrData = async (req, res) => {
 
   if (result1 && result1[0].count > 0) {
     try {
-      // let sql = `Delete FROM save_data WHERE template_name = '${template_name}' AND is_deleted = 0 `;
+      // let sql = `Delete FROM  WHERE template_name = '${template_name}' AND is_deleted = 0 `;
       let sql = `UPDATE template_image_json SET is_deleted = 1 WHERE template_name = '${template_name}' AND is_deleted = 0`;
       const result = await query({
         query: sql,
@@ -241,7 +242,7 @@ exports.editomrData = async (req, res) => {
   const { template_name, map } = req.body;
   console.log("hey i am template " + template_name);
   try {
-    let name_count = `SELECT COUNT(template_name) as count FROM save_data WHERE template_name  = '${template_name}'`;
+    let name_count = `SELECT COUNT(template_name) as count FROM  WHERE template_name  = '${template_name}'`;
     const result2 = await query({
       query: name_count,
       values: [],
@@ -253,21 +254,6 @@ exports.editomrData = async (req, res) => {
     if (result2 && result2[0].count > 0) {
       const mapString = JSON.stringify(map);
       const currentDate = new Date().toISOString().slice(0, 10);
-      // console.log("hey i am currentdateeeeee...", currentDate);
-
-      // Get current date
-      // const specialInfo = []; // Array to store special information
-
-      // if (Birthday) {
-      //   specialInfo.push({ birthday: Birthday, date: currentDate });
-      // }
-      // if ( Anniversary) {
-      //   specialInfo.push({ anniversory: Anniversory, date: currentDate });
-      // }
-      // const specialInfoJSON = JSON.stringify(specialInfo); // Convert to JSON string
-
-      // let sql = `UPDATE employee SET name=?, why_special=?, employee_email=?, senior_email=?, hr_email=? WHERE NGS=?`;
-
       let sql = `UPDATE save_data SET map=? WHERE template_name=?`;
 
       const result = await query({
@@ -336,34 +322,6 @@ exports.getspecifictemp = async (req, res) => {
   }
 };
 
-// POST/api/v1/master/getallomrdata
-
-// selectjson
-
-// exports.selectjson = async (req, res) => {
-//   const selectJsonQuery = `
-//   SELECT por.result
-//   FROM processed_omr_results por
-//   JOIN template_image_info tii
-//   ON por.template_name = tii.template_name
-// `;
-
-//   // Step 2: Execute the query
-//   db.query(selectJsonQuery, (err, results) => {
-//     if (err) {
-//       console.error("Error fetching JSON data:", err);
-//       return res.status(500).json({ message: "Internal server error" });
-//     }
-
-//     if (results.length === 0) {
-//       return res.status(404).json({ message: "No matching JSON data found" });
-//     }
-
-//     // Step 3: Return the selected JSON data
-//     res.status(200).json(results);
-//   });
-// };
-
 exports.getalltempbatch = async (req, res) => {
   try {
     let sql = `SELECT * FROM reviewer_assign`;
@@ -383,13 +341,10 @@ exports.getalltempbatch = async (req, res) => {
   }
 };
 
-//  all the batches corresponding to the template_name
+
 exports.alltempbatches = async (req, res) => {
   try {
-    // Extract template_name from req.body
     const { template_name } = req.body;
-
-    // SQL query to select batch_name corresponding to template_name from the reviewer_assign table
     let sql = `
       SELECT * 
       FROM reviewer_assign 
@@ -398,11 +353,11 @@ exports.alltempbatches = async (req, res) => {
 
     const result = await query({
       query: sql,
-      values: [template_name], // Passing the template_name as a value to the query
+      values: [template_name], 
     });
 
     if (result && result.length > 0) {
-      // Send response with the result
+     
       resSend(res, true, 200, "All batch names found", result, null);
     } else {
       resSend(res, false, 200, "No Record Found!", result, null);
@@ -603,9 +558,6 @@ exports.proc_omr_result_data = async (req, res) => {
 };
 
 
-
-
-
 exports.reviewer_reviews_ques_name = async (req, res) => {
   try {
     const { batch_name, question_paper_name } = req.body;
@@ -614,26 +566,6 @@ exports.reviewer_reviews_ques_name = async (req, res) => {
   if (!batch_name || !question_paper_name) {
     return res.status(400).json({ error: 'Batch and question_paper_name are required' });
   }
-
-  // SQL query
-  // const sqlqu = `
-  //   SELECT rr.*
-  //   FROM reviewer_reviews rr
-  //   JOIN processed_omr_results por
-  //   ON rr.template_name = por.template_name
-  //      AND rr.batch_name = por.batch_name
-  //      AND rr.question_paper_name = por.question_paper_name
-  //   WHERE rr.batch_name = ? AND rr.question_paper_name = ?;
-  // `;
-
-  // const sqlqu = `
-  //   SELECT rr.*
-  //   FROM reviewer_reviews rr
-  //   JOIN processed_omr_results por
-  //   ON rr.template_name = por.template_name
-  //   WHERE rr.batch_name = ? AND rr.question_paper_name = ?;
-  // `;
-
 
 
   const sqlqu = `
@@ -669,7 +601,6 @@ exports.reviewer_reviews_ques_name = async (req, res) => {
     return resSend(res, false, 500, "Internal server error.", error, null);
   }
 };
-
 
 
 
@@ -718,6 +649,236 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
   }
 };
 
+
+
+
+
+
+// exports.processFoldersAndImages = async (req, res) => {
+//   try {
+//     const { template_name } = req.body; // Get t_name from the request body
+
+//     if (!template_name ) {
+//       return resSend(res, false, 400, 'Template name (template_name) is required.', null, null);
+//     }
+
+//     // Define the base path
+//     const desktopPath = 'C:\\Users\\User\\Desktop\\omrproject';
+
+//     // Log all the folders in the Desktop directory
+//     const allFoldersOnDesktop = fs.readdirSync(desktopPath).filter(item => {
+//       return fs.lstatSync(path.join(desktopPath, item)).isDirectory();
+//     });
+
+//     console.log("All folders present in 'C:\\Users\\User\\Desktop\\omrproject':", allFoldersOnDesktop);
+
+//     // Construct the base directory path using t_name
+//     const baseDir = path.join(desktopPath, template_name );
+
+//     // Check if the folder for t_name exists
+//     if (!fs.existsSync(baseDir)) {
+//       return resSend(res, false, 404, `Folder '${template_name }' not found in the base directory.`, null, null);
+//     }
+
+//     // Read all folders in the base directory (inside the folder corresponding to t_name)
+//     const folders = fs.readdirSync(baseDir);
+
+//     if (!folders || folders.length === 0) {
+//       return resSend(res, false, 200, 'the batch folders are missing', null, null);
+//     }
+
+//     console.log("Folders inside the base directory:", folders);
+
+//     // Array to store all image paths for bulk insertion
+//     let allImagePaths = [];
+
+//     // Iterate over each folder
+//     for (let folder of folders) {
+//       console.log("Processing folder name:", folder);
+//       if (folder === 'default') {
+//         console.log("Skipping folder 'default'");
+//         continue; // Skip to the next folder
+//       }
+//       const folderPath = path.join(baseDir, folder);
+
+//       // Check if the current item is a directory
+//       if (fs.lstatSync(folderPath).isDirectory()) {
+//         console.log(`Processing folder: ${folderPath}`);
+
+//         // Read all images in the current folder
+//         const files = fs.readdirSync(folderPath);
+
+//         if (files && files.length > 0) {
+//           // Iterate over each image in the folder
+//           for (let file of files) {
+//             console.log("Processing image name:", file);
+//             const filePath = path.join(folderPath, file);
+
+//             // Check if the file is an image
+//             if (fs.lstatSync(filePath).isFile()) {
+//               console.log(`Found image: ${filePath}`);
+
+//               // Store the folder path and image path for database insertion
+//               allImagePaths.push([folder, file]);
+//             }
+//           }
+//         } else {
+//           console.log(`No files found in folder: ${folderPath}`);
+//         }
+//       }
+//     }
+
+//     // Insert all image paths into the database
+//     if (allImagePaths.length > 0) {
+//       // Create placeholders for the query
+//       const placeholders = allImagePaths.map(() => '(?, ?)').join(', ');
+//       const sqlQuery = `INSERT INTO images_path (folder_path, image_path) VALUES ${placeholders}`;
+
+//       // Flatten the array to pass as values
+//       const flattenedValues = allImagePaths.flat();
+
+//       // Execute the SQL query
+//       const result = await query({
+//         query: sqlQuery,
+//         values: flattenedValues,
+//       });
+
+//       console.log('Inserted image paths into the database:', result);
+//       return resSend(res, true, 200, 'Image processing completed successfully.', result, null);
+//     } else {
+//       return resSend(res, false, 404, 'No images found in the folders.', null, null);
+//     }
+
+//   } catch (error) {
+//     console.error('Error processing images:', error);
+//     return resSend(res, false, 500, 'Internal server error.', error, null);
+//   }
+// };
+
+
+exports.processFoldersAndImages = async (req, res) => {
+  try {
+    const { template_name } = req.body; // Get template_name from the request body
+
+    if (!template_name) {
+      return resSend(res, false, 400, 'Template name (template_name) is required.', null, null);
+    }
+
+
+        // Query to select t_name and id from template_json table
+        const templateQuery = `SELECT t_name, ID FROM template_image_json WHERE template_name = ?`;
+
+        // Execute the query to get t_name and id
+        const templateResult = await query({
+          query: templateQuery,
+          values: [template_name],
+        });
+    
+        if (!templateResult || templateResult.length === 0) {
+          return resSend(res, false, 404, `No records found for template_name: '${template_name}' in the template_json table.`, null, null);
+        }
+    
+        // Extract t_name and id from the query result
+        const { t_name, ID } = templateResult[0];
+        console.log(`Template found: t_name=${t_name}, id=${ID}`);
+
+    // Define the base path
+    const desktopPath = 'C:\\Users\\User\\Desktop\\omrproject';
+
+    // Log all the folders in the Desktop directory
+    const allFoldersOnDesktop = fs.readdirSync(desktopPath).filter(item => {
+      return fs.lstatSync(path.join(desktopPath, item)).isDirectory();
+    });
+
+    console.log("All folders present in 'C:\\Users\\User\\Desktop\\omrproject':", allFoldersOnDesktop);
+
+    // Construct the base directory path using template_name
+    const baseDir = path.join(desktopPath, template_name);
+
+    // Check if the folder for template_name exists
+    if (!fs.existsSync(baseDir)) {
+      return resSend(res, false, 404, `Folder '${template_name}' not found in the base directory.`, null, null);
+    }
+
+    // Read all folders in the base directory (inside the folder corresponding to template_name)
+    const folders = fs.readdirSync(baseDir);
+
+    if (!folders || folders.length === 0) {
+      return resSend(res, false, 200, 'The batch folders are missing.', null, null);
+    }
+
+    console.log("Folders inside the base directory:", folders);
+
+    // Array to store all image paths for bulk insertion
+    let allImagePaths = [];
+
+    // Iterate over each folder
+    for (let folder of folders) {
+      console.log("Processing folder name:", folder);
+      if (folder === 'default') {
+        console.log("Skipping folder 'default'");
+        continue; // Skip to the next folder
+      }
+      const folderPath = path.join(baseDir, folder);
+
+      // Check if the current item is a directory
+      if (fs.lstatSync(folderPath).isDirectory()) {
+        console.log(`Processing folder: ${folderPath}`);
+
+        // Read all images in the current folder
+        const files = fs.readdirSync(folderPath);
+        console.log("hey i am file", files);
+
+        if (!files || files.length === 0) {
+          // If no files are found, stop further processing and send a Toastify message
+          console.log(`No files found in folder: ${folderPath}`);
+          return resSend(res, false, 200, `No files found in the folder: ${folder}`, null, null);
+        } else {
+          // Iterate over each image in the folder
+          for (let file of files) {
+            console.log("Processing image name:", file);
+            const filePath = path.join(folderPath, file);
+
+            // Check if the file is an image
+            if (fs.lstatSync(filePath).isFile()) {
+              console.log(`Found image: ${filePath}`);
+
+              // Store the folder path and image path for database insertion
+              allImagePaths.push([template_name,ID,t_name,folder, file,file]);
+            }
+          }
+        }
+      }
+    }
+
+    // Insert all image paths into the database
+    if (allImagePaths.length > 0) {
+      // Create placeholders for the query
+      const placeholders = allImagePaths.map(() => '(?, ?,?,?,?,?)').join(', ');
+      // const sqlQuery = `INSERT INTO images_path (folder_path, image_path) VALUES ${placeholders}`;
+      const sqlQuery = `INSERT INTO processed_omr_results (template_name,template_id,t_name,batch_name, question_paper_name,ques_paper_image_path) VALUES ${placeholders}`;
+
+
+      // Flatten the array to pass as values
+      const flattenedValues = allImagePaths.flat();
+
+      // Execute the SQL query
+      const result = await query({
+        query: sqlQuery,
+        values: flattenedValues,
+      });
+
+      console.log('Inserted image paths into the database:', result);
+      return resSend(res, true, 200, 'Image processing completed successfully.', result, null);
+    } else {
+      return resSend(res, false, 404, 'No images found in the folders.', null, null);
+    }
+
+  } catch (error) {
+    console.error('Error processing images:', error);
+    return resSend(res, false, 500, 'Internal server error.', error, null);
+  }
+};
 
 
 
