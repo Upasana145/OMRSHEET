@@ -8,10 +8,7 @@ import {
   FaArrowUp,
   FaArrowDown,
 } from "react-icons/fa";
-// import Toastify from "toastify-js";
-// import axios from "axios";
-// import { IoCheckmarkDoneSharp, IoCheckmarkSharp } from "react-icons/io5";
-// import { getAPI } from "../utils/fetchapi";
+
 import { toast } from "react-toastify";
 
 function Templateimage({ images, template_name }) {
@@ -120,21 +117,6 @@ function Templateimage({ images, template_name }) {
     const uniqueNumber = Math.floor(100000 + Math.random() * 900000); // Random 6-digit number
     return parseInt(`${timestamp}${uniqueNumber}`) % 1000000;
   };
-  // phle aise tha
-  // const uploadImage = (image) => {
-  //   const canvas = document.getElementById("canvas");
-  //   const context = canvas.getContext("2d");
-
-  //   const img = new Image();
-  //   img.src = URL.createObjectURL(image);
-  //   img.onload = () => {
-  //     context.clearRect(0, 0, canvas.width, canvas.height); // Clear previous content
-  //     context.drawImage(img, 0, 0, canvas.width, canvas.height);
-  //   };
-  //   // console.log("Hey i am image", image);
-  //   setImage(img);
-  //   setTranslation({ x: 0, y: 0 }); // Reset translation when a new image is loaded
-  // };
 
   const uploadImage = (imageSource) => {
     const canvas = document.getElementById("canvas");
@@ -235,242 +217,6 @@ function Templateimage({ images, template_name }) {
       setDragging(true);
     }
   };
-
-  // const handleMouseUp = () => {
-  //   if (dragging && drMode) {
-  //     // if (startCoordinates.x !== null && endCoordinates.x !== null) {
-  //     //   // Update the coordinates of the selected box
-  //     //   const deltaX = endCoordinates.x - startCoordinates.x;
-  //     //   const deltaY = endCoordinates.y - startCoordinates.y;
-  //     //   // if (selectedBoxIndex !== null) {
-  //     //   //   const updatedBoxes = [...boxes];
-  //     //   //   const selectedBox = updatedBoxes[selectedBoxIndex];
-  //     //   //   // selectedBox.start.x += deltaX;
-  //     //   //   // selectedBox.start.y += deltaY;
-  //     //   //   // selectedBox.end.x += deltaX;
-  //     //   //   // selectedBox.end.y += deltaY;
-  //     //   //   // If the selected box is a parent, update the coordinates of its children
-  //     //   //   if (selectedBox.mode === "parent") {
-  //     //   //     selectedBox.children.forEach((childBox) => {
-  //     //   //       childBox.start.x += deltaX;
-  //     //   //       childBox.start.y += deltaY;
-  //     //   //       childBox.end.x += deltaX;
-  //     //   //       childBox.end.y += deltaY;
-  //     //   //     });
-  //     //   //   }
-  //     //   //   // setBoxes(updatedBoxes);
-  //     //   //   setBoxes([...boxes, updatedBoxes]);
-  //     //   // }
-  //     // }
-  //     setDragging(false);
-  //     setStartCoordinates({ x: null, y: null });
-  //     setEndCoordinates({ x: null, y: null });
-  //     setOriginalMousePosition(null);
-  //   } else if (drawingMode) {
-  //     setDragging(false);
-
-  //     if (startCoordinates.x !== null && endCoordinates.x !== null) {
-  //       const minHeight = 7; // Minimum height requirement
-  //       const minWidth = 7; // Minimum width requirement
-
-  //       // Calculate height and width of the box
-  //       const height = Math.abs(endCoordinates.y - startCoordinates.y);
-  //       const width = Math.abs(endCoordinates.x - startCoordinates.x);
-
-  //       // Check if height and width meet the minimum requirement
-  //       if (height >= minHeight && width >= minWidth) {
-  //         let newBox;
-
-  //         if (drawingModeparent) {
-  //           newBox = {
-  //             id: generateUniqueId(),
-  //             name: newBoxName,
-  //             start: { ...startCoordinates },
-  //             end: { ...endCoordinates },
-  //             mode: "parent",
-  //             height: Math.abs(endCoordinates.y - startCoordinates.y),
-  //             width: Math.abs(endCoordinates.x - startCoordinates.x),
-  //             children: [],
-  //           };
-  //         } else if (drawingModechild) {
-  //           newBox = {
-  //             id: generateUniqueId(),
-  //             name: newBoxName,
-  //             start: { ...startCoordinates },
-  //             end: { ...endCoordinates },
-  //             mode: "child",
-  //             height: Math.abs(endCoordinates.y - startCoordinates.y),
-  //             width: Math.abs(endCoordinates.x - startCoordinates.x),
-  //           };
-
-  //           const insideParent = boxes.some(
-  //             (box) =>
-  //               box.mode === "parent" &&
-  //               newBox.start.x > box.start.x &&
-  //               newBox.start.y > box.start.y &&
-  //               newBox.end.x < box.end.x &&
-  //               newBox.end.y < box.end.y
-  //           );
-  //           console.log("insideParent", insideParent);
-
-  //           if (insideParent) {
-  //             const parentIndex = boxes.findIndex(
-  //               (box) =>
-  //                 box.mode === "parent" &&
-  //                 newBox.start.x > box.start.x &&
-  //                 newBox.start.y > box.start.y &&
-  //                 newBox.end.x < box.end.x &&
-  //                 newBox.end.y < box.end.y
-  //             );
-  //             console.log("parentIndex", parentIndex);
-
-  //             const updatedBoxes = [...boxes];
-  //             updatedBoxes[parentIndex].children.push(newBox);
-  //             setBoxes(updatedBoxes);
-
-  //             return;
-  //           }
-  //         } else {
-  //           console.log("hello");
-  //         }
-
-  //         setBoxes([...boxes, newBox]);
-  //         // console.log("hello jii ", boxes);
-  //         setBoxNameInput("");
-  //         console.log(
-  //           "Boxes data:",
-  //           JSON.stringify([...boxes, newBox], null, 2)
-  //         );
-  //       } else {
-  //         console.log("Minimum height and width requirement not met");
-  //       }
-  //     }
-  //   }
-  // };
-
-  // const handleMouseUp = () => {
-  //   if (dragging && drMode) {
-  //     setDragging(false);
-  //     setStartCoordinates({ x: null, y: null });
-  //     setEndCoordinates({ x: null, y: null });
-  //     setOriginalMousePosition(null);
-  //   } else if (drawingMode) {
-  //     setDragging(false);
-
-  //     if (startCoordinates.x !== null && endCoordinates.x !== null) {
-  //       const minHeight = 7; // Minimum height requirement
-  //       const minWidth = 7; // Minimum width requirement
-
-  //       // Calculate height and width of the box
-  //       const height = Math.abs(endCoordinates.y - startCoordinates.y);
-  //       const width = Math.abs(endCoordinates.x - startCoordinates.x);
-
-  //       // Check if height and width meet the minimum requirement
-  //       if (height >= minHeight && width >= minWidth) {
-  //         let newBox;
-
-  //         if (drawingModeparent) {
-  //           newBox = {
-  //             id: generateUniqueId(),
-  //             name: newBoxName,
-  //             start: { ...startCoordinates },
-  //             end: { ...endCoordinates },
-  //             mode: "parent",
-  //             height: Math.abs(endCoordinates.y - startCoordinates.y),
-  //             width: Math.abs(endCoordinates.x - startCoordinates.x),
-  //             children: [],
-  //           };
-  //         } else if (drawingModechild) {
-  //           newBox = {
-  //             id: generateUniqueId(),
-  //             name: newBoxName,
-  //             start: { ...startCoordinates },
-  //             end: { ...endCoordinates },
-  //             mode: "child",
-  //             height: Math.abs(endCoordinates.y - startCoordinates.y),
-  //             width: Math.abs(endCoordinates.x - startCoordinates.x),
-  //           };
-
-  //           const insideParent = boxes.some(
-  //             (box) =>
-  //               box.mode === "parent" &&
-  //               newBox.start.x > box.start.x &&
-  //               newBox.start.y > box.start.y &&
-  //               newBox.end.x < box.end.x &&
-  //               newBox.end.y < box.end.y
-  //           );
-  //           console.log("insideParent", insideParent);
-
-  //           if (insideParent) {
-  //             const parentIndex = boxes.findIndex(
-  //               (box) =>
-  //                 box.mode === "parent" &&
-  //                 newBox.start.x > box.start.x &&
-  //                 newBox.start.y > box.start.y &&
-  //                 newBox.end.x < box.end.x &&
-  //                 newBox.end.y < box.end.y
-  //             );
-  //             console.log("parentIndex", parentIndex);
-
-  //             const updatedBoxes = [...boxes];
-  //             updatedBoxes[parentIndex].children.push(newBox);
-  //             setBoxes(updatedBoxes);
-
-  //             return;
-  //           }
-  //         } else if (drawingModeAnchor) {
-  //           newBox = {
-  //             id: generateUniqueId(),
-  //             name: newBoxName,
-  //             start: { ...startCoordinates },
-  //             end: { ...endCoordinates },
-  //             mode: "anchor",
-  //             height: Math.abs(endCoordinates.y - startCoordinates.y),
-  //             width: Math.abs(endCoordinates.x - startCoordinates.x),
-  //           };
-  //         } else if (drawingModeRollNo) {
-  //           newBox = {
-  //             id: generateUniqueId(),
-  //             name: newBoxName,
-  //             start: { ...startCoordinates },
-  //             end: { ...endCoordinates },
-  //             mode: "RollNo",
-  //             height: Math.abs(endCoordinates.y - startCoordinates.y),
-  //             width: Math.abs(endCoordinates.x - startCoordinates.x),
-  //           };
-  //         } else if (drawingModeQuestionpaper) {
-  //           newBox = {
-  //             id: generateUniqueId(),
-  //             name: newBoxName,
-  //             start: { ...startCoordinates },
-  //             end: { ...endCoordinates },
-  //             mode: "Questionpaper",
-  //             height: Math.abs(endCoordinates.y - startCoordinates.y),
-  //             width: Math.abs(endCoordinates.x - startCoordinates.x),
-  //           };
-  //         }
-
-  //         if (newBox) {
-  //           setBoxes([...boxes, newBox]);
-  //           setBoxNameInput("");
-  //           console.log(
-  //             "Boxes data:",
-  //             JSON.stringify([...boxes, newBox], null, 2)
-  //           );
-  //         } else {
-  //           console.log(
-  //             "Neither drawingModeparent nor drawingModechild is active."
-  //           );
-  //         }
-  //       } else {
-  //         console.log("Minimum height and width requirement not met");
-  //       }
-  //     }
-  //   }
-  // };
-
-
-  // ***********************
 
 
 
@@ -626,59 +372,10 @@ function Templateimage({ images, template_name }) {
       }
     }
   };
-  // ************************
+
   console.log("hey i am template_name ...", template_name);
-  // const handleSave = async (template_name) => {
-  //   console.log("template_name ...", template_name);
-  //   console.log("hey i am boxes...", boxes);
-  //   try {
-  //     const response = await fetch(
-  //       "http://localhost:4002/api/v1/master/insertomrData",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
 
-  //         body: JSON.stringify({ template_name, boxes }),
-  //       }
-  //     );
-  //     // console.log("API response:", response);
-  //     const responseData = await response.json();
-  //     console.log("Response data:", responseData);
-  //   } catch (error) {
-  //     if (error.response) {
-  //       console.error("Error hitting API:", error.response.data);
-  //       console.error("Status code:", error.response.status);
-  //       console.error("Headers:", error.response.headers);
-  //     } else if (error.request) {
-  //       // The request was made but no response was received
-  //       console.error("No response received:", error.request);
-  //     } else {
-  //       // Something happened in setting up the request that triggered an Error
-  //       console.error("Error in setting up the request:", error.message);
-  //     }
-  //     console.error("Error config:", error.config);
-  //   }
-  // };
-
-  // *************save****************
-
-  // const handleSave = async () => {
-  //   try {
-  //     const data = await getAPI(`master/getall`, null);
-
-  //     console.log("hey i am data.......", data);
-  //     // if (data.status) {
-  //     //   setUsers(data?.data);
-  //     // } else {
-  //     //   toast.error(data?.message);
-  //     // }
-  //   } catch (error) {
-  //     console.error(error);
-  //     // toast.error("Something went wrong. Try Again!");
-  //   }
-  // };
+  
   const handleSave = async (template_name) => {
     console.log("Save button clicked");
     console.log("template_name...", template_name);
@@ -757,30 +454,7 @@ function Templateimage({ images, template_name }) {
       setEndCoordinates({ x, y });
       draw();
     }
-    // if (dragging) {
-    //   const canvas = document.getElementById("canvas");
-    //   const rect = canvas.getBoundingClientRect();
-    //   const deltaX =
-    //     (event.clientX - rect.left) / zoomFactor -
-    //     translation.x -
-    //     startCoordinates.x;
-    //   const deltaY =
-    //     (event.clientY - rect.top) / zoomFactor -
-    //     translation.y -
-    //     startCoordinates.y;
 
-    //   setTranslation((prevTranslation) => ({
-    //     x: prevTranslation.x + deltaX,
-    //     y: prevTranslation.y + deltaY,
-    //   }));
-
-    //   startCoordinates.x =
-    //     (event.clientX - rect.left) / zoomFactor - translation.x;
-    //   startCoordinates.y =
-    //     (event.clientY - rect.top) / zoomFactor - translation.y;
-
-    //   draw();
-    // }
   };
 
   // ZoomIn and ZoomOut functionality
@@ -813,23 +487,9 @@ function Templateimage({ images, template_name }) {
     const imageWidth = image.width * zoomFactor;
     const imageHeight = image.height * zoomFactor;
 
-    // console.log("hey i am canvas width: " + canvasWidth);
-    // console.log(
-    //   "hey i am canvaswidth - imagewidth: ",
-    //   canvasWidth - imageWidth
-    // );
 
-    // console.log(
-    //   "hey i am  canvasWidth - imageWidth / zoomFactor: ",
-    //   canvasWidth - imageWidth / zoomFactor
-    // );
-    // console.log("hey i am imagewidth/ zoomFactor: " + imageWidth / zoomFactor);
     const boundary = -(Math.abs(canvasWidth) - 40);
-    // console.log("hey i am boundryyyyy " + boundary);
-
-    // console.log("hey i am imagewidth and can: " + canvasWidth / zoomFactor);
-    // console.log("hey i am zoomFactor: " + zoomFactor);
-    // console.log("hey i am imagewidth: " + imageWidth);
+    
 
     if (zoomFactor > 1) {
       switch (direction) {
@@ -1013,37 +673,16 @@ function Templateimage({ images, template_name }) {
 
   const [copiedBox, setCopiedBox] = useState(null);
   const [isBoxCopied, setIsBoxCopied] = useState(false);
-  // const handleSelectBoxClick = (index) => {
-  //   setSelectedBoxIndex(index);
-  //   setSelectedchildBoxIndex(null); // Unselect child box if any
-  //   setIsBoxCopied(false);
-  //   setBoxes((prevBoxes) => {
-  //     const newBoxes = [...prevBoxes];
-  //     const box = newBoxes[index];
 
-  //     if (box.mode === "parent") {
-  //       box.isOpen = !box.isOpen;
-  //     }
-
-  //     return newBoxes;
-  //   });
-  // };
   const handleSelectBoxClick = (index, event) => {
-    // Toggle selection state if the clicked box is already selected
-
-    // console.log("hey i am indexxxxx...", selectedBoxIndex);
-    // if (index === selectedBoxIndex) {
-    //   setSelectedBoxIndex(null);
-    //   setSelectedchildBoxIndex(null); // Unselect child box if any
-    //   setIsBoxCopied(false); // Reset copied flag
-    // } else {
+  
 
     setSelectedBoxIndex(index);
     setSelectedchildBoxIndex(null); // Unselect child box if any
     setIsBoxCopied(false); // Reset copied flag
     setDraggedBoxIndex(true);
     setBoxes((prevBoxes) => {
-      // console.log("boxxxxxxxxxxxxxxxxxxxxxxxx", box);
+   
       const newBoxes = [...prevBoxes];
       const box = newBoxes[index];
       if (box.mode === "parent") {
@@ -1055,13 +694,7 @@ function Templateimage({ images, template_name }) {
     // }
   };
   const handleSelectChildBoxClick = (childindex, index) => {
-    // console.log("hey i am parent index....", index);
-
-    // console.log("hey i am child index....", childindex);
-    // setSelectedBoxIndex(index);
-    // setSelectedchildBoxIndex(childindex);
-
-    // setIsBoxCopied(false);
+  
     if (selectedchildBoxIndex === childindex) {
       // If the same child box is clicked again, unselect it
       setSelectedchildBoxIndex(null);
@@ -1077,20 +710,7 @@ function Templateimage({ images, template_name }) {
     if (selectedBoxIndex !== null && boxes.length > 0) {
       // if (boxes[selectedBoxIndex].children.length > 0) {
       const selectedBox = boxes[selectedBoxIndex];
-      // console.log(
-      //   "hey i am selected box hehehehehhe..",
-      //   selectedBox.children.length
-      // );
-      // console.log("hey i am selected box mode..", selectedBox.mode);
-      // setCopiedBox(selectedBox);
-      // setIsBoxCopied(true); // Set the flag to true when a box is copied
-      // console.log("Box copied:", selectedBox);
-      // } else {
-      //   const selectedBox = boxes[selectedBoxIndex];
-      //   setCopiedBox(selectedBox.children[selectedchildBoxIndex]);
-      //   setIsBoxCopied(true);
-      //   console.log("Hey i am copied child box....", copiedBox);
-      // }
+    
 
       if (selectedBox.mode === "parent") {
         if (selectedBox.children.length <= 0) {
@@ -1131,46 +751,7 @@ function Templateimage({ images, template_name }) {
     }
   }, [selectedBoxIndex, selectedchildBoxIndex, boxes]);
 
-  // const handlePasteBoxClick = useCallback(() => {
-  //   if (copiedBox) {
-  //     // const updatedBoxes = [...boxes, { ...copiedBox }];
-  //     // setBoxes(updatedBoxes);
-  //     // console.log("Box pasted:", copiedBox);
-  //     // Adjust the start and end coordinates of the copied box
-  //     const adjustedCopiedBox = {
-  //       ...copiedBox,
-  //       id: generateUniqueId(),
-  //       start: { x: 0, y: 0 },
-  //       end: {
-  //         x: copiedBox.width,
-  //         y: copiedBox.height,
-  //       },
-  //     };
-  //     // If the copied box is a parent box with children, adjust their positions
-  //     if (copiedBox.mode === "parent" && copiedBox.children.length > 0) {
-  //       adjustedCopiedBox.children = copiedBox.children.map((childBox) => {
-  //         const newChildId = generateUniqueId(); // Generate a new ID for each copied child box
-  //         return {
-  //           ...childBox,
-  //           id: newChildId,
-  //           start: {
-  //             x: childBox.start.x - copiedBox.start.x,
-  //             y: childBox.start.y - copiedBox.start.y,
-  //           },
-  //           end: {
-  //             x: childBox.end.x - copiedBox.start.x,
-  //             y: childBox.end.y - copiedBox.start.y,
-  //           },
-  //         };
-  //       });
-  //     }
-  //     const updatedBoxes = [...boxes, adjustedCopiedBox];
-  //     setBoxes(updatedBoxes);
-  //     console.log("Box pasted:", adjustedCopiedBox);
-  //   }
-  // }, [copiedBox, boxes]);
 
-  // ctrl + c
   const handlePasteBoxClick = useCallback(() => {
     if (copiedBox) {
       const adjustmentY = 20; // Adjusted distance above the copied box
@@ -1284,19 +865,6 @@ function Templateimage({ images, template_name }) {
     }
   }, [images]);
 
-  // const handleRename = (e) => {
-  //   // console.log("hey i am e.target.value of rename...", e.target);
-  //   if (selectedBoxIndex !== null && newBoxName.trim() !== "") {
-  //     setBoxes((prevBoxes) => {
-  //       const newBoxes = [...prevBoxes];
-
-  //       newBoxes[selectedBoxIndex].name = newBoxName.trim();
-  //       // console.log("hey i am newBoxessssssssssss", newBoxes);
-  //       return newBoxes;
-  //     });
-  //     setNewBoxName(""); // Reset the new name input field
-  //   }
-  // };
 
   const handleRename = (e) => {
     // Check if a box is selected

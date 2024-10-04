@@ -3,7 +3,7 @@ const { query } = require("../db/db.js");
  
 exports.getAllTemplates = async (req, res) => {
   try {
-    const sql = `SELECT template_name,ID as template_id FROM template_image_json WHERE is_deleted = 0`;  // SQL to get all templates
+    const sql = `SELECT template_name,ID as template_id,t_name FROM template_image_json WHERE is_deleted = 0`;  // SQL to get all templates
     const templates = await query({ query: sql });  
     if (templates.length === 0) {
       return res.status(404).json({ message: "No templates found" });
