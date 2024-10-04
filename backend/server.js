@@ -14,6 +14,7 @@ const omrTemplateRoutes = require("./routes/omrTemplateRoutes");
 const { cronJobStart } = require("./cron/cron");
 const greatRouter = require("./routes/greatRouter");
 const omrRoutes = require("./routes/omrRoutes");
+const { kafkaListenerHandler } = require("./KafkaListner");
 
 app.use(express.json());
 app.use(bodyParser.json({ limit: "1gb" }));
@@ -28,6 +29,8 @@ app.use("/api/v1/upload", uploadRoutes);
 app.use("/api/great", greatRouter);
 app.use("/api/v1/omr", omrRoutes);
 app.use("/api/v1/templates", omrTemplateRoutes);
+
+kafkaListenerHandler();
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
