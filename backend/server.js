@@ -14,7 +14,7 @@ const omrTemplateRoutes = require("./routes/omrTemplateRoutes");
 const { cronJobStart } = require("./cron/cron");
 const greatRouter = require("./routes/greatRouter");
 const omrRoutes = require("./routes/omrRoutes");
-const { kafkaListenerHandler } = require("./KafkaListner");
+const { kafkaListenerHandler } = require("./kafkaListner");
 
 app.use(express.json());
 app.use(bodyParser.json({ limit: "1gb" }));
