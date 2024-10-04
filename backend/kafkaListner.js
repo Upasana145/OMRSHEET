@@ -14,12 +14,11 @@ const processJsonResults = (dataObject) => {
 };
 
 const getKafkaResults = async (key, value) => {
-  console.log("getKafkaResults", key);
   if (!key || !value) {
     return { status: false, message: "Bad Request: Missing parameters" };
   }
 
-  const parts = key.split("_");
+  const parts = key.split("$");
 
   console.log("parts", parts);
 
@@ -52,7 +51,7 @@ const getKafkaResults = async (key, value) => {
     });
 
     if (!result || result.length === 0 || result[0].length === 0) {
-      return { status: false, message: "No records found" };
+      return { status: false, message: "The batch is not added." };
     }
 
     await query({
