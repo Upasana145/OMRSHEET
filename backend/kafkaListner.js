@@ -1,5 +1,3 @@
-const fs = require("fs");
-const path = require("path");
 const { Kafka, logLevel } = require("kafkajs");
 const { query } = require("./db/db.js");
 
@@ -42,7 +40,7 @@ const getKafkaResults = async (key, value) => {
       childResult.length === 0 ||
       childResult[0].length === 0
     ) {
-      return { status: false, message: "Invalid Request: No Template found" };
+      return { status: false, message: "No Template found" };
     }
 
     const template_name = childResult[0].template_name;
@@ -54,7 +52,7 @@ const getKafkaResults = async (key, value) => {
     });
 
     if (!result || result.length === 0 || result[0].length === 0) {
-      return { status: false, message: "Invalid Request: No records found" };
+      return { status: false, message: "No records found" };
     }
 
     await query({
@@ -215,22 +213,22 @@ const kafkaListenerHandler = () => {
           key: message.key.toString(),
         });
         try {
-          await consumer.commitOffsets([
-            {
-              topic,
-              partition,
-              offset: (parseInt(message.offset) + 1).toString(),
-            },
-          ]);
-          // let response = await getKafkaResults(
-          //   message.key.toString(),
-          //   message.value.toString()
-          // );
-          // if (response?.status) {
-          //   console.log("response: " + response.message);
-          // } else {
-          //   console.error("response: " + response.message);
-          // }
+          // await consumer.commitOffsets([
+          //   {
+          //     topic,
+          //     partition,
+          //     offset: (parseInt(message.offset) + 1).toString(),
+          //   },
+          // ]);
+          let response = await getKafkaResults(
+            message.key.toString(),
+            message.value.toString()
+          );
+          if (response?.status) {
+            console.log("response: " + response.message);
+          } else {
+            console.error("response: " + response.message);
+          }
         } catch (error) {
           console.error("Error processing message: ", error);
         }
@@ -254,4 +252,7 @@ const kafkaListenerHandler = () => {
   run().catch(console.error);
 };
 
-kafkaListenerHandler();
+// kafkaListenerHandler();
+module.exports = {
+  kafkaListenerHandler,
+};
