@@ -761,7 +761,7 @@ exports.processFoldersAndImages = async (req, res) => {
     const { template_name } = req.body; // Get template_name from the request body
 
     if (!template_name) {
-      return resSend(res, false, 400, 'Template name (template_name) is required.', null, null);
+      return resSend(res, false, 200, 'Template name (template_name) is required.', null, null);
     }
 
 
@@ -775,7 +775,7 @@ exports.processFoldersAndImages = async (req, res) => {
         });
     
         if (!templateResult || templateResult.length === 0) {
-          return resSend(res, false, 404, `No records found for template_name: '${template_name}' in the template_json table.`, null, null);
+          return resSend(res, false, 200, `No records found for template_name: '${template_name}' in the template_json table.`, null, null);
         }
     
         // Extract t_name and id from the query result
@@ -783,7 +783,9 @@ exports.processFoldersAndImages = async (req, res) => {
         console.log(`Template found: t_name=${t_name}, id=${ID}`);
 
     // Define the base path
-    const desktopPath = 'C:\\Users\\User\\Desktop\\omrproject';
+    // const desktopPath = 'C:\\Users\\User\\Desktop\\omrproject';
+    const desktopPath = process.env.DESKTOP_PATH;
+
 
     // Log all the folders in the Desktop directory
     const allFoldersOnDesktop = fs.readdirSync(desktopPath).filter(item => {
