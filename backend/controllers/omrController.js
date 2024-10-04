@@ -104,23 +104,37 @@ exports.getOMRResults = async (req, res) => {
     }
     const offset = (pageNumber - 1) * pageSize;
 
-    const dataSql = `
-        SELECT 
-          o.ID,
-          o.template_id, 
-          o.batch_name, 
-          o.ques_paper_image_path, 
-          o.created_at, 
-          o.updated_at, 
-          j.template_name,
-          j.t_name,
-          o.result,
-          j.map
-        FROM processed_omr_results o
-       -- JOIN template_image_info t ON o.template_id = t.ID
-        JOIN template_image_json j ON o.template_id = j.ID
-        LIMIT ${pageSize} OFFSET ${offset}
-      `;
+    // const dataSql = `
+    //     SELECT
+    //       o.ID,
+    //       o.template_id,
+    //       o.batch_name,
+    //       o.ques_paper_image_path,
+    //       o.created_at,
+    //       o.updated_at,
+    //       j.template_name,
+    //       j.t_name,
+    //       o.result,
+    //       j.map
+    //     FROM processed_omr_results o
+    //    -- JOIN template_image_info t ON o.template_id = t.ID
+    //     JOIN template_image_json j ON o.template_id = j.ID
+    //     LIMIT ${pageSize} OFFSET ${offset}
+    //   `;
+
+    const dataSql = `SELECT 
+    o.batch_name, 
+    MAX(o.created_at) AS created_at, 
+    MAX(j.template_name) AS template_name,
+    MAX(j.t_name) AS t_name,
+    MAX(j.map) AS map,
+    MAX(o.template_id) AS template_id,
+    MAX(o.ques_paper_image_path) AS ques_paper_image_path,
+    MAX(o.result) AS result,
+    MAX(o.updated_at) AS updated_at FROM 
+    processed_omr_results o INNER JOIN 
+    template_image_json j ON o.template_id = j.ID
+    GROUP BY o.batch_name;`;
 
     const dataResult = await query({ query: dataSql, values: [] });
 
