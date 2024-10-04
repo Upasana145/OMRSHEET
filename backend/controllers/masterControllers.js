@@ -2,7 +2,7 @@ const { resSend } = require("../utils/resSend");
 const { query } = require("../db/db.js");
 const { dateSqlType } = require("../utils/dateFormat");
 const path = require("path");
-const fs = require('fs');
+const fs = require("fs");
 // GET /api/v1/master/dept
 exports.getDept = async (req, res) => {
   try {
@@ -341,7 +341,6 @@ exports.getalltempbatch = async (req, res) => {
   }
 };
 
-
 exports.alltempbatches = async (req, res) => {
   try {
     const { template_name } = req.body;
@@ -353,11 +352,10 @@ exports.alltempbatches = async (req, res) => {
 
     const result = await query({
       query: sql,
-      values: [template_name], 
+      values: [template_name],
     });
 
     if (result && result.length > 0) {
-     
       resSend(res, true, 200, "All batch names found", result, null);
     } else {
       resSend(res, false, 200, "No Record Found!", result, null);
@@ -367,7 +365,6 @@ exports.alltempbatches = async (req, res) => {
     resSend(res, false, 400, "Error", error, null);
   }
 };
-
 
 // updatestatusbatches
 
@@ -447,10 +444,24 @@ exports.updatestatussubmit = async (req, res) => {
           values: [template_name, batch_name], // Passing template_name and batch_name to the query
         });
 
-        return resSend(res, true, 200, "Status updated successfully", result, null);
+        return resSend(
+          res,
+          true,
+          200,
+          "Status updated successfully",
+          result,
+          null
+        );
       } else {
         // If not all flags are "1", return response without updating
-        return resSend(res, true, 200, "Not all flags are '1', status not updated", result, null);
+        return resSend(
+          res,
+          true,
+          200,
+          "Not all flags are '1', status not updated",
+          result,
+          null
+        );
       }
     } else {
       // Send response when no record is found
@@ -461,8 +472,6 @@ exports.updatestatussubmit = async (req, res) => {
     return resSend(res, false, 400, "Error", error, null);
   }
 };
-
-
 
 //reviewer assign
 
@@ -493,7 +502,7 @@ exports.reviewerassign = async (req, res) => {
 
       await query({
         query: updateSql,
-        values: [assign_to ,template_name, batch_name], // Passing the status, template_name, and batch_name to the query
+        values: [assign_to, template_name, batch_name], // Passing the status, template_name, and batch_name to the query
       });
 
       // Send response with the updated status
@@ -508,8 +517,7 @@ exports.reviewerassign = async (req, res) => {
   }
 };
 
-
-// 
+//
 // proc_omr_result_data
 
 // http://localhost:4002/api/v1/master/proc_data
@@ -519,7 +527,14 @@ exports.proc_omr_result_data = async (req, res) => {
 
     // Validate input
     if (!template_name || !batch_name) {
-      return resSend(res, false, 400, "Template name and batch name are required.", null, null);
+      return resSend(
+        res,
+        false,
+        400,
+        "Template name and batch name are required.",
+        null,
+        null
+      );
     }
 
     // SQL query to select data
@@ -549,7 +564,14 @@ exports.proc_omr_result_data = async (req, res) => {
       );
     } else {
       // Send response when no record is found
-      return resSend(res, false, 404, "No records found for the given template name and batch name.", null, null);
+      return resSend(
+        res,
+        false,
+        404,
+        "No records found for the given template name and batch name.",
+        null,
+        null
+      );
     }
   } catch (error) {
     console.error("Error in proc_omr_result_data:", error);
@@ -557,18 +579,23 @@ exports.proc_omr_result_data = async (req, res) => {
   }
 };
 
-
 exports.reviewer_reviews_ques_name = async (req, res) => {
   try {
     const { batch_name, question_paper_name } = req.body;
 
-    console.log("batch name... ",batch_name, "...question paper name...", question_paper_name);
-  if (!batch_name || !question_paper_name) {
-    return res.status(400).json({ error: 'Batch and question_paper_name are required' });
-  }
+    console.log(
+      "batch name... ",
+      batch_name,
+      "...question paper name...",
+      question_paper_name
+    );
+    if (!batch_name || !question_paper_name) {
+      return res
+        .status(400)
+        .json({ error: "Batch and question_paper_name are required" });
+    }
 
-
-  const sqlqu = `
+    const sqlqu = `
   SELECT *
   FROM reviewer_reviews 
   WHERE batch_name = ? AND question_paper_name = ?;
@@ -576,7 +603,7 @@ exports.reviewer_reviews_ques_name = async (req, res) => {
     // Execute the SQL query with parameterized values
     const result = await query({
       query: sqlqu,
-      values: [batch_name , question_paper_name],
+      values: [batch_name, question_paper_name],
     });
 
     console.log("Query result:", result);
@@ -593,7 +620,14 @@ exports.reviewer_reviews_ques_name = async (req, res) => {
       );
     } else {
       // Send response when no record is found
-      return resSend(res, false, 404, "No records found for the given template name and batch name.", null, null);
+      return resSend(
+        res,
+        false,
+        404,
+        "No records found for the given template name and batch name.",
+        null,
+        null
+      );
     }
   } catch (error) {
     console.log("hello");
@@ -602,17 +636,17 @@ exports.reviewer_reviews_ques_name = async (req, res) => {
   }
 };
 
-
-
 exports.reviewer_reviews_data_batchwise = async (req, res) => {
   try {
-    const { batch_name} = req.body;
+    const { batch_name } = req.body;
 
-  if (!batch_name ) {
-    return res.status(400).json({ error: 'Batch and question_paper_name are required' });
-  }
+    if (!batch_name) {
+      return res
+        .status(400)
+        .json({ error: "Batch and question_paper_name are required" });
+    }
 
-  const sqlqu = `
+    const sqlqu = `
     SELECT rr.*
     FROM reviewer_reviews rr
     JOIN processed_omr_results por
@@ -623,7 +657,7 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
     // Execute the SQL query with parameterized values
     const result = await query({
       query: sqlqu,
-      values: [batch_name ],
+      values: [batch_name],
     });
 
     console.log("Query result:", result);
@@ -640,7 +674,14 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
       );
     } else {
       // Send response when no record is found
-      return resSend(res, false, 404, "No records found for the given template name and batch name.", null, null);
+      return resSend(
+        res,
+        false,
+        404,
+        "No records found for the given template name and batch name.",
+        null,
+        null
+      );
     }
   } catch (error) {
     console.log("hello");
@@ -648,11 +689,6 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
     return resSend(res, false, 500, "Internal server error.", error, null);
   }
 };
-
-
-
-
-
 
 // exports.processFoldersAndImages = async (req, res) => {
 //   try {
@@ -755,56 +791,84 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
 //   }
 // };
 
-
 exports.processFoldersAndImages = async (req, res) => {
   try {
     const { template_name } = req.body; // Get template_name from the request body
 
     if (!template_name) {
-      return resSend(res, false, 400, 'Template name (template_name) is required.', null, null);
+      return resSend(
+        res,
+        false,
+        400,
+        "Template name (template_name) is required.",
+        null,
+        null
+      );
     }
 
+    // Query to select t_name and id from template_json table
+    const templateQuery = `SELECT t_name, ID FROM template_image_json WHERE template_name = ?`;
 
-        // Query to select t_name and id from template_json table
-        const templateQuery = `SELECT t_name, ID FROM template_image_json WHERE template_name = ?`;
+    // Execute the query to get t_name and id
+    const templateResult = await query({
+      query: templateQuery,
+      values: [template_name],
+    });
 
-        // Execute the query to get t_name and id
-        const templateResult = await query({
-          query: templateQuery,
-          values: [template_name],
-        });
-    
-        if (!templateResult || templateResult.length === 0) {
-          return resSend(res, false, 404, `No records found for template_name: '${template_name}' in the template_json table.`, null, null);
-        }
-    
-        // Extract t_name and id from the query result
-        const { t_name, ID } = templateResult[0];
-        console.log(`Template found: t_name=${t_name}, id=${ID}`);
+    if (!templateResult || templateResult.length === 0) {
+      return resSend(
+        res,
+        false,
+        404,
+        `No records found for template_name: '${template_name}' in the template_json table.`,
+        null,
+        null
+      );
+    }
+
+    // Extract t_name and id from the query result
+    const { t_name, ID } = templateResult[0];
+    console.log(`Template found: t_name=${t_name}, id=${ID}`);
 
     // Define the base path
-    const desktopPath = 'C:\\Users\\User\\Desktop\\omrproject';
+    const desktopPath = process.env.PROJECT_FOLDER_PATH;
 
     // Log all the folders in the Desktop directory
-    const allFoldersOnDesktop = fs.readdirSync(desktopPath).filter(item => {
+    const allFoldersOnDesktop = fs.readdirSync(desktopPath).filter((item) => {
       return fs.lstatSync(path.join(desktopPath, item)).isDirectory();
     });
 
-    console.log("All folders present in 'C:\\Users\\User\\Desktop\\omrproject':", allFoldersOnDesktop);
+    console.log(
+      `All folders present in ${desktopPath}: ${allFoldersOnDesktop}`
+    );
 
     // Construct the base directory path using template_name
     const baseDir = path.join(desktopPath, template_name);
 
     // Check if the folder for template_name exists
     if (!fs.existsSync(baseDir)) {
-      return resSend(res, false, 404, `Folder '${template_name}' not found in the base directory.`, null, null);
+      return resSend(
+        res,
+        false,
+        404,
+        `Folder '${template_name}' not found in the base directory.`,
+        null,
+        null
+      );
     }
 
     // Read all folders in the base directory (inside the folder corresponding to template_name)
     const folders = fs.readdirSync(baseDir);
 
     if (!folders || folders.length === 0) {
-      return resSend(res, false, 200, 'The batch folders are missing.', null, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "The batch folders are missing.",
+        null,
+        null
+      );
     }
 
     console.log("Folders inside the base directory:", folders);
@@ -815,7 +879,7 @@ exports.processFoldersAndImages = async (req, res) => {
     // Iterate over each folder
     for (let folder of folders) {
       console.log("Processing folder name:", folder);
-      if (folder === 'default') {
+      if (folder === "default") {
         console.log("Skipping folder 'default'");
         continue; // Skip to the next folder
       }
@@ -832,7 +896,14 @@ exports.processFoldersAndImages = async (req, res) => {
         if (!files || files.length === 0) {
           // If no files are found, stop further processing and send a Toastify message
           console.log(`No files found in folder: ${folderPath}`);
-          return resSend(res, false, 200, `No files found in the folder: ${folder}`, null, null);
+          return resSend(
+            res,
+            false,
+            200,
+            `No files found in the folder: ${folder}`,
+            null,
+            null
+          );
         } else {
           // Iterate over each image in the folder
           for (let file of files) {
@@ -844,7 +915,14 @@ exports.processFoldersAndImages = async (req, res) => {
               console.log(`Found image: ${filePath}`);
 
               // Store the folder path and image path for database insertion
-              allImagePaths.push([template_name,ID,t_name,folder, file,file]);
+              allImagePaths.push([
+                template_name,
+                ID,
+                t_name,
+                folder,
+                file,
+                file,
+              ]);
             }
           }
         }
@@ -854,10 +932,9 @@ exports.processFoldersAndImages = async (req, res) => {
     // Insert all image paths into the database
     if (allImagePaths.length > 0) {
       // Create placeholders for the query
-      const placeholders = allImagePaths.map(() => '(?, ?,?,?,?,?)').join(', ');
+      const placeholders = allImagePaths.map(() => "(?, ?,?,?,?,?)").join(", ");
       // const sqlQuery = `INSERT INTO images_path (folder_path, image_path) VALUES ${placeholders}`;
       const sqlQuery = `INSERT INTO processed_omr_results (template_name,template_id,t_name,batch_name, question_paper_name,ques_paper_image_path) VALUES ${placeholders}`;
-
 
       // Flatten the array to pass as values
       const flattenedValues = allImagePaths.flat();
@@ -868,24 +945,27 @@ exports.processFoldersAndImages = async (req, res) => {
         values: flattenedValues,
       });
 
-      console.log('Inserted image paths into the database:', result);
-      return resSend(res, true, 200, 'Image processing completed successfully.', result, null);
+      console.log("Inserted image paths into the database:", result);
+      return resSend(
+        res,
+        true,
+        200,
+        "Image processing completed successfully.",
+        result,
+        null
+      );
     } else {
-      return resSend(res, false, 404, 'No images found in the folders.', null, null);
+      return resSend(
+        res,
+        false,
+        404,
+        "No images found in the folders.",
+        null,
+        null
+      );
     }
-
   } catch (error) {
-    console.error('Error processing images:', error);
-    return resSend(res, false, 500, 'Internal server error.', error, null);
+    console.error("Error processing images:", error);
+    return resSend(res, false, 500, "Internal server error.", error, null);
   }
 };
-
-
-
-
-
-
-
-
-
-
