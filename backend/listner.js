@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+const { Kafka } = require("kafkajs");
+
+// Initialize Kafka client
+const kafka = new Kafka({
+  brokers: ["157.173.222.15:9092"], // Kafka broker address
+});
+
+// Create a consumer instance
+const consumer = kafka.consumer({ groupId: "my-group-id" });
+=======
 const { Kafka } = require('kafkajs');
 //require('dotenv').config(); // Load environment variables
 
@@ -8,6 +19,7 @@ const kafka = new Kafka({
 
 // Create a consumer instance
 const consumer = kafka.consumer({ groupId: 'test-group' });
+>>>>>>> b7712686dd722befd15156a147ab5653eb04602a
 
 // Function to listen to Kafka messages
 const run = async () => {
@@ -15,7 +27,7 @@ const run = async () => {
   await consumer.connect();
 
   // Subscribe to the Kafka topic
-  await consumer.subscribe({ topic: 'testtopic', fromBeginning: true });
+  await consumer.subscribe({ topic: "testtopic", fromBeginning: true });
 
   // Consume messages from the topic
   await consumer.run({
@@ -33,31 +45,33 @@ const run = async () => {
       };
 
       // const action = await fetch(`${process.env.REACT_APP_API_URI}/kafka/results`, {
-      const action = await fetch(`http://157.173.222.15:4002/api/v1/kafka/results`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      // console.log('payload', payload); 
-      console.log('action', action); 
-      
+      const action = await fetch(
+        `http://157.173.222.15:4002/api/v1/kafka/results`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      // console.log('payload', payload);
+      console.log("action", action);
+
       if (!action.ok) {
         // console.log('Sending payload:', JSON.stringify(payload, null, 2));
         const errorBody = await action.text();
-        console.error('Failed to send data:', action.statusText, errorBody);
+        console.error("Failed to send data:", action.statusText, errorBody);
       } else {
-        console.log('Data sent successfully');
+        console.log("Data sent successfully");
       }
-      
     },
   });
 };
 
-  // Handle errors
-  consumer.on('consumer.crash', (error) => {
-    console.error('Consumer crashed', error);
-  });
+// Handle errors
+consumer.on("consumer.crash", (error) => {
+  console.error("Consumer crashed", error);
+});
 
 run().catch(console.error);
