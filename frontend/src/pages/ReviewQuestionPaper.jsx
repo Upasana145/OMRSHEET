@@ -72,6 +72,36 @@ const [flagData1, setFlagData] = useState(null);
     }
   };
   
+ 
+  const  parseUnderReview2 = (under_review) => {
+    console.log("Received  parseUnderReview2 data...:", under_review);
+  
+    try {
+      if (typeof under_review === "string") {
+
+        const parsedData = JSON.parse(under_review);
+        // console.log("hey budddyyy i am parseUnderReview2....",parsedData[0]);
+  
+        // Check if the data is wrapped in an additional key like "htn10"
+        const keys = Object.keys(parsedData);
+        console.log("hey budddyyy i am keyyyyyyyyyy....",keys[0]);
+        if (keys.length === 1) {
+          const innerData = keys[0];
+          if (innerData ) {
+            return innerData; // Return the inner object
+          }
+        } 
+  
+        return null; // Return null if no coord found
+      }
+  
+      return null;
+    } catch (error) {
+      console.error("Error parsing under_review:", error);
+      return null;
+    }
+  };
+  
 
 
 
@@ -109,32 +139,77 @@ const [flagData1, setFlagData] = useState(null);
 const renderInputBasedOnType = (image) => {
   console.log("hey i am imageeeee....", image);
   const parsedData = parseUnderReview(image.under_review);
+
+  const parsedData2 = parseUnderReview2(image.under_review);
+console.log("hey i am parsedData2............", parsedData2);
+ 
   if (!parsedData) return null;
 
   const { type, coord, result } = parsedData;
   // Check if the status is "1" or "2"
+   // Extract the key from the 'coord' object (e.g., Qn48)
+  
+   console.log("Extracted key: ", parsedData2);
+ 
   const isStatusOneOrTwo = image.status === "1" || image.status === "2";
 
 
 
   if (type === "hall_ticket_no_parent" || (type === "Question" && coord)) {
-    return Object.keys(coord)
-      .filter((key) => key.length === 1 && key.match(/[a-z]/))
-      .map((key, index) => {
-        const isChecked = isStatusOneOrTwo && result && result.toLowerCase() === key;
-        return (
-          <label key={index} style={{ marginRight: "8px" }}>
-            <input
-              type="checkbox"
-              name={key}
-              value={key}
-              onChange={() => handleCheckboxChange(image.ID, key.toUpperCase())}
-              checked={isChecked || (selectedOptions[image.ID] || []).includes(key.toUpperCase())}
-            />
-            {key.toUpperCase()}
-          </label>
-        );
-      });
+    // return Object.keys(coord)
+    
+    //   .filter((key) => key.length === 1 && key.match(/[a-z]/))
+    //   .map((key, index) => {
+    //     console.log("hey i am keyyyyy...",key,"and",index);
+    //     const isChecked = isStatusOneOrTwo && result && result.toLowerCase() === key;
+    //     return (
+          
+    //       <label key={index} style={{ marginRight: "8px" }}>
+           
+    //         <input
+    //           type="checkbox"
+    //           name={key}
+    //           value={key}
+    //           onChange={() => handleCheckboxChange(image.ID, key.toUpperCase())}
+    //           checked={isChecked || (selectedOptions[image.ID] || []).includes(key.toUpperCase())}
+    //         />
+    //         {key.toUpperCase()}
+           
+    //       </label>
+         
+    //     );
+    //   });
+    return (
+      <div>
+        {/* Display parsedData2 on the screen */}
+        <div style={{ marginBottom: "10px", fontWeight: "bold" }}>
+          {parsedData2}
+        </div>
+
+        {/* Render the checkboxes */}
+        {Object.keys(coord)
+          .filter((key) => key.length === 1 && key.match(/[a-z]/)) // Filtering only keys like 'a', 'b', 'c', 'd'
+          .map((key, index) => {
+            console.log("hey i am keyyyyy...", key, "and", index);
+            console.log("parsedData2 inside map: ", parsedData2); // Logging parsedData2 inside the map
+
+            const isChecked = isStatusOneOrTwo && result && result.toLowerCase() === key;
+
+            return (
+              <label key={index} style={{ marginRight: "8px" }}>
+                <input
+                  type="checkbox"
+                  name={key}
+                  value={key}
+                  onChange={() => handleCheckboxChange(image.ID, key.toUpperCase())}
+                  checked={isChecked || (selectedOptions[image.ID] || []).includes(key.toUpperCase())}
+                />
+                {key.toUpperCase()}
+              </label>
+            );
+          })}
+      </div>
+    );
   } else if (type === "Rollnumber") {
     return <input type="text" placeholder="Enter Rollnumber" />;
   }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const { Kafka } = require("kafkajs");
 
 // Initialize Kafka client
@@ -7,6 +8,18 @@ const kafka = new Kafka({
 
 // Create a consumer instance
 const consumer = kafka.consumer({ groupId: "my-group-id" });
+=======
+const { Kafka } = require('kafkajs');
+//require('dotenv').config(); // Load environment variables
+
+// Initialize Kafka client
+const kafka = new Kafka({
+  brokers: ['157.173.222.15:9092'], // Kafka broker address
+});
+
+// Create a consumer instance
+const consumer = kafka.consumer({ groupId: 'test-group' });
+>>>>>>> b7712686dd722befd15156a147ab5653eb04602a
 
 // Function to listen to Kafka messages
 const run = async () => {

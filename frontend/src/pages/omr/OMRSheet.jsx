@@ -192,6 +192,7 @@ const OMRSheet = () => {
   };
 
   const handleButtonClick = async (temp) => {
+    console.log("hello buddy");
     console.log("temp",temp);
     
     const { template_name, map, t_name, batch_name, ID } = temp;
