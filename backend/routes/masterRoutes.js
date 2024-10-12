@@ -22,7 +22,8 @@ const {
   reviewer_reviews_data_batchwise,
   reviewer_reviews_ques_name,
   updatestatussubmit,
-  processFoldersAndImages
+  processFoldersAndImages,
+  getimgprocessFoldersAndImages
 
 } = require("../controllers/masterControllers");
 const router = express.Router();
@@ -64,7 +65,7 @@ router.post("/revquesname", reviewer_reviews_ques_name);
 
 
 router.post("/process-images", processFoldersAndImages);
-
+router.post("/getprocess-images", getimgprocessFoldersAndImages);
 // app.get('/process-images', (req, res) => {
 //   processFoldersAndImages();
 //   res.send('Image processing started. Check console for details.');
