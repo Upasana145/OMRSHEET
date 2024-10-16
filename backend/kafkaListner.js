@@ -18,7 +18,7 @@ const getKafkaResults = async (key, value) => {
     return { status: false, message: "Bad Request: Missing parameters" };
   }
 
-  const parts = key.split("$");
+  const parts = key.split("_");
 
   console.log("parts", parts);
 
