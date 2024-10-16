@@ -54,7 +54,6 @@ exports.forgetHandler = async (req, res) => {
 
     // generate OTP
     const otp = Math.round(Math.random() * 1000000);
-    console.log(result);
     if (result && result.length > 0) {
       // Store or Update in DB
       let sql2 = `SELECT * FROM otps WHERE email= '${email}'`;
@@ -252,7 +251,6 @@ exports.addUserHandler = async (req, res) => {
 // all users
 exports.allUsers = async (req, res) => {
   const { currentUser } = req.body;
-  console.log("Heyyyyyyy i am currect user........", req.body.currentUser);
   try {
     let sql3 = `SELECT * FROM auth WHERE username= '${currentUser}' and isActive = 'y'`;
     const res3 = await query({
