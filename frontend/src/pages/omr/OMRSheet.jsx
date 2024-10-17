@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { fetchRecords } from "../../redux/slices/apiSlice";
+// import { fetchRecords } from "../../redux/slices/apiSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
 // import { Modal, Button } from "react-bootstrap";
 // import ImagePreview from "../../components/ImagePreview";
-import PaginationControl from "../../components/PaginationControl";
-import { getAPI, postAPI } from "../../utils/fetchapi";
+// import PaginationControl from "../../components/PaginationControl";
+import { getAPI } from "../../utils/fetchapi";
 
 const OMRSheet = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pagination, setPagination] = useState({ total: 0, totalPages: 0 });
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [pagination, setPagination] = useState({ total: 0, totalPages: 0 });
   const [items, setItems] = useState([]);
 
   const fetchData = async (page) => {
@@ -33,8 +33,8 @@ const OMRSheet = () => {
     // }
     try {
       const data = await getAPI("omr/sheet", null);
-      if (data?.status) {
-        setItems(data?.payload?.results);
+      if (data?.success) {
+        setItems(data?.results);
       } else {
         toast.error("Unable to fetch record. Please try again.");
       }
@@ -44,16 +44,16 @@ const OMRSheet = () => {
   };
 
   useEffect(() => {
-    fetchData(currentPage);
-  }, [currentPage]);
+    fetchData();
+  }, []);
 
-  const handlePageChange = (page) => {
-    if (page > 0 && page <= pagination.totalPages) {
-      fetchData(page);
-    }
-  };
+  // const handlePageChange = (page) => {
+  //   if (page > 0 && page <= pagination.totalPages) {
+  //     fetchData(page);
+  //   }
+  // };
 
-  const isLastPage = items.length < pagination.limit;
+  // const isLastPage = items.length < pagination.limit;
   // const [selectedImage, setSelectedImage] = useState(null);
 
   // const handleViewImage = (imagePath) => {
