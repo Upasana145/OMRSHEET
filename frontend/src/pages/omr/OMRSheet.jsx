@@ -33,8 +33,8 @@ const OMRSheet = () => {
     // }
     try {
       const data = await getAPI("omr/sheet", null);
-      if (data?.status) {
-        setItems(data?.payload?.results);
+      if (data?.success) {
+        setItems(data?.results);
       } else {
         toast.error("Unable to fetch record. Please try again.");
       }

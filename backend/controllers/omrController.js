@@ -90,19 +90,19 @@ exports.getOMRResults = async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
 
   try {
-    const pageNumber = parseInt(page, 10);
-    const pageSize = parseInt(limit, 10);
-    if (isNaN(pageNumber) || pageNumber < 1) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid page number" });
-    }
-    if (isNaN(pageSize) || pageSize < 1) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid limit value" });
-    }
-    const offset = (pageNumber - 1) * pageSize;
+    // const pageNumber = parseInt(page, 10);
+    // const pageSize = parseInt(limit, 10);
+    // if (isNaN(pageNumber) || pageNumber < 1) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "Invalid page number" });
+    // }
+    // if (isNaN(pageSize) || pageSize < 1) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "Invalid limit value" });
+    // }
+    // const offset = (pageNumber - 1) * pageSize;
 
     // const dataSql = `
     //     SELECT
