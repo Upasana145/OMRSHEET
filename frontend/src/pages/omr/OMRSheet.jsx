@@ -7,6 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 // import { Modal, Button } from "react-bootstrap";
 // import ImagePreview from "../../components/ImagePreview";
 import PaginationControl from "../../components/PaginationControl";
+import { getAPI, postAPI } from "../../utils/fetchapi";
 
 const OMRSheet = () => {
   const dispatch = useDispatch();
@@ -16,19 +17,29 @@ const OMRSheet = () => {
   const [items, setItems] = useState([]);
 
   const fetchData = async (page) => {
+    // try {
+    //   const action = await dispatch(
+    //     fetchRecords({ indicatorPath: "/omr/sheet", page, limit: 10 })
+    //   );
+    //   if (fetchRecords.fulfilled.match(action)) {
+    //     setItems(action.payload.results);
+    //     setPagination(action.payload.pagination);
+    //     setCurrentPage(page);
+    //   } else {
+    //     toast.error("Unable to fetch record. Please try again.");
+    //   }
+    // } catch (error) {
+    //   toast.error("Something went wrong! Server error!");
+    // }
     try {
-      const action = await dispatch(
-        fetchRecords({ indicatorPath: "/omr/sheet", page, limit: 10 })
-      );
-      if (fetchRecords.fulfilled.match(action)) {
-        setItems(action.payload.results);
-        setPagination(action.payload.pagination);
-        setCurrentPage(page);
+      const data = await getAPI("omr/sheet", null);
+      if (data?.status) {
+        setItems(data?.payload?.results);
       } else {
         toast.error("Unable to fetch record. Please try again.");
       }
     } catch (error) {
-      toast.error("Something went wrong! Server error!");
+      toast.error(`Something went wrong. ${error.message}`);
     }
   };
 
@@ -97,7 +108,7 @@ const OMRSheet = () => {
       // Generate type_config from the parsed map
       const typeConfig = generateTypeConfig(parsedMap);
       const payload = {
-        template: JSON.parse(map),
+        template: parsedMap,
         template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
         //data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
         data_path: `${process.env.REACT_APP_AI_DATA}${template_name}/${batch_name}`,
@@ -160,16 +171,13 @@ const OMRSheet = () => {
               <th scope="col">Template Name</th>
               <th scope="col">Batch Name</th>
               <th scope="col">Created At</th>
-              {/* <th scope="col" colSpan={2}>
-                Action
-              </th> */}
-              <th scope="col">Process</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
           <tbody>
             {Array.isArray(items) &&
-              items.map((omr) => (
-                <tr key={omr.ID}>
+              items.map((omr, i) => (
+                <tr key={i}>
                   <td>{omr.template_name}</td>
                   <td>{omr.batch_name}</td>
                   <td>
@@ -180,19 +188,11 @@ const OMRSheet = () => {
                         omr.created_at
                       ).toLocaleTimeString()}`}
                   </td>
-                  {/* <td >
-                    <button
-                      onClick={() => handleViewImage(omr.ques_paper_image_path)}
-                    >
-                      view
-                    </button>
-                  </td> */}
                   <td>
                     <button
                       className="btn btn-icon btn-dark btn-active-color-primary btn-sm me-1 "
                       title="View"
                       onClick={() => handleButtonClick(omr)}
-                      // onClick={handleButtonClick(template)}
                       style={{ width: "85px" }}
                     >
                       PROCESS
@@ -202,20 +202,6 @@ const OMRSheet = () => {
               ))}
           </tbody>
         </table>
-
-        {/* <Modal show={!!selectedImage} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>OMR Sheet Image</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {selectedImage && <ImagePreview imagePath={selectedImage} />}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal> */}
       </div>
 
       <div className="footer">

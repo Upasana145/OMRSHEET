@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { FaCommentsDollar, FaSearch } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { RiDragDropFill } from "react-icons/ri";
-import { navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { postAPI } from "../utils/fetchapi";
 import swal from "sweetalert";
-import Papa from "papaparse";
+
 function TemplateContent({ users, fetchUsers, templates }) {
   const sureToDelete = (id) => {
     console.log("i am priniting id.....", id);
@@ -84,66 +83,7 @@ function TemplateContent({ users, fetchUsers, templates }) {
     const payload = {
       template: JSON.parse(map),
       template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
-      //data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
       data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
-
-      // type_config: {
-      //   Question: {
-      //     OPTIONS: { 0: "a", 1: "b", 2: "c", 3: "d", 4: "RR", 5: "RR" },
-      //     LENGTH: 4,
-      //   },
-      //   hall_ticket_no_parent: {
-      //     OPTIONS: {
-      //       0: "1",
-      //       1: "2",
-      //       2: "3",
-      //       3: "4",
-      //       4: "5",
-      //       5: "6",
-      //       6: "7",
-      //       7: "8",
-      //       8: "9",
-      //       9: "10",
-      //       10: "RR",
-      //       11: "RR",
-      //     },
-      //     LENGTH: 10,
-      //   },
-      //   test_booklet_parent: {
-      //     OPTIONS: {
-      //       0: "1",
-      //       1: "2",
-      //       2: "3",
-      //       3: "4",
-      //       4: "5",
-      //       5: "6",
-      //       6: "7",
-      //       7: "8",
-      //       8: "9",
-      //       9: "10",
-      //       10: "RR",
-      //       11: "RR",
-      //     },
-      //     LENGTH: 10,
-      //   },
-      //   Form_no_parent: {
-      //     OPTIONS: {
-      //       0: "1",
-      //       1: "2",
-      //       2: "3",
-      //       3: "4",
-      //       4: "5",
-      //       5: "6",
-      //       6: "7",
-      //       7: "8",
-      //       8: "9",
-      //       9: "10",
-      //       10: "RR",
-      //       11: "RR",
-      //     },
-      //     LENGTH: 10,
-      //   },
-      // },
       type_config: typeConfig,
     };
     console.log("I am payload", payload);
@@ -205,54 +145,52 @@ function TemplateContent({ users, fetchUsers, templates }) {
     },
   ];
 
-const convertToCSV = (data, templateName) => {
-  console.log("hey i am data..........", data);
-  const csvRows = [];
-  const headersSet = new Set(); // To keep track of unique headers
+  const convertToCSV = (data, templateName) => {
+    console.log("hey i am data..........", data);
+    const csvRows = [];
+    const headersSet = new Set(); // To keep track of unique headers
 
-  data.forEach((item) => {
-    if (item?.correct_result && item.correct_result !== "") {
-      const correctResult = JSON.parse(item.correct_result);
-      correctResult.forEach((q) => {
-        for (const key in q) {
-          headersSet.add(key); 
-        }
-      });
-    }
-  });
+    data.forEach((item) => {
+      if (item?.correct_result && item.correct_result !== "") {
+        const correctResult = JSON.parse(item.correct_result);
+        correctResult.forEach((q) => {
+          for (const key in q) {
+            headersSet.add(key);
+          }
+        });
+      }
+    });
 
- 
-  const headers = Array.from(headersSet).sort();
-  csvRows.push(["batch_name", "question_paper_name", ...headers].join(",")); // Add headers to the CSV
+    const headers = Array.from(headersSet).sort();
+    csvRows.push(["batch_name", "question_paper_name", ...headers].join(",")); // Add headers to the CSV
 
- 
-  data.forEach((item) => {
-    if (item?.correct_result && item.correct_result !== "") {
-      const batchName = item.batch_name;
-      const questionPaperName = item.question_paper_name;
-      console.log("heyyyyyyyyyy i am item...", item);
-      const correctResult = JSON.parse(item.correct_result);
+    data.forEach((item) => {
+      if (item?.correct_result && item.correct_result !== "") {
+        const batchName = item.batch_name;
+        const questionPaperName = item.question_paper_name;
+        console.log("heyyyyyyyyyy i am item...", item);
+        const correctResult = JSON.parse(item.correct_result);
 
-      // Create an object to hold results for the current item
-      const results = {};
-      correctResult.forEach((q) => {
-        for (const key in q) {
-          results[key] = q[key].result; // Extract result for each question
-        }
-      });
+        // Create an object to hold results for the current item
+        const results = {};
+        correctResult.forEach((q) => {
+          for (const key in q) {
+            results[key] = q[key].result; // Extract result for each question
+          }
+        });
 
-      // Create a row with batch name, question paper name, and results
-      const row = [batchName, questionPaperName];
-      headers.forEach((header) => {
-        row.push(results[header] || ""); // Push result or empty string if not exists
-      });
+        // Create a row with batch name, question paper name, and results
+        const row = [batchName, questionPaperName];
+        headers.forEach((header) => {
+          row.push(results[header] || ""); // Push result or empty string if not exists
+        });
 
-      csvRows.push(row.join(",")); // Add the row to csvRows
-    }
-  });
+        csvRows.push(row.join(",")); // Add the row to csvRows
+      }
+    });
 
-  return csvRows.join("\n"); // Join rows with newline
-};
+    return csvRows.join("\n"); // Join rows with newline
+  };
 
   const downloadCSV = (data, templateName) => {
     const csvContent = convertToCSV(data, templateName);

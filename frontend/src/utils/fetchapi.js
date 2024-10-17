@@ -1,10 +1,7 @@
 import axios from "axios";
 
 export const postAPI = async (url, payload, token) => {
-
-  console.log("path jksdfhdaaaaaaaaaaaaaaaaaaaa");
   let path = `${process.env.REACT_APP_API_URI}/${url}`;
-  console.log(path);
   let config = {
     method: "post",
     maxBodyLength: Infinity,
@@ -15,7 +12,6 @@ export const postAPI = async (url, payload, token) => {
     },
     data: payload,
   };
-  console.log("path");
 
   return axios
     .request(config)
