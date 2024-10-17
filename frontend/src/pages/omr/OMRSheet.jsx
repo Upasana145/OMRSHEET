@@ -100,11 +100,11 @@ const OMRSheet = () => {
     if (!map || !JSON.parse(map) || map === "") {
       return toast.warn("Mapping is required.");
     }
-    console.log("map", map);
+    console.log("t_info", template_name, t_name, batch_name);
     try {
       // Parse the map JSON
       const parsedMap = JSON.parse(map);
-
+      console.log("parsedMap", parsedMap);
       // Generate type_config from the parsed map
       const typeConfig = generateTypeConfig(parsedMap);
       const payload = {
