@@ -17,8 +17,9 @@ const getKafkaResults = async (key, value) => {
   if (!key || !value) {
     return { status: false, message: "Bad Request: Missing parameters" };
   }
+  console.log("key: ", key, "value: ", value);
 
-  const parts = key.split("$");
+  const parts = key.split("_");
 
   console.log("parts", parts);
 
@@ -54,6 +55,7 @@ const getKafkaResults = async (key, value) => {
       return { status: false, message: "The batch is not added." };
     }
 
+    console.log("resu1", value, t_name, batch_name, question_paper_name);
     await query({
       query: `UPDATE processed_omr_results SET result = ? WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`,
       values: [value, t_name, batch_name, question_paper_name],
@@ -70,9 +72,13 @@ const getKafkaResults = async (key, value) => {
       values: [t_name, batch_name, question_paper_name],
     });
 
+    console.log("resu", resu);
+
     const parsedResult = resu.map((item) => {
-      data: item.result;
+      data: JSON.parse(item.result);
     });
+
+    console.log("parsedResult", parsedResult);
 
     if (parsedResult && parsedResult.length > 0) {
       // Access the first result's data object
