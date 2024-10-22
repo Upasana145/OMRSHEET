@@ -969,3 +969,153 @@ exports.processFoldersAndImages = async (req, res) => {
     return resSend(res, false, 500, "Internal server error.", error, null);
   }
 };
+
+
+
+exports.getimgprocessFoldersAndImages = async (req, res) => {
+  try {
+    const { template_name,batch_name } = req.body; // Get template_name from the request body
+
+    if (!template_name) {
+      return resSend(
+        res,
+        false,
+        400,
+        "Template name (template_name) is required.",
+        null,
+        null
+      );
+    }
+
+    // Query to select t_name and id from template_json table
+    const templateQuery = `SELECT t_name, ID FROM template_image_json WHERE template_name = ?`;
+
+    // Execute the query to get t_name and id
+    const templateResult = await query({
+      query: templateQuery,
+      values: [template_name],
+    });
+
+    if (!templateResult || templateResult.length === 0) {
+      return resSend(
+        res,
+        false,
+        404,
+        `No records found for template_name: '${template_name}' in the template_json table.`,
+        null,
+        null
+      );
+    }
+
+    // Extract t_name and id from the query result
+    const { t_name, ID } = templateResult[0];
+    console.log(`Template found: t_name=${t_name}, id=${ID}`);
+
+    // Define the base path
+    const desktopPath = process.env.PROJECT_FOLDER_PATH;
+
+    // Log all the folders in the Desktop directory
+    const allFoldersOnDesktop = fs.readdirSync(desktopPath).filter((item) => {
+      return fs.lstatSync(path.join(desktopPath, item)).isDirectory();
+    });
+
+    console.log(
+      `All folders present in ${desktopPath}: ${allFoldersOnDesktop}`
+    );
+
+    // Construct the base directory path using template_name
+    const baseDir = path.join(desktopPath, template_name);
+console.log("hey i am baseDir...", baseDir);
+const batch_baseDir = path.join( baseDir , batch_name );
+console.log("hey i am batch_name...", batch_baseDir);
+
+    // Check if the folder for template_name exists
+    if (!fs.existsSync(baseDir)) {
+      return resSend(
+        res,
+        false,
+        404,
+        `Folder '${template_name}' not found in the base directory.`,
+        null,
+        null
+      );
+    }
+
+    // Read all folders in the base directory (inside the folder corresponding to template_name)
+    const folders = fs.readdirSync(baseDir);
+
+    if (!folders || folders.length === 0) {
+      return resSend(
+        res,
+        false,
+        200,
+        "The batch folders are missing.",
+        null,
+        null
+      );
+    }
+
+    console.log("Folders inside the base directory:", folders);
+
+    // Array to store all image paths for bulk insertion
+    let allImagePaths = [];
+
+    // Iterate over each folder
+    for (let folder of folders) {
+      console.log("Processing folder name:", folder);
+      if (folder === "default") {
+        console.log("Skipping folder 'default'");
+        continue; // Skip to the next folder
+      }
+      const folderPath = path.join(baseDir, batch_name);
+
+      // Check if the current item is a directory
+      if (fs.lstatSync(folderPath).isDirectory()) {
+        console.log(`Processing folder: ${folderPath}`);
+
+        // Read all images in the current folder
+        const files = fs.readdirSync(folderPath);
+        console.log("hey i am file", files);
+
+        if (!files || files.length === 0) {
+          // If no files are found, stop further processing and send a Toastify message
+          console.log(`No files found in folder: ${folderPath}`);
+          return resSend(
+            res,
+            false,
+            200,
+            `No files found in the folder: ${folder}`,
+            null,
+            null
+          );
+        } else {
+          // Iterate over each image in the folder
+          for (let file of files) {
+            console.log("Processing image name:", file);
+            const filePath = path.join(folderPath, file);
+
+            // Check if the file is an image
+            if (fs.lstatSync(filePath).isFile()) {
+              console.log(`Found image: ${filePath}`);
+
+              // Store the folder path and image path for database insertion
+              allImagePaths.push([
+                template_name,
+                ID,
+                t_name,
+                folder,
+                file,
+                file,
+              ]);
+            }
+          }
+        }
+      }
+    }
+return;
+   
+  } catch (error) {
+    console.error("Error processing images:", error);
+    return resSend(res, false, 500, "Internal server error.", error, null);
+  }
+};

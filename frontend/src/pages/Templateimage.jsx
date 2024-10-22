@@ -314,6 +314,8 @@ function Templateimage({ images, template_name }) {
               // ); // 'a' is char code 97
               const parentBox = boxes[parentIndex];
               const childCount = parentBox.children.length;
+              const childnumCount = parentBox.children.length - 1;
+
 
               // Assign the name based on parent's `namingScheme`
               let childName;
@@ -325,7 +327,11 @@ function Templateimage({ images, template_name }) {
                   childName = toAlphanumeric(childCount); // Alphanumeric names
                   break;
                 case "number":
-                  childName = (childCount + 1).toString(); // Numeric names
+                  childName = (childnumCount + 1).toString(); // Numeric names
+                  break;
+                case "number1to0":
+                    // New logic for numbers 1 to 9, then 0
+                  childName = (childCount % 10 === 9) ? "0" : (childCount % 10 + 1).toString();
                   break;
                 case "alphabet":
                 default:
@@ -1159,14 +1165,14 @@ function Templateimage({ images, template_name }) {
             className="custom-select form-select"
           >
             <option value="">Please choose...</option>
-            <option value="Question">Question</option>
-            <option value="Option">Option</option>
-            <option value="Anchor">Anchor</option>
-            <option value="Roll Number">Roll Number</option>
-            <option value="Center Code">hall_ticket_no_parent</option>
-            <option value="Center Code">Center Code</option>
-            <option value="Center Code">test_booklet_parent</option>
-            {/* <option value="Center Code">Center Code</option> */}
+            <option value="question">question</option>
+            <option value="option">option</option>
+            <option value="anchor">anchor</option>
+            <option value="roll_number">roll_number</option>
+            <option value="hall_ticket_no_parent">hall_ticket_no_parent</option>
+            <option value="center_code">center_code</option>
+            <option value="test_booklet_parent">test_booklet_parent</option>
+           
           </select>
           {/* {selectedFruit && <p>You selected: {selectedFruit}</p>} */}
         </div>
@@ -1186,6 +1192,7 @@ function Templateimage({ images, template_name }) {
             <option value="roman">Roman Numerals</option>
             {/* <option value="alphanumeric">Alphanumeric</option> */}
             <option value="number">Numeric</option>
+            <option value="number1to0">Number (1 to 0)</option> 
             <option value="alphabet">Alphabetic</option>
           </select>
           {/* {selectedFruit && <p>You selected: {selectedFruit}</p>} */}
