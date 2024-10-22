@@ -122,19 +122,9 @@ exports.getOMRResults = async (req, res) => {
     //     LIMIT ${pageSize} OFFSET ${offset}
     //   `;
 
-    const dataSql = `SELECT 
-    o.batch_name, 
-    MAX(o.created_at) AS created_at, 
-    MAX(j.template_name) AS template_name,
-    MAX(j.t_name) AS t_name,
-    MAX(j.map) AS map,
-    MAX(o.template_id) AS template_id,
-    MAX(o.ques_paper_image_path) AS ques_paper_image_path,
-    MAX(o.result) AS result,
-    MAX(o.updated_at) AS updated_at FROM 
-    processed_omr_results o INNER JOIN 
-    template_image_json j ON o.template_id = j.ID
-    GROUP BY o.batch_name;`;
+    const dataSql = `SELECT * FROM omrsheet.template_image_json tij 
+INNER JOIN omrsheet.processed_omr_results por 
+WHERE tij.template_name = por.template_name `;
 
     const dataResult = await query({ query: dataSql, values: [] });
 
@@ -144,12 +134,12 @@ exports.getOMRResults = async (req, res) => {
     res.json({
       success: true,
       results: dataResult,
-      pagination: {
-        total: totalCount,
-        page: pageNumber,
-        limit: pageSize,
-        totalPages: Math.ceil(totalCount / pageSize),
-      },
+      // pagination: {
+      //   total: totalCount,
+      //   page: pageNumber,
+      //   limit: pageSize,
+      //   totalPages: Math.ceil(totalCount / pageSize),
+      // },
     });
   } catch (error) {
     console.error("Error fetching OMR results:", error);

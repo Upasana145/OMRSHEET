@@ -75,7 +75,7 @@ const getKafkaResults = async (key, value) => {
     console.log("resu", resu);
 
     const parsedResult = resu.map((item) => {
-      data: item.result;
+      data: JSON.parse(item.result);
     });
 
     console.log("parsedResult", parsedResult);

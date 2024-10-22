@@ -94,6 +94,8 @@ const OMRSheet = () => {
     return config;
   };
 
+  console.log("Items", items);
+
   const handleButtonClick = async (temp) => {
     const { template_name, map, t_name, batch_name } = temp;
 
@@ -209,7 +211,7 @@ const OMRSheet = () => {
           <p>
             Copyright &#169;2024
             <br />
-            Developed by <b>DCG Datacore Systems.Pvt.Ltd.</b>
+            Developed by <b>DCG Datacore Systems Pvt.Ltd.</b>
             <br />
             <i>Version:1.1.0</i>
           </p>
