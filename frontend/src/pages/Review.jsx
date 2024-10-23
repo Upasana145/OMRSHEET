@@ -3,32 +3,35 @@ import { useSelector } from "react-redux";
 
 import ReviewModal from "./ReviewModal";
 import { toast } from "react-toastify";
+import { getStatusColor } from "../utils/smallFun";
 
 const Review = () => {
   const [templateNames, setTemplateNames] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  
+
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [batchNames, setBatchNames] = useState([]);
+  // const [batchNames, setBatchNames] = useState([]);
   const [batches, setBatches] = useState({});
-  const { username, role } = useSelector((state) => state.auth); // Fetch username from Redux store
+  const { username } = useSelector((state) => state.auth);
   const [selectedBatch, setSelectedBatch] = useState("");
-  const [images, setImages] = useState([]); // State for storing fetched imagess
-  const handleTemplateChange = async (event) => {
-    const templateName = event.target.value;
-    setSelectedTemplate(templateName);
+  const [images, setImages] = useState([]);
+
+  const handleTemplateChange = async () => {
+    const templateName = selectedTemplate;
+    console.log("selectedTemplate", selectedTemplate);
 
     if (templateName) {
       try {
-        // const response = await fetch("http://localhost:4002/api/v1/master/alltempbatches", {
-          const response = await fetch(`${process.env.REACT_APP_API_URI}/master/alltempbatches`, {
-
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ template_name: templateName }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URI}/master/alltempbatches`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ template_name: templateName }),
+          }
+        );
 
         const data = await response.json();
         console.log("Data received from POST API:", data);
@@ -46,7 +49,7 @@ const Review = () => {
           }, {});
           console.log("Extracted Batch Details:", batchDetails);
 
-          setBatchNames(batchNamesList);
+          // setBatchNames(batchNamesList);
           setBatches(batchDetails);
         }
       } catch (error) {
@@ -55,38 +58,44 @@ const Review = () => {
     }
   };
 
+  useEffect(() => {
+    console.log("selectedTemplate2", selectedTemplate);
+    if (selectedTemplate && selectedTemplate !== "") {
+      handleTemplateChange();
+    }
+  }, [selectedTemplate]);
 
   const handleViewClick = async (batch) => {
-    if(batches[batch].assign_to !== username){
-return toast.error("You are not authorised!");
+    if (batches[batch].assign_to !== username) {
+      return toast.error("You are not authorised!");
     }
     console.log("hey i am batch...", batch);
     console.log("hey i am ...selectedTemplate", selectedTemplate);
-    
+
     setSelectedBatch(batch);
     setShowModal(true);
     await fetchImages(batch); // Fetch images for the selected batch
 
     const requestData = {
-      template_name:  selectedTemplate,// Replace with actual template name or a variable
+      template_name: selectedTemplate, // Replace with actual template name or a variable
       batch_name: batch, // Use the batch name
     };
 
-  
     try {
-      // const response = await fetch("http://localhost:4002/api/v1/master/proc_data", {
-        const response = await fetch(`${process.env.REACT_APP_API_URI}/master/proc_data`, {
-        method: "POST", 
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData), // Convert data to JSON string
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/master/proc_data`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData), // Convert data to JSON string
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
         console.log("Data fetched successfully:", data);
-        
       } else {
         console.error("Failed to fetch data:", response.statusText);
         toast.error("You are not authorised!");
@@ -98,17 +107,19 @@ return toast.error("You are not authorised!");
 
   const fetchImages = async (batch) => {
     try {
-      // const response = await fetch("http://localhost:4002/api/v1/master/proc_data", {
-        const response = await fetch(`${process.env.REACT_APP_API_URI}/master/proc_data`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          template_name: selectedTemplate,
-          batch_name: batch,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/master/proc_data`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            template_name: selectedTemplate,
+            batch_name: batch,
+          }),
+        }
+      );
 
       const data = await response.json();
       console.log("API Response for images:", data);
@@ -122,28 +133,33 @@ return toast.error("You are not authorised!");
       console.error("Error fetching images:", error);
     }
   };
-console.log("hey i am imagesssssssssssssssss", images)
+
+  console.log("hey i am imagesssssssssssssssss", images);
   const closeModal = () => {
     setShowModal(false);
-    setImages([]); // Clear images when the modal is closed
+    setImages([]);
   };
+
   const handleAssignToMe = async (batchName) => {
-    const confirmation = window.confirm("Do you really want to assign yourself?");
+    const confirmation = window.confirm(
+      "Do you really want to assign yourself?"
+    );
     if (confirmation) {
       try {
-        // Send a request to update the assignment and status in the backend
-        // const response = await fetch("http://localhost:4002/api/v1/master/reviewerassign", {
-          const response = await fetch(`${process.env.REACT_APP_API_URI}/master/reviewerassign`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            template_name: selectedTemplate,
-            batch_name: batchName,
-            assign_to: username, // Pass the current username
-          }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URI}/master/reviewerassign`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              template_name: selectedTemplate,
+              batch_name: batchName,
+              assign_to: username, // Pass the current username
+            }),
+          }
+        );
 
         const result = await response.json();
         console.log("Reviewer assignment response:", result);
@@ -154,19 +170,21 @@ console.log("hey i am imagesssssssssssssssss", images)
 
         // Update the status to 'Work in process' after assignment
         // const response1 = await fetch("http://localhost:4002/api/v1/master/updatestatusbatches", {
-          const response1 = await fetch(`${process.env.REACT_APP_API_URI}/master/updatestatusbatches`, {
-
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            template_name: selectedTemplate,
-            batch_name: batchName,
-            status: "Work in process", // Set status to 'Work in process'
-            assign_to: username,
-          }),
-        });
+        const response1 = await fetch(
+          `${process.env.REACT_APP_API_URI}/master/updatestatusbatches`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              template_name: selectedTemplate,
+              batch_name: batchName,
+              status: "Work in process", // Set status to 'Work in process'
+              assign_to: username,
+            }),
+          }
+        );
 
         const result1 = await response1.json();
         console.log("Assignment and status update response:", result1);
@@ -189,85 +207,80 @@ console.log("hey i am imagesssssssssssssssss", images)
     }
   };
 
-  const handleSubmit = async () => {
+  // const handleSubmit = async () => {
+  //   try {
+  //     setBatches((prevBatches) => ({
+  //       ...prevBatches,
+  //       [selectedTemplate]: {
+  //         ...prevBatches[selectedTemplate],
+  //         [selectedBatch]: {
+  //           ...prevBatches[selectedTemplate][selectedBatch],
+  //           status: "Complete",
+  //         },
+  //       },
+  //     }));
+  //     // const response = await fetch("http://localhost:4002/api/v1/master/updatestatusbatches", {
+  //     const response = await fetch(
+  //       `${process.env.REACT_APP_API_URI}/master/updatestatusbatches`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           template_name: selectedTemplate,
+  //           batch_name: selectedBatch,
+  //           status: "Complete", // Set status to 'Complete'
+  //         }),
+  //       }
+  //     );
+
+  //     const result = await response.json();
+  //     console.log("Status update response:", result);
+
+  //     if (!result.status) {
+  //       throw new Error("Failed to update status in the database");
+  //     }
+  //     closeModal();
+  //   } catch (error) {
+  //     console.error("Error updating status:", error);
+  //   }
+  // };
+
+  const fetchTemplates = async () => {
     try {
-      setBatches((prevBatches) => ({
-        ...prevBatches,
-        [selectedTemplate]: {
-          ...prevBatches[selectedTemplate],
-          [selectedBatch]: {
-            ...prevBatches[selectedTemplate][selectedBatch],
-            status: "Complete",
-          },
-        },
-      }));
-      // const response = await fetch("http://localhost:4002/api/v1/master/updatestatusbatches", {
-        const response = await fetch(`${process.env.REACT_APP_API_URI}/master/updatestatusbatches`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          template_name: selectedTemplate,
-          batch_name: selectedBatch,
-          status: "Complete", // Set status to 'Complete'
-        }),
-      });
-  
-      const result = await response.json();
-      console.log("Status update response:", result);
-  
-      if (!result.status) {
-        throw new Error("Failed to update status in the database");
-      }
-      closeModal();
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/master/getalltempbatch`
+      );
+      const data = await response.json();
+
+      console.log("API Response Data:", data);
+
+      const names = Array.from(
+        new Set(data.data.map((item) => item.template_name))
+      );
+      console.log("Extracted Unique Template Names:", names);
+
+      setTemplateNames(names);
     } catch (error) {
-      console.error("Error updating status:", error);
-    }
-  };
-  
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Complete":
-        return "green";
-      case "Work in process":
-        return "blue";
-      case "Pending":
-        return "red";
-      default:
-        return "black";
+      console.error("Error fetching templates:", error);
     }
   };
 
   useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        // const response = await fetch("http://localhost:4002/api/v1/master/getalltempbatch");
-        const response = await fetch(`${process.env.REACT_APP_API_URI}/master/getalltempbatch`);
-        const data = await response.json();
-
-        console.log("API Response Data:", data);
-
-        const names = Array.from(new Set(data.data.map((item) => item.template_name)));
-        console.log("Extracted Unique Template Names:", names);
-
-        setTemplateNames(names);
-      } catch (error) {
-        console.error("Error fetching templates:", error);
-      }
-    };
-
     fetchTemplates();
   }, []);
 
-
- 
   return (
     <div className="reviews-container">
       <h1 className="review-title">Reviewer page</h1>
       <div className="dropdown-container">
         <h2 className="selected-template">Please select a template</h2>
-        <select className="dropdown" value={selectedTemplate} onChange={handleTemplateChange}>
+        <select
+          className="dropdown"
+          value={selectedTemplate}
+          onChange={(e) => setSelectedTemplate(e.target.value)}
+        >
           <option value="">Select a template</option>
           {templateNames.map((name, index) => (
             <option key={index} value={name}>
@@ -280,7 +293,9 @@ console.log("hey i am imagesssssssssssssssss", images)
 
       {selectedTemplate && (
         <div className="batch-table-container">
-          <h2 className="selected-template">You selected: {selectedTemplate}</h2>
+          <h2 className="selected-template">
+            You selected: {selectedTemplate}
+          </h2>
           <table className="batch-table">
             <thead>
               <tr>
@@ -313,12 +328,11 @@ console.log("hey i am imagesssssssssssssssss", images)
                   <td>
                     <button
                       className="view-button"
-                      onClick={() => handleViewClick(batch)}                     
+                      onClick={() => handleViewClick(batch)}
                     >
                       View
                     </button>
                   </td>
-
                 </tr>
               ))}
             </tbody>
@@ -326,38 +340,15 @@ console.log("hey i am imagesssssssssssssssss", images)
         </div>
       )}
 
-
-<ReviewModal
- showModal={showModal}
- closeModal={closeModal}
- selectedBatch={selectedBatch}
- handleSubmit={handleSubmit}
- images={images}
- 
- />
-   
-
-
+      <ReviewModal
+        showModal={showModal}
+        closeModal={closeModal}
+        selectedBatch={selectedBatch}
+        handleTemplateChange={handleTemplateChange}
+        images={images}
+      />
     </div>
   );
 };
 
 export default Review;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

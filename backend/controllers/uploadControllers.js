@@ -96,9 +96,7 @@ exports.uploadprocessomrimages = async (req, res) => {
   }
 };
 
-
-
-exports.processcropimage= async (req, res) => {
+exports.processcropimage = async (req, res) => {
   // Handle Image Upload
   console.log("hello");
 
@@ -262,7 +260,6 @@ exports.uploadFile = async (req, res) => {
   }
 };
 
-
 exports.saveImgToDB = async (req, res) => {
   const { dept_name, camera, image, alarm_type } = req.body;
   // console.log("hey i am req.body", req.body);
@@ -313,7 +310,6 @@ exports.saveImgToDB = async (req, res) => {
       });
 
       resSend(res, true, 200, "Data saved!", re, null);
-
     } else {
       resSend(
         res,
@@ -329,8 +325,6 @@ exports.saveImgToDB = async (req, res) => {
     resSend(res, false, 400, "Error", error, null);
   }
 };
-
-
 
 exports.allomrimages = async (req, res) => {
   try {
@@ -354,14 +348,17 @@ exports.allomrimages = async (req, res) => {
     console.log(error);
     resSend(res, false, 400, "Error", error, null);
   }
-
-
 };
-
 
 exports.seperate_result = async (req, res) => {
   try {
-    const { template_name, batch_name, question_paper_name,ques_paper_image_path, t_name } = req.body;
+    const {
+      template_name,
+      batch_name,
+      question_paper_name,
+      ques_paper_image_path,
+      t_name,
+    } = req.body;
 
     const selectJsonQuery = `
       SELECT result 
@@ -401,7 +398,7 @@ exports.seperate_result = async (req, res) => {
           template_name,
           batch_name,
           question_paper_name,
-          ques_paper_image_path
+          ques_paper_image_path,
         ]);
 
         console.log("Insert values for reviewer_reviews:", valuesRR);
@@ -425,7 +422,11 @@ exports.seperate_result = async (req, res) => {
             VALUES (?, ?, ?)
           `;
 
-          const insertReviewerAssignValues = [template_name, t_name, batch_name];
+          const insertReviewerAssignValues = [
+            template_name,
+            t_name,
+            batch_name,
+          ];
 
           try {
             console.log("hello buddy");
@@ -434,10 +435,20 @@ exports.seperate_result = async (req, res) => {
               values: insertReviewerAssignValues,
             });
 
-            console.log("Insert result for reviewer_assign:", insertReviewerAssignResult);
+            console.log(
+              "Insert result for reviewer_assign:",
+              insertReviewerAssignResult
+            );
           } catch (error) {
             console.error("Error inserting into reviewer_assign:", error);
-            return resSend(res, false, 500, "Error storing reviewer assignment data.", null, error);
+            return resSend(
+              res,
+              false,
+              500,
+              "Error storing reviewer assignment data.",
+              null,
+              error
+            );
           }
         } catch (error) {
           console.error("Error inserting into reviewer_reviews:", error);
@@ -515,11 +526,6 @@ exports.seperate_result = async (req, res) => {
   }
 };
 
-
-
-
-
-
 exports.updateJsonResult = async (req, res) => {
   try {
     const {
@@ -566,7 +572,14 @@ exports.updateJsonResult = async (req, res) => {
 
     // If the status is 1, send a response indicating the record has already been processed
     if (currentStatus === 1) {
-      return resSend(res, true, 200, "Record has already been processed", innerData, null);
+      return resSend(
+        res,
+        true,
+        200,
+        "Record has already been processed",
+        innerData,
+        null
+      );
     }
 
     // // Handle the 'skip' action
@@ -586,8 +599,8 @@ exports.updateJsonResult = async (req, res) => {
     //   console.log("Status updated to 1 on skip action.");
     //   return resSend(res, true, 200, "Skip action performed", innerData, null);
     // }
-     // Handle the 'skip' action
-     if (action === "skip") {
+    // Handle the 'skip' action
+    if (action === "skip") {
       // Update the result to "skip" and set flag to false
       if (innerData) {
         innerData.result = "skip"; // Set result to "skip"
@@ -607,7 +620,13 @@ exports.updateJsonResult = async (req, res) => {
 
       await query({
         query: updateJsonQuery,
-        values: [updatedJsonString, template_name, batch_name, question_paper_name, id],
+        values: [
+          updatedJsonString,
+          template_name,
+          batch_name,
+          question_paper_name,
+          id,
+        ],
       });
 
       console.log("JSON data updated successfully with skip action.");
@@ -657,8 +676,6 @@ exports.updateJsonResult = async (req, res) => {
     resSend(res, false, 400, "Error", error, null);
   }
 };
-
-
 
 exports.getupdateJsonResult = async (req, res) => {
   try {
@@ -867,7 +884,7 @@ exports.submitupdateJsonResult = async (req, res) => {
     // Update the correct_result column with the merged JSON data
     const updateQuery = `
       UPDATE processed_omr_results 
-      SET correct_result = ? 
+      SET correct_result = ? , flag = 1
       WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
     `;
 
@@ -892,25 +909,24 @@ exports.submitupdateJsonResult = async (req, res) => {
     );
 
     // Update the flag from 0 to 1
-    const updateFlagQuery = `
-     UPDATE processed_omr_results
-     SET flag = 1
-     WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND flag = 0
-   `;
+    //   const updateFlagQuery = `
+    //    UPDATE processed_omr_results
+    //    SET flag = 1
+    //    WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND flag = 0
+    //  `;
 
-    const updateFlagResult = await query({
-      query: updateFlagQuery,
-      values: [template_name, batch_name, question_paper_name],
-    });
+    //   const updateFlagResult = await query({
+    //     query: updateFlagQuery,
+    //     values: [template_name, batch_name, question_paper_name],
+    //   });
 
-    console.log("Flag update result:", updateFlagResult);
+    //   console.log("Flag update result:", updateFlagResult);
 
     // Step 4: Update the status in reviewer_reviews to 2
     const updateReviewerQuery = `
       UPDATE reviewer_reviews 
       SET status = 2 
-      WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND status = 1
-    `;
+      WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND status = 1`;
 
     const updateReviewerResult = await query({
       query: updateReviewerQuery,
@@ -924,16 +940,13 @@ exports.submitupdateJsonResult = async (req, res) => {
   }
 };
 
-
-
-
 exports.csvresult = async (req, res) => {
   try {
     const { t_name } = req.body; // Expecting the template name in the request body
 
     // Validate the input
     if (!t_name || t_name.trim() === "") {
-      return res.status(400).json({ error: 'Invalid template_name' });
+      return res.status(400).json({ error: "Invalid template_name" });
     }
 
     // SQL query to select the correct results and batch names
@@ -952,14 +965,21 @@ exports.csvresult = async (req, res) => {
 
     // Check if any results were found
     if (!result || result.length === 0) {
-      return res.status(200).json({ status: 0, details: "No batches processed or not found." });
+      return res
+        .status(200)
+        .json({ status: 0, details: "No batches processed or not found." });
     }
 
     // If we reach this point, it means there are processed results
-    return res.status(200).json({ status: 1, details: "Processed results found.", results: result });
-
+    return res.status(200).json({
+      status: 1,
+      details: "Processed results found.",
+      results: result,
+    });
   } catch (err) {
-    console.error('Error converting JSON to CSV:', err);
-    res.status(500).json({ error: 'Error converting JSON to CSV', details: err.message });
+    console.error("Error converting JSON to CSV:", err);
+    res
+      .status(500)
+      .json({ error: "Error converting JSON to CSV", details: err.message });
   }
 };

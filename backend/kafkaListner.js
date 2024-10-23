@@ -1,14 +1,24 @@
 const { Kafka, logLevel } = require("kafkajs");
 const { query } = require("./db/db.js");
 
-const processJsonResults = (dataObject) => {
-  const filteredJsonRR = Object.entries(dataObject)
+const processJsonResults = (data) => {
+  const filteredJsonRR = Object.entries(data)
     .filter(([key, item]) => item.result === "RR" && item.flag === true)
     .map(([key, item]) => ({ [key]: item }));
 
-  const filteredJsonCorrect = Object.entries(dataObject)
+  // const filteredJsonRR = Object.entries(data)
+  //   .filter(([key, item]) => item.flag)
+  //   .map(([key, item]) => ({ [key]: item }));
+
+  const filteredJsonCorrect = Object.entries(data)
     .filter(([key, item]) => item.result !== "RR")
     .map(([key, item]) => ({ [key]: item }));
+  // const filteredJsonCorrect = Object.entries(data)
+  //   .filter(([key, item], i) => !item.flag)
+  //   .map(([key, item], i) => ({ [key]: item }));
+
+  console.log("filteredJsonRR.length", filteredJsonRR.length);
+  console.log("filteredJsonCorrect.length", filteredJsonCorrect.length);
 
   return { filteredJsonRR, filteredJsonCorrect };
 };
@@ -17,7 +27,7 @@ const getKafkaResults = async (key, value) => {
   if (!key || !value) {
     return { status: false, message: "Bad Request: Missing parameters" };
   }
-  console.log("key: ", key, "value: ", value);
+  console.log("key: ", key);
 
   const parts = key.split("_");
 
@@ -55,39 +65,43 @@ const getKafkaResults = async (key, value) => {
       return { status: false, message: "The batch is not added." };
     }
 
-    console.log("resu1", value, t_name, batch_name, question_paper_name);
-    await query({
-      query: `UPDATE processed_omr_results SET result = ? WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`,
-      values: [value, t_name, batch_name, question_paper_name],
-    });
+    console.log(
+      "resu1",
+      template_name,
+      t_name,
+      batch_name,
+      question_paper_name
+    );
+    // await query({
+    //   query: `UPDATE processed_omr_results SET result = ? WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`,
+    //   values: [value, t_name, batch_name, question_paper_name],
+    // });
 
     //Separate Result process starts here
-    const selectJsonQuery = `
-      SELECT result 
-      FROM processed_omr_results 
-      WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`;
+    // const selectJsonQuery = `
+    //   SELECT result
+    //   FROM processed_omr_results
+    //   WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`;
 
-    const resu = await query({
-      query: selectJsonQuery,
-      values: [t_name, batch_name, question_paper_name],
-    });
+    // const resu = await query({
+    //   query: selectJsonQuery,
+    //   values: [t_name, batch_name, question_paper_name],
+    // });
 
-    console.log("resu", resu);
+    let resu = [];
+    resu.push({ result: value });
+    const parsedResult = resu.map((item) => ({
+      data: JSON.parse(item.result),
+    }));
 
-    const parsedResult = resu.map((item) => {
-      data: JSON.parse(item.result);
-    });
-
-    console.log("parsedResult", parsedResult);
-
-    if (parsedResult && parsedResult.length > 0) {
-      // Access the first result's data object
-      const dataObject = parsedResult[0].data;
+    if (parsedResult) {
+      let dataObj = parsedResult[0].data;
 
       const { filteredJsonRR, filteredJsonCorrect } =
-        processJsonResults(dataObject);
+        processJsonResults(dataObj);
 
       // Insert "RR" data into the reviewer_reviews table
+      console.log("filteredJsonRR", filteredJsonRR.length);
       if (filteredJsonRR.length > 0) {
         const valuesRR = filteredJsonRR.flatMap((item) => [
           JSON.stringify(item),
@@ -111,8 +125,7 @@ const getKafkaResults = async (key, value) => {
           // Insert data into reviewer_assign table after successful insert into reviewer_reviews
           const insertReviewerAssignQuery = `
             INSERT INTO reviewer_assign (template_name, t_name, batch_name, status)
-            VALUES (?, ?, ?, ?)
-          `;
+            VALUES (?, ?, ?, ?)`;
 
           const insertReviewerAssignValues = [
             template_name,
@@ -126,11 +139,7 @@ const getKafkaResults = async (key, value) => {
             values: insertReviewerAssignValues,
           });
 
-          console.log(
-            "Insert result for reviewer_assign:",
-            insertReviewerAssignResult
-          );
-          return { status: true, message: "Everything worked fine." };
+          console.log("insertReviewResult:", insertReviewerAssignResult);
         } catch (error) {
           return {
             status: false,
@@ -140,11 +149,12 @@ const getKafkaResults = async (key, value) => {
       }
 
       // Update correct results in the processed_omr_results table
+      console.log("filteredJsonCorrect", filteredJsonCorrect.length);
       if (filteredJsonCorrect.length > 0) {
         const correctDataJson = JSON.stringify(filteredJsonCorrect);
         const updateCorrectQuery = `
           UPDATE processed_omr_results
-          SET correct_result = ?
+          SET correct_result = ? , result = ?
           WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
         `;
 
@@ -153,19 +163,14 @@ const getKafkaResults = async (key, value) => {
             query: updateCorrectQuery,
             values: [
               correctDataJson,
+              value,
               template_name,
               batch_name,
               question_paper_name,
             ],
           });
 
-          console.log("Update result for correct_result:", updateCorrectResult);
-
-          return {
-            status: false,
-            message:
-              "Data stored successfully. RR data in reviewer_reviews and correct data in processed_omr_results.",
-          };
+          console.log("updateCorrectResult", updateCorrectResult);
         } catch (error) {
           return { status: false, message: error.message };
         }
@@ -175,6 +180,11 @@ const getKafkaResults = async (key, value) => {
           message: "No matching JSON found for correct data!",
         };
       }
+
+      return {
+        status: true,
+        message: "Data stored successfully.",
+      };
     } else {
       return { status: false, message: "No Record Found!" };
     }

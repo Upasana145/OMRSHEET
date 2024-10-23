@@ -81,9 +81,9 @@ const Add = () => {
 
         // Check if the response contains the message for missing files
         if (serverMessage?.includes("No files found")) {
-          toast.error(serverMessage); // Show error toast if no files are found
+          toast.error(serverMessage);
         } else {
-          toast.success("Image processing initiated successfully.");
+          toast.success("The images are processed successfully.");
         }
       } else {
         toast.error("Image processing failed. Please try again.");
@@ -146,7 +146,7 @@ const Add = () => {
                           className="btn btn-primary form-submit"
                           disabled={isSubmitting}
                         >
-                          {isSubmitting ? "Processing..." : "Processing"}
+                          {isSubmitting ? "Processing..." : "Process"}
                         </button>
                       </div>
                     </div>

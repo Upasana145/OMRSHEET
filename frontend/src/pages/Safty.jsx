@@ -20,7 +20,6 @@ import AddReviewer from "./AddReviewer";
 import Review from "./Review";
 import OMRSheet from "./omr/OMRSheet";
 import Add from "./omr/Add";
-import ReviewModal from "./ReviewModal";
 import ReviewQuestionPaper from "./ReviewQuestionPaper";
 
 function Safty() {
@@ -35,7 +34,6 @@ function Safty() {
           {role === "Reviewer" && (
             <>
               <Route path="/" element={<Review />} />
-              <Route path="/reviewmodal" element={<ReviewModal />} />
               <Route
                 path="/reviewquestionpaper"
                 element={<ReviewQuestionPaper />}
@@ -52,10 +50,6 @@ function Safty() {
               <Route path="/editDept" element={<EditDept />} />
               <Route path="/department" element={<Depts />} />
               <Route path="/addUser" element={<Adduser />} />
-              {/* <Route
-            path="/norecordfound"
-            element={<ImageContainernorecordfound />}
-          /> */}
               <Route path="/temp" element={<Templates />} />
               <Route path="/mapping" element={<TemplateMapping />} />
               <Route path="/mappingimage" element={<Templateimage />} />
