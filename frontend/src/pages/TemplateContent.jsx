@@ -8,7 +8,6 @@ import swal from "sweetalert";
 
 function TemplateContent({ users, fetchUsers, templates }) {
   const sureToDelete = (id) => {
-    console.log("i am priniting id.....", id);
     swal({
       title: "Are you sure?",
       text: "Are you sure that you want to delete the department info?",
@@ -16,14 +15,12 @@ function TemplateContent({ users, fetchUsers, templates }) {
       dangerMode: true,
       buttons: ["No, cancel it!", "Yes, I am sure!"],
     }).then(async (willDelete) => {
-      console.log("helloo buddy..");
       if (willDelete) {
         await deleteHandler(id);
       }
     });
   };
   const deleteHandler = async (id) => {
-    console.log("hey in am id...", id);
     let data = await postAPI(
       "master/deleteomrData",
       { template_name: id },
@@ -38,121 +35,110 @@ function TemplateContent({ users, fetchUsers, templates }) {
     }
   };
 
-  const handleButtonClick = async (temp) => {
-    const { template_name, map, t_name } = temp;
-    console.log("this is map:", temp);
+  // const handleButtonClick = async (temp) => {
+  //   const { template_name, map, t_name } = temp;
 
-    if (!map || !JSON.parse(map) || map === "") {
-      return toast.warn("Mapping is required.");
-    }
+  //   if (!map || !JSON.parse(map) || map === "") {
+  //     return toast.warn("Mapping is required.");
+  //   }
 
-    // Parse the map JSON
-    const parsedMap = JSON.parse(map);
+  //   // Parse the map JSON
+  //   const parsedMap = JSON.parse(map);
 
-    const generateTypeConfig = (items) => {
-      const config = {};
+  //   const generateTypeConfig = (items) => {
+  //     const config = {};
 
-      items.forEach((item) => {
-        if (item.mode === "parent") {
-          const options = {};
-          if (item.children && item.children.length > 0) {
-            item.children.forEach((child, index) => {
-              options[index] = child.name;
-            });
-            const length = item.children.length;
-            options[length] = "RR";
-            options[length + 1] = "RR";
-            config[item.type] = {
-              OPTIONS: options,
-              LENGTH: length,
-            };
-          } else {
-            config[item.type] = {
-              OPTIONS: { 0: "RR", 1: "RR" },
-              LENGTH: 0,
-            };
-          }
-        }
-      });
+  //     items.forEach((item) => {
+  //       if (item.mode === "parent") {
+  //         const options = {};
+  //         if (item.children && item.children.length > 0) {
+  //           item.children.forEach((child, index) => {
+  //             options[index] = child.name;
+  //           });
+  //           const length = item.children.length;
+  //           options[length] = "RR";
+  //           options[length + 1] = "RR";
+  //           config[item.type] = {
+  //             OPTIONS: options,
+  //             LENGTH: length,
+  //           };
+  //         } else {
+  //           config[item.type] = {
+  //             OPTIONS: { 0: "RR", 1: "RR" },
+  //             LENGTH: 0,
+  //           };
+  //         }
+  //       }
+  //     });
 
-      return config;
-    };
+  //     return config;
+  //   };
 
-    // Generate type_config from the parsed map
-    const typeConfig = generateTypeConfig(parsedMap);
-    const payload = {
-      template: JSON.parse(map),
-      template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
-      data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
-      type_config: typeConfig,
-    };
-    console.log("I am payload", payload);
+  //   // Generate type_config from the parsed map
+  //   const typeConfig = generateTypeConfig(parsedMap);
+  //   const payload = {
+  //     template: JSON.parse(map),
+  //     template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
+  //     data_path: `${process.env.REACT_APP_AI_DATA}${template_name}`,
+  //     type_config: typeConfig,
+  //   };
+  //   console.log("I am payload", payload);
 
-    try {
-      const response = await fetch(process.env.REACT_APP_AI_API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+  //   try {
+  //     const response = await fetch(process.env.REACT_APP_AI_API, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(payload),
+  //     });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! Status: ${response.status}`);
+  //     }
 
-      const responseData = await response.json();
-      console.log("Success:", responseData);
-      toast.success("Processing has been started!");
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("An error occurred while processing.");
-    }
-  };
+  //     const responseData = await response.json();
+  //     console.log("Success:", responseData);
+  //     toast.success("Processing has been started!");
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     toast.error("An error occurred while processing.");
+  //   }
+  // };
 
-  console.log("users....", users);
   const navigate = useNavigate();
   const handleNavigateToMapping = (template) => {
-    // <img
-    //   //   src={`${process.env.REACT_APP_FILE_URI}${template.template_name}`}
-    //   //   src={`${process.env.REACT_APP_FILE_URI}${template.template_name}`}
-    //   src={`${process.env.REACT_APP_FILE_URI}${template.t_name}`}
-    //   alt={template.template_name}
-    //   // style={{ maxWidth: "100%" }}
-    //   style={{ width: "180px" }}
-    // />;
-    console.log("hey i am template", template);
     navigate("/mapping", { state: { template } });
   };
-  //   console.log("Template:", template);
-  //   navigate("/mapping", { state: { template } });
-
-  console.log("HEY I AM ", process.env.REACT_APP_FILE_URI);
-  console.log("HEY I AM ", process.env.REACT_APP_API_URI);
-
-  const jsonData = [
-    {
-      id: 1,
-      name: "John Doe",
-      age: 30,
-      email: "john@example.com",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      age: 25,
-      email: "jane@example.com",
-    },
-  ];
 
   const convertToCSV = (data, templateName) => {
-    console.log("hey i am data..........", data);
     const csvRows = [];
-    const headersSet = new Set(); // To keep track of unique headers
+    const headersSet = new Set();
+
+    data = data.sort((a, b) => {
+      const keyA = Object.keys(a)[0];
+      const keyB = Object.keys(b)[0];
+
+      // Handle Roll No first
+      if (keyA === "Roll No") return -1;
+      if (keyB === "Roll No") return 1;
+      return -1;
+    });
+    console.log("data", data);
 
     data.forEach((item) => {
       if (item?.correct_result && item.correct_result !== "") {
-        const correctResult = JSON.parse(item.correct_result);
+        let correctResult = JSON.parse(item.correct_result);
+        correctResult = correctResult.sort((a, b) => {
+          const keyA = Object.keys(a)[0];
+          const keyB = Object.keys(b)[0];
+
+          // Handle Questions in numeric order
+          const numA = parseInt(keyA.match(/\d+/));
+          const numB = parseInt(keyB.match(/\d+/));
+          return numA - numB;
+        });
+
         correctResult.forEach((q) => {
           for (const key in q) {
             headersSet.add(key);
@@ -160,34 +146,33 @@ function TemplateContent({ users, fetchUsers, templates }) {
         });
       }
     });
+    console.log("headersSet", headersSet);
 
-    const headers = Array.from(headersSet).sort();
-    csvRows.push(["batch_name", "question_paper_name", ...headers].join(",")); // Add headers to the CSV
+    // const headers = Array.from(headersSet).sort();
+    csvRows.push(["Batch", ...headersSet].join(","));
 
-    data.forEach((item) => {
-      if (item?.correct_result && item.correct_result !== "") {
-        const batchName = item.batch_name;
-        const questionPaperName = item.question_paper_name;
-        console.log("heyyyyyyyyyy i am item...", item);
-        const correctResult = JSON.parse(item.correct_result);
+    // data.forEach((item) => {
+    //   if (item?.correct_result && item.correct_result !== "") {
+    //     const batchName = item.batch_name;
+    //     const correctResult = JSON.parse(item.correct_result);
 
-        // Create an object to hold results for the current item
-        const results = {};
-        correctResult.forEach((q) => {
-          for (const key in q) {
-            results[key] = q[key].result; // Extract result for each question
-          }
-        });
+    //     // Create an object to hold results for the current item
+    //     const results = {};
+    //     correctResult.forEach((q) => {
+    //       for (const key in q) {
+    //         results[key] = q[key].result;
+    //       }
+    //     });
 
-        // Create a row with batch name, question paper name, and results
-        const row = [batchName, questionPaperName];
-        headers.forEach((header) => {
-          row.push(results[header] || ""); // Push result or empty string if not exists
-        });
+    //     // Create a row with batch name, question paper name, and results
+    //     const row = [batchName];
+    //     headers.forEach((header) => {
+    //       row.push(results[header] || "");
+    //     });
 
-        csvRows.push(row.join(",")); // Add the row to csvRows
-      }
-    });
+    //     csvRows.push(row.join(","));
+    //   }
+    // });
 
     return csvRows.join("\n"); // Join rows with newline
   };
@@ -209,24 +194,20 @@ function TemplateContent({ users, fetchUsers, templates }) {
   };
 
   const handleDownload = async (temp) => {
-    const { template_name, map, t_name } = temp;
-    console.log("This is t_name:", t_name);
+    const { template_name, t_name } = temp;
 
     try {
-      // Prepare the request payload
       const payload = {
-        t_name: t_name, // Pass the t_name to the API
+        t_name: t_name,
       };
-
-      // Make the API call to the specified endpoint
       const response = await fetch(
         `${process.env.REACT_APP_API_URI}/upload/csvresult`,
         {
-          method: "POST", // Use POST method
+          method: "POST",
           headers: {
-            "Content-Type": "application/json", // Set content type to JSON
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(payload), // Convert payload to JSON
+          body: JSON.stringify(payload),
         }
       );
 
@@ -237,16 +218,9 @@ function TemplateContent({ users, fetchUsers, templates }) {
 
       // Parse the JSON response
       const data = await response.json();
-      console.log("Response from API:", data);
-
-      // Handle the data as needed (e.g., download CSV or notify user)
-      if (data.status === 1) {
-        // Process the data if available
-        // e.g., download the CSV, display results, etc.
-        console.log("Processed results:", data.results);
+      if (data.status) {
         downloadCSV(data.results, template_name);
       } else {
-        // Handle the case where no processed results were found
         console.warn(data.details);
       }
     } catch (error) {
@@ -254,22 +228,8 @@ function TemplateContent({ users, fetchUsers, templates }) {
     }
   };
 
-  //   const handleDownload = async (temp) => {
-  //     const { template_name, map, t_name } = temp;
-  //     console.log("this is map:",temp);
-
-  //   const csv = Papa.unparse(jsonData);
-
-  //   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  //   const url = URL.createObjectURL(blob);
-  //   const link = document.createElement('a');
-  //   link.setAttribute('href', url);
-  //   link.setAttribute('download', 'data.csv');
-  //   link.click();
-  // };
-
   return (
-    <div>
+    <>
       <table className="table table-striped table-bordered m-0">
         <thead>
           <tr className="border-0">
@@ -303,30 +263,17 @@ function TemplateContent({ users, fetchUsers, templates }) {
                     className="btn btn-icon btn-dark btn-active-color-primary btn-sm me-1"
                     title="drag"
                     name="drag"
-                    // onClick={toggleDrMode}
                     onClick={() => sureToDelete(template.template_name)}
                   >
                     <MdDelete />
                   </button>
-                  {/* <button
-                    className="btn btn-icon btn-dark btn-active-color-primary btn-sm me-1 "
-                    title="View"
-                    onClick={() => handleButtonClick(template)}
-                    // onClick={handleButtonClick(template)}
-                    style={{ width: "85px" }}
-                  >
-                    Export to csv
-                  </button> */}
                   <button
                     className="btn btn-icon btn-dark btn-active-color-primary btn-sm me-1 "
-                    title="View"
-                    // onClick={() => handleButtonClick(template)}
-                    // onClick={handleButtonClick(template)}
-                    // onClick={handleDownload}
+                    title="Export"
                     onClick={() => handleDownload(template)}
-                    style={{ width: "85px" }}
+                    style={{ width: "90px" }}
                   >
-                    Export to csv
+                    Export to CSV
                   </button>
                 </td>
               </tr>
@@ -349,7 +296,7 @@ function TemplateContent({ users, fetchUsers, templates }) {
           ))} */}
         </tbody>
       </table>
-    </div>
+    </>
   );
 }
 

@@ -942,14 +942,12 @@ exports.submitupdateJsonResult = async (req, res) => {
 
 exports.csvresult = async (req, res) => {
   try {
-    const { t_name } = req.body; // Expecting the template name in the request body
+    const { t_name } = req.body;
 
-    // Validate the input
     if (!t_name || t_name.trim() === "") {
       return res.status(400).json({ error: "Invalid template_name" });
     }
 
-    // SQL query to select the correct results and batch names
     const selectJsonQuery = `
       SELECT correct_result, batch_name, question_paper_name 
       FROM processed_omr_results 
@@ -961,16 +959,12 @@ exports.csvresult = async (req, res) => {
       values: [t_name],
     });
 
-    console.log("Result from database:", result);
-
-    // Check if any results were found
     if (!result || result.length === 0) {
       return res
         .status(200)
         .json({ status: 0, details: "No batches processed or not found." });
     }
 
-    // If we reach this point, it means there are processed results
     return res.status(200).json({
       status: 1,
       details: "Processed results found.",
