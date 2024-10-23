@@ -27,7 +27,6 @@ const getKafkaResults = async (key, value) => {
   if (!key || !value) {
     return { status: false, message: "Bad Request: Missing parameters" };
   }
-  console.log("key: ", key);
 
   const parts = key.split("_");
 
@@ -45,12 +44,22 @@ const getKafkaResults = async (key, value) => {
       values: [t_name, batch_name],
     });
 
-    if (
-      !childResult ||
-      childResult.length === 0 ||
-      childResult[0].length === 0
-    ) {
+    if (!childResult || childResult.length === 0) {
       return { status: false, message: "No Template found" };
+    }
+
+    // Check OMR Exists (question_paper_name) w.r.t template_name, batch_name from reviewer_reviews, processed_omr_results
+    const OMRExistsSQL = `SELECT count(ID) as count FROM processed_omr_results WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`;
+    const [row] = await query({
+      query: OMRExistsSQL,
+      values: [t_name, batch_name, question_paper_name],
+    });
+
+    if (row.count) {
+      return {
+        status: true,
+        message: "Ignore the existing kafka response.",
+      };
     }
 
     const template_name = childResult[0].template_name;
@@ -155,8 +164,7 @@ const getKafkaResults = async (key, value) => {
         const updateCorrectQuery = `
           UPDATE processed_omr_results
           SET correct_result = ? , result = ?
-          WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
-        `;
+          WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?`;
 
         try {
           const updateCorrectResult = await query({
@@ -220,13 +228,13 @@ const kafkaListenerHandler = () => {
     // Consume messages from the topic
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
-        console.log("HELLO", {
-          topic,
-          partition,
-          offset: message.offset,
-          // value: message.value.toString(),
-          key: message.key.toString(),
-        });
+        // console.log("HELLO", {
+        //   topic,
+        //   partition,
+        //   offset: message.offset,
+        //   // value: message.value.toString(),
+        //   key: message.key.toString(),
+        // });
         try {
           // await consumer.commitOffsets([
           //   {
