@@ -79,7 +79,7 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
 
         // Check if the data is wrapped in an additional key like "htn10"
         const keys = Object.keys(parsedData);
-        console.log("hey budddyyy i am keyyyyyyyyyy....", keys[0]);
+        console.log("keys[0]", keys[0]);
         if (keys.length === 1) {
           const innerData = keys[0];
           if (innerData) {
@@ -272,8 +272,8 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
       );
       const flagData = await response.json();
       setFlagData(flagData);
-
-      console.log("i am responsebudddyyyyyyyy", flagData.data.flag);
+// console.log("i am flaggggggggggggggggdattttttttttttta..", flagData);
+//       console.log("i am responsebudddyyyyyyyy", flagData.data.flag);
 
       if (flagData.data.flag == 1) {
         setIsSubmit(false);

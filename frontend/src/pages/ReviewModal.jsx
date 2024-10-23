@@ -314,45 +314,45 @@ const ReviewModal = ({
     setSelectedData(null); // Reset the selected data
   };
 
-  const handleSubmitClick = async () => {
-    if (images.length === 0) {
-      return toast.error("No images data to submit.");
-    }
+  // const handleSubmitClick = async () => {
+  //   if (images.length === 0) {
+  //     return toast.error("No images data to submit.");
+  //   }
 
-    const { template_name, batch_name } = images[0];
+  //   const { template_name, batch_name } = images[0];
 
-    if (!template_name || !batch_name) {
-      return toast.error("Missing template_name or batch_name.");
-    }
+  //   if (!template_name || !batch_name) {
+  //     return toast.error("Missing template_name or batch_name.");
+  //   }
 
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/master/updatestatussubmit`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            template_name,
-            batch_name,
-          }),
-        }
-      );
+  //   try {
+  //     const response = await fetch(
+  //       `${process.env.REACT_APP_API_URI}/master/updatestatussubmit`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           template_name,
+  //           batch_name,
+  //         }),
+  //       }
+  //     );
 
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("Submitted successfully!");
-        closeModal();
-        handleTemplateChange();
-      } else {
-        toast.error(`Failed to update status: ${data.message}`);
-      }
-    } catch (error) {
-      console.error("Error submitting data:", error);
-      toast.error("Error occurred while updating status.");
-    }
-  };
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       toast.success("Submitted successfully!");
+  //       closeModal();
+  //       handleTemplateChange();
+  //     } else {
+  //       toast.error(`Failed to update status: ${data.message}`);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error submitting data:", error);
+  //     toast.error("Error occurred while updating status.");
+  //   }
+  // };
 
   if (!showModal) return null;
 
@@ -400,12 +400,12 @@ const ReviewModal = ({
         </table>
         <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
 
-        {/* Submit button at the bottom */}
+        {/* Submit button at the bottom
         <div className="submit-section1">
           <button className="submit-button1" onClick={handleSubmitClick}>
             Submit
           </button>
-        </div>
+        </div> */}
 
         {showDetails && (
           <ReviewQuestionPaper
