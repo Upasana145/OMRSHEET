@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import swal from "sweetalert";
 import { LiaAngleDownSolid, LiaAngleLeftSolid } from "react-icons/lia";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutHandler } from "../redux/slices/authSlice";
@@ -18,13 +19,27 @@ const Sidebar = () => {
     setMasterDropdownVisible(!masterDropdownVisible);
   };
 
-  const toggleSettingsDropdown = () => {
-    setSettingsDropdownVisible(!settingsDropdownVisible);
-  };
+  // const toggleSettingsDropdown = () => {
+  //   setSettingsDropdownVisible(!settingsDropdownVisible);
+  // };
   const logout = () => {
     dispatch(logoutHandler());
     dispatch(initialProjectTypeHandler());
-    navigate("/"); // Updated to use navigate
+    navigate("/");
+  };
+
+  const sureToDelete = () => {
+    swal({
+      title: "Are you sure?",
+      text: "Are you sure that you want to Log Out?",
+      icon: "warning",
+      dangerMode: true,
+      buttons: ["Nope!", "Yes!"],
+    }).then(async (willDelete) => {
+      if (willDelete) {
+        await logout();
+      }
+    });
   };
 
   return (
@@ -35,67 +50,10 @@ const Sidebar = () => {
         </div>
         <div className="sidebar_nav">
           <ul>
-            {/* <li>
-              
-              <Link to={"/temp"}>Dashboard</Link>
-            </li> */}
-            {/* <Link to={"/dashboard"}>Dashboard</Link> */}
-
-            {/* need to woek on it below */}
-            {/* <li className="drop" onClick={toggleMasterDropdown}>
-              <span style={{ cursor: "pointer" }}>Master</span>
-              <span
-                style={{
-                  position: "absolute",
-                  top: "6px",
-                  right: "12px",
-                }}
-              >
-                {masterDropdownVisible ? (
-                  <LiaAngleDownSolid />
-                ) : (
-                  <LiaAngleLeftSolid />
-                )}
-              </span>
-              {masterDropdownVisible && (
-                <ul className="drop_nav">
-                  <li>
-                    <Link to={"/department"}>Departments</Link>
-                  </li>
-                </ul>
-              )}
-            </li>
-             */}
-
-            {/* need to woek on it above */}
-            {/* <li className="drop" onClick={toggleSettingsDropdown}>
-              <span style={{ cursor: "pointer" }}>Settings</span>
-              <span style={{ position: "absolute", top: "6px", right: "12px" }}>
-                {settingsDropdownVisible ? (
-                  <LiaAngleDownSolid />
-                ) : (
-                  <LiaAngleLeftSolid />
-                )}
-              </span>
-              {settingsDropdownVisible && (
-                <ul className="drop_nav">
-                  <li>
-                    <Link to={"/calibration"}>Start Calibration</Link>
-                  </li>
-                </ul>
-              )}
-            </li> */}
-
             {role === "Reviewer" && (
               <>
                 <li>
-                  {/* <Link to={"/dashboard"}>Dashboard</Link> */}
                   <Link to={"/"}>Dashboard</Link>
-                </li>
-
-                <li>
-                  {/* <Link to={"/user"}>User</Link> */}
-                  {/* <Link to={"/addReviewer"}>User</Link> */}
                 </li>
               </>
             )}
@@ -110,8 +68,9 @@ const Sidebar = () => {
                   <span
                     style={{
                       position: "absolute",
-                      top: "6px",
+                      top: "50%",
                       right: "12px",
+                      transform: "translateY(-50%)",
                     }}
                   >
                     {masterDropdownVisible ? (
@@ -120,24 +79,19 @@ const Sidebar = () => {
                       <LiaAngleLeftSolid />
                     )}
                   </span>
-                  {masterDropdownVisible && (
-                    <ul className="drop_nav">
-                      <li>
-                        <Link to={"/user"}>User</Link>
-                        {/* <Link to={"/department"}>Departments</Link> */}
-                        <Link to={"/omr"}>OMR Sheet</Link>
-                      </li>
-                    </ul>
-                  )}
                 </li>
-                <li>
-                  {/* <Link to={"/user"}>User</Link> */}
-                  {/* <Link to={"/addReviewer"}>User</Link> */}
-                </li>
+                {masterDropdownVisible && (
+                  <ul className="drop_nav">
+                    <li>
+                      <Link to={"/user"}>User</Link>
+                      <Link to={"/omr"}>OMR Sheet</Link>
+                    </li>
+                  </ul>
+                )}
               </>
             )}
             <li>
-              <button onClick={logout}>Logout</button>
+              <button onClick={sureToDelete}>Logout</button>
             </li>
           </ul>
         </div>
