@@ -115,25 +115,16 @@ exports.processcropimage = async (req, res) => {
   if (req.file) {
     console.log("hey i am request.file", req.file.filename);
 
-    // fileData = {
-    //   fileName: req.file.filename,
-    //   filePath: req.file.path,
-    //   fileType: req.file.mimetype,
-    //   fileSize: req.file.size,
-    // };
-
-    // Escape backslashes in the file path
-    // const escapedPath = req.file.path.replace(/\\/g, "\\\\"); // for sending as path
-
     try {
-      // SQL query to update the cropped_image column in reviewer_reviews
+      // SQL query to update the cropped_image column and set crop_flag to 1
       let sql = `
         UPDATE reviewer_reviews 
-        SET cropped_image = '${req.file.filename}' 
+        SET cropped_image = '${req.file.filename}', crop_flag = 1 
         WHERE template_name = '${template_name}' 
         AND batch_name = '${batch_name}' 
         AND question_paper_name = '${question_paper_name}' 
         AND ID = '${ID}'`;
+
       // Execute the query
       const result = await query({
         query: sql,
@@ -141,12 +132,12 @@ exports.processcropimage = async (req, res) => {
       });
 
       if (result.affectedRows > 0) {
-        console.log("Cropped image updated successfully!");
+        console.log("Cropped image and crop_flag updated successfully!");
         resSend(
           res,
           true,
           200,
-          "Cropped image updated successfully!",
+          "Cropped image and crop_flag updated successfully!",
           result,
           null
         );
@@ -155,11 +146,9 @@ exports.processcropimage = async (req, res) => {
         resSend(res, false, 200, "No record found!", result, null);
       }
     } catch (error) {
-      console.log("Error while updating cropped_image:", error);
-      resSend(res, false, 400, "Error updating cropped image", error, null);
+      console.log("Error while updating cropped_image and crop_flag:", error);
+      resSend(res, false, 400, "Error updating cropped image and crop_flag", error, null);
     }
-
-    // resSend(res, true, 200, "file uploaded!", fileData, null);
   } else {
     resSend(res, false, 200, "Please upload a valid image", fileData, null);
   }

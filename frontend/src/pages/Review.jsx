@@ -69,16 +69,12 @@ const Review = () => {
     if (batches[batch].assign_to !== username) {
       return toast.error("You are not authorised!");
     }
-    console.log("hey i am batch...", batch);
-    console.log("hey i am ...selectedTemplate", selectedTemplate);
-
     setSelectedBatch(batch);
     setShowModal(true);
-    await fetchImages(batch); // Fetch images for the selected batch
-
+    await fetchImages(batch);
     const requestData = {
-      template_name: selectedTemplate, // Replace with actual template name or a variable
-      batch_name: batch, // Use the batch name
+      template_name: selectedTemplate,
+      batch_name: batch,
     };
 
     try {
@@ -125,7 +121,7 @@ const Review = () => {
       console.log("API Response for images:", data);
 
       if (response.ok) {
-        setImages(data.data || []); // Ensure `data.data` is set to an empty array if undefined
+        setImages(data.data || []);
       } else {
         console.error("Failed to fetch images:", data.message);
       }
@@ -346,6 +342,7 @@ const Review = () => {
         selectedBatch={selectedBatch}
         handleTemplateChange={handleTemplateChange}
         images={images}
+        fetchImages={fetchImages}
       />
     </div>
   );

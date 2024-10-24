@@ -15,48 +15,46 @@ const ReviewModal = ({
   const [selectedData, setSelectedData] = useState(null); // State to store API response
   const [showDetails, setShowDetails] = useState(false); // State to manage details modal visibility
   const [imageGroups, setImageGroups] = useState([]);
-  console.log("hello i am images", images);
+  const [isCropped, setIsCropped] = useState(false);
+
   const canvasRef = useRef(null);
-  useEffect(() => {
-    const fetchData = async () => {
-      if (images.length === 0) {
-        console.error("No images data to submit.");
-        return;
-      }
+  const fetchData = async () => {
+    if (images.length === 0) {
+      console.error("No images data to submit.");
+      return;
+    }
 
-      const { batch_name } = images[0];
+    const { batch_name } = images[0];
 
-      if (!batch_name) {
-        console.error("Missing batch_name.");
-        return;
-      }
+    if (!batch_name) {
+      console.error("Missing batch_name.");
+      return;
+    }
 
-      try {
-        // const response = await fetch("http://localhost:4002/api/v1/master/revbatchdata", {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URI}/master/revbatchdata`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ batch_name }),
-          }
-        );
-
-        const data = await response.json();
-        console.log("API Response for images:", data);
-
-        if (response.ok) {
-          setUsers(data.data || []); // Ensure `data.data` is set to an empty array if undefined
-        } else {
-          console.error("Failed to fetch images:", data.message);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/master/revbatchdata`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ batch_name }),
         }
-      } catch (error) {
-        console.error("Error submitting data:", error);
-      }
-    };
+      );
 
+      const data = await response.json();
+
+      if (response.ok) {
+        setUsers(data.data || []);
+        console.error("Failed to fetch images:", data.message);
+      }
+    } catch (error) {
+      console.error("Error submitting data:", error);
+    }
+  };
+
+  useEffect(() => {
     if (showModal) {
       fetchData();
     }
@@ -92,15 +90,55 @@ const ReviewModal = ({
       return null;
     }
   };
+  // const handleViewClick = async (image) => {
+  //  
+  //   setShowDetails(true);
+  // };
   const handleViewClick = async (image) => {
-    console.log("hey i am image details bunny...", images);
+    const { question_paper_name, batch_name } = image;
+
+    if (!question_paper_name || !batch_name) {
+      console.error("Missing required data: question paper name or batch name.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/master/revquesname`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question_paper_name,
+            batch_name,
+          }),
+        }
+      );
+
+      // Handle potential empty or invalid responses
+      if (!response.ok) {
+        throw new Error("Failed to fetch question paper details.");
+      }
+
+      const data = await response.json();
+      if (!data) {
+        throw new Error("No data received from the API.");
+      }
+
+      console.log("API Response for question paper details:", data);
+      setSelectedData(data);
+      setShowDetails(true);
+    } catch (error) {
+      console.error("Error fetching question paper details:", error.message);
+    }
+  };
+
+
+  const handleViewClick3 = async (image) => {
+
     const { ques_paper_image_path, question_paper_name, batch_name } = image;
-    console.log(
-      "hey i am ques_paper_image_path, batch_name... ",
-      question_paper_name,
-      " ",
-      batch_name
-    );
 
     if (!ques_paper_image_path || !batch_name) {
       console.error(
@@ -125,66 +163,26 @@ const ReviewModal = ({
       );
 
       const data = await response.json();
+      console.log("dattttaaaaa...", data);
       if (response.ok) {
-        console.log("API Response for question paper details:", data);
+        toast.success("Image is cropped successfully");
+        console.log("Image is cropped successfully", data);
+        setIsCropped(true);
         setSelectedData(data); // Set the API response data
-        setShowDetails(true); // Show the details component
-
         cropImage(data.data);
+
       } else {
-        console.error("Failed to fetch question paper details:", data.message);
+        toast.error(`Failed to crop  ${data.message}`);
       }
     } catch (error) {
-      console.error("Error fetching question paper details:", error);
+      console.error("Error fetching cropping image.", error);
+      toast.error("Error fetching cropping image.");
     }
   };
-  const handleViewClick2 = async (image) => {
-    console.log("hey i am image details bunny...", images);
-    const { ques_paper_image_path, question_paper_name, batch_name } = image;
-    console.log(
-      "hey i am ques_paper_image_path, batch_name... ",
-      question_paper_name,
-      " ",
-      batch_name
-    );
 
-    if (!ques_paper_image_path || !batch_name) {
-      console.error(
-        "Missing required data: question paper name or batch name."
-      );
-      return;
-    }
 
-    try {
-      // const response = await fetch("http://localhost:4002/api/v1/master/revquesname", {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/master/revquesname`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            question_paper_name: question_paper_name,
-            batch_name,
-          }),
-        }
-      );
 
-      const data = await response.json();
-      if (response.ok) {
-        console.log("API Response for question paper details:", data);
-        setSelectedData(data); // Set the API response data
-        // setShowDetails(true); // Show the details component
 
-        cropImage(data.data);
-      } else {
-        console.error("Failed to fetch question paper details:", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching question paper details:", error);
-    }
-  };
   const dataURLtoBlob = (dataURL) => {
     const [header, data] = dataURL.split(",");
     const mime = header.match(/:(.*?);/)[1];
@@ -205,7 +203,7 @@ const ReviewModal = ({
       // const imagePath = `${process.env.REACT_APP_FILE_URI}${item.ques_paper_image_path}`;
       const imagePath = `${process.env.REACT_APP_FILE_URI}${item.template_name}/${item.batch_name}/${item.ques_paper_image_path}`;
 
-      // console.log("heyyyyyy&&&&&&&&&&&&&&&&",imagePath);
+
 
       const img = new Image();
       img.crossOrigin = "anonymous"; // Allow cross-origin
@@ -236,7 +234,7 @@ const ReviewModal = ({
 
       // If coordinates exist, apply cropping
       if (coordinates) {
-        // const [x1, y1, x2, y2] = coordinates;
+
         const [y1, y2, x1, x2] = coordinates;
 
         // Calculate crop dimensions
@@ -314,46 +312,6 @@ const ReviewModal = ({
     setSelectedData(null); // Reset the selected data
   };
 
-  // const handleSubmitClick = async () => {
-  //   if (images.length === 0) {
-  //     return toast.error("No images data to submit.");
-  //   }
-
-  //   const { template_name, batch_name } = images[0];
-
-  //   if (!template_name || !batch_name) {
-  //     return toast.error("Missing template_name or batch_name.");
-  //   }
-
-  //   try {
-  //     const response = await fetch(
-  //       `${process.env.REACT_APP_API_URI}/master/updatestatussubmit`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           template_name,
-  //           batch_name,
-  //         }),
-  //       }
-  //     );
-
-  //     const data = await response.json();
-  //     if (response.ok) {
-  //       toast.success("Submitted successfully!");
-  //       closeModal();
-  //       handleTemplateChange();
-  //     } else {
-  //       toast.error(`Failed to update status: ${data.message}`);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error submitting data:", error);
-  //     toast.error("Error occurred while updating status.");
-  //   }
-  // };
-
   if (!showModal) return null;
 
   return (
@@ -369,6 +327,7 @@ const ReviewModal = ({
               <th>Image</th>
               <th style={{ textAlign: "center" }}>Status</th>
               <th style={{ textAlign: "center" }}>Action</th>
+
             </tr>
           </thead>
           <tbody>
@@ -386,14 +345,39 @@ const ReviewModal = ({
                   {image.flag === "1" ? "Completed" : "Pending"}
                 </td>
 
+                {console.log("image.crop_flag", image)}
+
+                {/* {console.log("image.crop_flag", image.crop_flag)} */}
+                {/* <td>
+                  {image && image?.crop_flag ? (
+                    <button
+                      className="view-button"
+                      onClick={() => handleViewClick(image)}
+                    >
+                      View
+                    </button>
+                  ) : (
+                    <button
+                      className="view-button"
+                      onClick={() => handleViewClick3(image)}
+                    >
+                      Process
+                    </button>
+                  )}
+
+                </td> */}
+                {/* {console.log("I am image.crop_flag", image?.crop_flag)}; */}
                 <td>
                   <button
                     className="view-button"
-                    onClick={() => handleViewClick(image)}
+                    onClick={() => image?.crop_flag === "1" ? handleViewClick(image) : handleViewClick3(image)}
                   >
-                    View
+                    {image?.crop_flag === "1" ? "View" : "Process"}
                   </button>
                 </td>
+
+
+
               </tr>
             ))}
           </tbody>
