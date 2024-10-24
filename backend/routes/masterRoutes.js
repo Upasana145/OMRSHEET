@@ -51,13 +51,12 @@ router.post("/alltempbatches", alltempbatches);
 
 router.post("/updatestatusbatches", updatestatusbatches);
 router.post("/reviewerassign", reviewerassign);
-router.post("/updatestatussubmit",updatestatussubmit );
+router.post("/updatestatussubmit", updatestatussubmit);
 
 
 
 
 //processed_omr_results
-// http://localhost:4002/api/v1/master/proc_data , template_name and batch_name ke corresponding data
 router.post("/proc_data", proc_omr_result_data);
 router.post("/revbatchdata", reviewer_reviews_data_batchwise);
 router.post("/revquesname", reviewer_reviews_ques_name);

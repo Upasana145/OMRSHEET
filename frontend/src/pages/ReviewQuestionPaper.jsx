@@ -2,14 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const ReviewQuestionPaper = ({ data, closeDetails }) => {
+const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch }) => {
   const [selectedOptions, setSelectedOptions] = useState({});
   const [actionStatus, setActionStatus] = useState({});
   const [tickStatus, setTickStatus] = useState({});
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
   const [isSubmit, setIsSubmit] = useState(true);
-
-  const [flagData1, setFlagData] = useState(null);
 
   // Always call useEffect, handle the condition inside
   useEffect(() => {
@@ -21,22 +19,6 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
   }, [tickStatus, data]); // Make sure the hook depends on the necessary state and props
   console.log("data.data....", data.data);
 
-  // const parseUnderReview = (under_review) => {
-  //   console.log("hey buddy i am underrevieeeeeeeeeeeeeeeee",under_review);
-  //   try {
-  //     if (typeof under_review === "string") {
-  //       const parsedData = JSON.parse(under_review);
-  //       if (parsedData && parsedData.coord) {
-  //         return parsedData;
-  //       }
-  //       return null;
-  //     }
-  //     return null;
-  //   } catch (error) {
-  //     console.error("Error parsing under_review:", error);
-  //     return null;
-  //   }
-  // };
 
   const parseUnderReview = (under_review) => {
     console.log("Received under_review data:", under_review);
@@ -70,12 +52,9 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
   };
 
   const parseUnderReview2 = (under_review) => {
-    console.log("Received  parseUnderReview2 data...:", under_review);
-
     try {
       if (typeof under_review === "string") {
         const parsedData = JSON.parse(under_review);
-        // console.log("hey budddyyy i am parseUnderReview2....",parsedData[0]);
 
         // Check if the data is wrapped in an additional key like "htn10"
         const keys = Object.keys(parsedData);
@@ -83,11 +62,11 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
         if (keys.length === 1) {
           const innerData = keys[0];
           if (innerData) {
-            return innerData; // Return the inner object
+            return innerData;
           }
         }
 
-        return null; // Return null if no coord found
+        return null;
       }
 
       return null;
@@ -121,26 +100,17 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
         setTickStatus((prevStatus) => ({ ...prevStatus, [image.ID]: true }));
       }
     });
-  }, [data]); // Run this effect when image.status or image.ID changes
+  }, [data]);
 
   const renderInputBasedOnType = (image) => {
-    console.log("hey i am imageeeee....", image);
     const parsedData = parseUnderReview(image.under_review);
-
     const parsedData2 = parseUnderReview2(image.under_review);
-    console.log("hey i am parsedData2............", parsedData2);
 
     if (!parsedData) return null;
 
     const { type, coord, result } = parsedData;
-    // Check if the status is "1" or "2"
-    // Extract the key from the 'coord' object (e.g., Qn48)
-
-    console.log("Extracted key: ", parsedData2);
 
     const isStatusOneOrTwo = image.status === "1" || image.status === "2";
-
-    console.log("coord", coord);
 
     if (coord) {
       return (
@@ -154,9 +124,6 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
           {Object.keys(coord)
             .filter((key) => key.length === 1) // && key.match(/[A-Z]/) Filtering only keys like 'a', 'b', 'c', 'd'
             .map((key, index) => {
-              console.log("hey i am keyyyyy...", key, "and", index);
-              console.log("parsedData2 inside map: ", parsedData2); // Logging parsedData2 inside the map
-
               const isChecked =
                 isStatusOneOrTwo && result && result.toLowerCase() === key;
 
@@ -190,7 +157,6 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
   };
 
   const handleAction = async (action, image) => {
-    console.log("hey i am image.....", image);
 
     let resultValue = selectedOptions[image.ID];
 
@@ -237,7 +203,6 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
 
         // Crop the image after saving
         const coordinates = parseUnderReview(image.under_review)?.coord?.region;
-        console.log("hey i am coordinatessssssssssssssssss", coordinates);
       } else {
         toast.error("Failed to update the result.");
         console.error("API request failed:", response.statusText);
@@ -270,26 +235,29 @@ const ReviewQuestionPaper = ({ data, closeDetails }) => {
           body: JSON.stringify(submitPayload),
         }
       );
-      const flagData = await response.json();
-      setFlagData(flagData);
-// console.log("i am flaggggggggggggggggdattttttttttttta..", flagData);
-//       console.log("i am responsebudddyyyyyyyy", flagData.data.flag);
-
-      if (flagData.data.flag == 1) {
-        setIsSubmit(false);
-        closeDetails();
-        return toast.success(flagData.message);
-      }
-      if (response.ok) {
-        closeDetails();
-        toast.success("All data submitted successfully!");
+      const data = await response.json();
+      if (!data.status) {
+        return toast.error(data.message);
       } else {
-        toast.error("Failed to submit data.");
-        console.error("Submit API request failed:", response.statusText);
+        await fetchImages(selectedBatch)
+        closeDetails();
+        return toast.success("All data submitted successfully!");
       }
+      // if (data.data.flag == 1) {
+      //   setIsSubmit(false);
+      //   closeDetails();
+      //   return toast.success(data.message);
+      // }
+      // if (response.ok) {
+      //   closeDetails();
+      //   toast.success("All data submitted successfully!");
+      // } else {
+      //   toast.error("Failed to submit data.");
+      //   console.error("Submit API request failed:", response.statusText);
+      // }
     } catch (error) {
       toast.error("Error submitting data.");
-      console.error("Error in submit API call:", error);
+      console.error("Error in submit API call:", error.message);
     }
   };
 

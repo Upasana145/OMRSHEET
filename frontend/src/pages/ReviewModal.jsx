@@ -8,57 +8,13 @@ const ReviewModal = ({
   closeModal,
   selectedBatch,
   handleTemplateChange,
-  images = [],
+  images = [], fetchImages
 }) => {
-  const [users, setUsers] = useState([]);
-
-  const [selectedData, setSelectedData] = useState(null); // State to store API response
-  const [showDetails, setShowDetails] = useState(false); // State to manage details modal visibility
-  const [imageGroups, setImageGroups] = useState([]);
-  const [isCropped, setIsCropped] = useState(false);
+  const [selectedData, setSelectedData] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   const canvasRef = useRef(null);
-  const fetchData = async () => {
-    if (images.length === 0) {
-      console.error("No images data to submit.");
-      return;
-    }
 
-    const { batch_name } = images[0];
-
-    if (!batch_name) {
-      console.error("Missing batch_name.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/master/revbatchdata`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ batch_name }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setUsers(data.data || []);
-        console.error("Failed to fetch images:", data.message);
-      }
-    } catch (error) {
-      console.error("Error submitting data:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (showModal) {
-      fetchData();
-    }
-  }, [showModal, images]);
 
   const parseUnderReview = (under_review) => {
     console.log("Received under_review data:", under_review);
@@ -90,53 +46,13 @@ const ReviewModal = ({
       return null;
     }
   };
-  // const handleViewClick = async (image) => {
-  //  
+  // const handleViewClick = async () => {
   //   setShowDetails(true);
   // };
+
+
+
   const handleViewClick = async (image) => {
-    const { question_paper_name, batch_name } = image;
-
-    if (!question_paper_name || !batch_name) {
-      console.error("Missing required data: question paper name or batch name.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/master/revquesname`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            question_paper_name,
-            batch_name,
-          }),
-        }
-      );
-
-      // Handle potential empty or invalid responses
-      if (!response.ok) {
-        throw new Error("Failed to fetch question paper details.");
-      }
-
-      const data = await response.json();
-      if (!data) {
-        throw new Error("No data received from the API.");
-      }
-
-      console.log("API Response for question paper details:", data);
-      setSelectedData(data);
-      setShowDetails(true);
-    } catch (error) {
-      console.error("Error fetching question paper details:", error.message);
-    }
-  };
-
-
-  const handleViewClick3 = async (image) => {
 
     const { ques_paper_image_path, question_paper_name, batch_name } = image;
 
@@ -156,19 +72,68 @@ const ReviewModal = ({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            question_paper_name: question_paper_name,
+            question_paper_name,
             batch_name,
           }),
         }
       );
 
       const data = await response.json();
-      console.log("dattttaaaaa...", data);
       if (response.ok) {
-        toast.success("Image is cropped successfully");
-        console.log("Image is cropped successfully", data);
-        setIsCropped(true);
-        setSelectedData(data); // Set the API response data
+        setSelectedData(data);
+
+        setShowDetails(true);
+
+      } else {
+        toast.error(`Failed to crop  ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error fetching cropping image.", error);
+      toast.error("Error fetching cropping image.");
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const cropHandler = async (image) => {
+
+    const { ques_paper_image_path, question_paper_name, batch_name } = image;
+
+    if (!ques_paper_image_path || !batch_name) {
+      console.error(
+        "Missing required data: question paper name or batch name."
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/master/revquesname`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question_paper_name,
+            batch_name,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        setSelectedData(data);
         cropImage(data.data);
 
       } else {
@@ -200,7 +165,6 @@ const ReviewModal = ({
     const imageGroups = []; // Array to store resized images along with their cropped images
 
     for (const item of data) {
-      // const imagePath = `${process.env.REACT_APP_FILE_URI}${item.ques_paper_image_path}`;
       const imagePath = `${process.env.REACT_APP_FILE_URI}${item.template_name}/${item.batch_name}/${item.ques_paper_image_path}`;
 
 
@@ -227,11 +191,6 @@ const ReviewModal = ({
       // Get crop coordinates from under_review
       const coordinates = parseUnderReview(item.under_review)?.coord?.region;
 
-      console.log(
-        "heyyyyyyyyyyyyyyyyyyy i am co-ordinatessssssssss",
-        coordinates
-      );
-
       // If coordinates exist, apply cropping
       if (coordinates) {
 
@@ -253,15 +212,7 @@ const ReviewModal = ({
         // Convert cropped image to URL
         const croppedUrl = canvas.toDataURL("image/png");
 
-        croppedUrls.push(croppedUrl); // Add this cropped image to the array
-
-        console.log("heyyyyyyyyyyyy i M iteam", item);
-        console.log("heyyyyyyyyyyyy i M iteam", item.ID);
-        console.log("heyyyyyyyyyyyy i M iteam", item.batch_name);
-        console.log("heyyyyyyyyyyyy i M iteam", item.question_paper_name);
-        console.log("heyyyyyyyyyyyy i M iteam", item.template_name);
-        console.log("heyyyyyyyyyyyy i M iteam", croppedUrl);
-        const image = croppedUrl;
+        croppedUrls.push(croppedUrl);
 
         const formData = new FormData();
         const croppedBlob = dataURLtoBlob(croppedUrl);
@@ -270,7 +221,6 @@ const ReviewModal = ({
         formData.append("batch_name", item.batch_name);
         formData.append("question_paper_name", item.question_paper_name);
         formData.append("ID", item.ID);
-        console.log("hey i am form datatttttaaaaaaaaaaaaaaa", formData);
 
         try {
           const apiResponse = await fetch(
@@ -281,10 +231,10 @@ const ReviewModal = ({
             }
           );
 
-          console.log("hey i am response data...", responseData);
           const responseData = await apiResponse.json();
           if (apiResponse.ok) {
             console.log("Cropped image processed successfully:", responseData);
+            fetchImages(selectedBatch)
           } else {
             console.error(
               "Failed to process cropped image:",
@@ -302,14 +252,11 @@ const ReviewModal = ({
         croppedUrls,
       });
     }
-
-    // Set the state with the grouped images
-    setImageGroups(imageGroups); // This will store each resized image and its corresponding cropped images
   };
 
   const closeDetails = () => {
-    setShowDetails(false); // Close the details component
-    setSelectedData(null); // Reset the selected data
+    setShowDetails(false);
+    setSelectedData(null);
   };
 
   if (!showModal) return null;
@@ -344,35 +291,12 @@ const ReviewModal = ({
                 <td className={image.flag === "1" ? "completed" : "pending"}>
                   {image.flag === "1" ? "Completed" : "Pending"}
                 </td>
-
-                {console.log("image.crop_flag", image)}
-
-                {/* {console.log("image.crop_flag", image.crop_flag)} */}
-                {/* <td>
-                  {image && image?.crop_flag ? (
-                    <button
-                      className="view-button"
-                      onClick={() => handleViewClick(image)}
-                    >
-                      View
-                    </button>
-                  ) : (
-                    <button
-                      className="view-button"
-                      onClick={() => handleViewClick3(image)}
-                    >
-                      Process
-                    </button>
-                  )}
-
-                </td> */}
-                {/* {console.log("I am image.crop_flag", image?.crop_flag)}; */}
                 <td>
                   <button
                     className="view-button"
-                    onClick={() => image?.crop_flag === "1" ? handleViewClick(image) : handleViewClick3(image)}
+                    onClick={() => image?.crop_flag === 1 ? handleViewClick(image) : cropHandler(image)}
                   >
-                    {image?.crop_flag === "1" ? "View" : "Process"}
+                    {image?.crop_flag === 1 ? "View" : "Process"}
                   </button>
                 </td>
 
@@ -395,6 +319,8 @@ const ReviewModal = ({
           <ReviewQuestionPaper
             data={selectedData}
             closeDetails={closeDetails}
+            fetchImages={fetchImages}
+            selectedBatch={selectedBatch}
           />
         )}
       </div>

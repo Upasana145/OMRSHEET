@@ -212,14 +212,11 @@ exports.insertomrData = async (req, res) => {
 // POST/api/v1/master/deleteomrData
 exports.deleteomrData = async (req, res) => {
   const { template_name } = req.body;
-  console.log("Hey i am template_name..", template_name);
   let ngs_count = `SELECT COUNT(template_name) as count FROM template_image_json WHERE template_name = '${template_name}'`;
   const result1 = await query({
     query: ngs_count,
     values: [],
   });
-
-  console.log("hey i am result: ", result1[0].count);
 
   if (result1 && result1[0].count > 0) {
     try {
@@ -240,16 +237,12 @@ exports.deleteomrData = async (req, res) => {
 // POST/api/v1/master/editomrData
 exports.editomrData = async (req, res) => {
   const { template_name, map } = req.body;
-  console.log("hey i am template " + template_name);
   try {
     let name_count = `SELECT COUNT(template_name) as count FROM  WHERE template_name  = '${template_name}'`;
     const result2 = await query({
       query: name_count,
       values: [],
     });
-
-    console.log("hey i am result2", result2, name_count);
-    console.log("hey i am result2", result2[0].count);
 
     if (result2 && result2[0].count > 0) {
       const mapString = JSON.stringify(map);
@@ -298,7 +291,6 @@ exports.getall = async (req, res) => {
 
 exports.getspecifictemp = async (req, res) => {
   const { template_name } = req.body; // Assuming the template_name is provided as a query parameter
-  console.log("hey i am template name...", template_name);
   if (!template_name) {
     return resSend(res, false, 400, "Template name is required", null, null);
   }
@@ -537,30 +529,37 @@ exports.proc_omr_result_data = async (req, res) => {
       );
     }
 
-    // SQL query to select data
-    // const selectSql = `
-    // SELECT por.*, rr.crop_flag FROM processed_omr_results as por 
-    // INNER JOIN reviewer_reviews as rr 
-    // WHERE por.template_name = ? AND por.batch_name = ?`;
+    const selectSql = `
+      SELECT * 
+      FROM processed_omr_results
+      WHERE template_name = ? AND batch_name = ?
+    `;
 
-    const selectSql = `   SELECT por.*, rr.crop_flag 
-    FROM processed_omr_results as por 
-    LEFT JOIN reviewer_reviews as rr 
-    ON por.template_name = rr.template_name AND por.batch_name = rr.batch_name 
-    WHERE por.template_name = ? AND por.batch_name = ?`;
-
-    //   const selectSql = `
-    //   SELECT * 
-    //   FROM processed_omr_results
-    //   WHERE template_name = ? AND batch_name = ?
-    // `;
-
-
-    // Execute the SQL query with parameterized values
     const result = await query({
       query: selectSql,
       values: [template_name, batch_name],
     });
+
+
+    const checkCropSQL = `
+      SELECT count(ID) as count
+      FROM reviewer_reviews
+      WHERE template_name = ? AND batch_name = ? AND crop_flag = 0
+    `;
+
+    for (const item of result) {
+      const [{ count }] = await query({
+        query: checkCropSQL,
+        values: [item.template_name, item.batch_name],
+      });
+
+      console.log("item", item);
+      if (count > 0) {
+        item.crop_flag = 0;
+      } else {
+        item.crop_flag = 1;
+      }
+    }
 
     if (result && result.length > 0) {
       return resSend(
@@ -587,16 +586,11 @@ exports.proc_omr_result_data = async (req, res) => {
   }
 };
 
+
+// revquesname
 exports.reviewer_reviews_ques_name = async (req, res) => {
   try {
     const { batch_name, question_paper_name } = req.body;
-
-    console.log(
-      "batch name... ",
-      batch_name,
-      "...question paper name...",
-      question_paper_name
-    );
     if (!batch_name || !question_paper_name) {
       return res
         .status(400)
@@ -613,8 +607,6 @@ exports.reviewer_reviews_ques_name = async (req, res) => {
       query: sqlqu,
       values: [batch_name, question_paper_name],
     });
-
-    console.log("Query result:", result);
 
     // Check if the result contains multiple rows
     if (result && result.length > 0) {
@@ -667,7 +659,6 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
       values: [batch_name],
     });
 
-    console.log("Query result:", result);
 
     // Check if the result contains multiple rows
     if (result && result.length > 0) {
@@ -798,7 +789,6 @@ exports.processFoldersAndImages = async (req, res) => {
 
         // Read all images in the current folder
         const files = fs.readdirSync(folderPath);
-        console.log("hey i am file", files);
 
         if (!files || files.length === 0) {
           // If no files are found, stop further processing and send a Toastify message
@@ -932,9 +922,7 @@ exports.getimgprocessFoldersAndImages = async (req, res) => {
 
     // Construct the base directory path using template_name
     const baseDir = path.join(desktopPath, template_name);
-    console.log("hey i am baseDir...", baseDir);
     const batch_baseDir = path.join(baseDir, batch_name);
-    console.log("hey i am batch_name...", batch_baseDir);
 
     // Check if the folder for template_name exists
     if (!fs.existsSync(baseDir)) {
@@ -982,7 +970,6 @@ exports.getimgprocessFoldersAndImages = async (req, res) => {
 
         // Read all images in the current folder
         const files = fs.readdirSync(folderPath);
-        console.log("hey i am file", files);
 
         if (!files || files.length === 0) {
           // If no files are found, stop further processing and send a Toastify message

@@ -1,43 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-import { Link, useLocation } from "react-router-dom";
-import { toast } from "react-toastify";
-import UserData from "../components/UserData";
-import { postAPI } from "../utils/fetchapi";
-import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const AddReviewer = () => {
-  const location = useLocation();
-  const { username } = useSelector((state) => state.auth);
-  console.log("Hey i am location...", location?.state);
 
-  const [users, setUsers] = useState([]);
-  const [selectedRole, setSelectedRole] = useState("admin");
-
-  const fetchUsers = async () => {
-    try {
-      let payload = {
-        currentUser: username,
-      };
-      const data = await postAPI(`auth/allUsers`, payload, null);
-      if (data.status) {
-        setUsers(data?.data);
-      } else {
-        toast.error(data?.message);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Try Again!");
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-  const handleRoleChange = (selectedRole) => {
-    // Update the selected role state
-    setSelectedRole(selectedRole);
-  };
 
   return (
     <>
