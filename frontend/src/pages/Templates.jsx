@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { FaSearch } from "react-icons/fa";
 import Header from "../assets/components/Header";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -18,8 +17,6 @@ const Templates = () => {
   const fetchUsers = async () => {
     try {
       const data = await getAPI(`master/getall`, null);
-
-      console.log("hey i am data.......", data);
       if (data.status) {
         setUsers(data?.data);
       } else {
@@ -41,18 +38,14 @@ const Templates = () => {
 
   const handleAddForm = async () => {
     if (template_name && imageFile) {
-      console.log("hey i am imageFile.......imageFile......................................",imageFile)
       setIsLoading(true);
-
       const formData = new FormData();
       formData.append("template_name", template_name);
       formData.append("image", imageFile);
 
       try {
-        // const response = await fetch(
-        //   "http://localhost:4002/api/v1/upload/images",
-          const response = await fetch(
-            `${process.env.REACT_APP_API_URI}/upload/images`,
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URI}/upload/images`,
           {
             method: "POST",
             body: formData,
@@ -92,10 +85,10 @@ const Templates = () => {
 
   const isFormValid = template_name && imageFile;
 
-  const handleNavigateToMapping = (template) => {
-    console.log("Template:", template);
-    navigate("/mapping", { state: { template } });
-  };
+  // const handleNavigateToMapping = (template) => {
+  //   console.log("Template:", template);
+  //   navigate("/mapping", { state: { template } });
+  // };
 
   useEffect(() => {
     fetchUsers();
@@ -111,38 +104,11 @@ const Templates = () => {
               <div className="card-body py-3">
                 <div className="tab-content">
                   <div className="table-responsive">
-                    <table className="table table-striped table-bordered m-0">
-                      <TemplateContent
-                        users={users}
-                        fetchUsers={fetchUsers}
-                        templates={templates}
-                      />
-                      {/* <thead>
-                        <tr className="border-0">
-                          <th className="min-w-150px">Saved Templates</th>
-                          <th className="min-w-140px">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        
-                        {templates.map((template, index) => (
-                          <tr key={index}>
-                            <td className="fw-semibold">{template.name}</td>
-                            <td>
-                              <button
-                                className="btn btn-icon btn-dark btn-active-color-primary btn-sm me-1"
-                                title="View"
-                                onClick={() =>
-                                  handleNavigateToMapping(template)
-                                }
-                              >
-                                <FaSearch />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody> */}
-                    </table>
+                    <TemplateContent
+                      users={users}
+                      fetchUsers={fetchUsers}
+                      templates={templates}
+                    />
                   </div>
                 </div>
               </div>

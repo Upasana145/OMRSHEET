@@ -28,7 +28,6 @@ function Safty() {
   return (
     <>
       <Sidebar />
-
       <div className="master">
         <Routes>
           {role === "Reviewer" && (
