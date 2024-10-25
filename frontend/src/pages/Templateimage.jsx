@@ -12,8 +12,6 @@ import {
 import { toast } from "react-toastify";
 
 function Templateimage({ images, template_name }) {
-  console.log("hey i am image...", images);
-  console.log("hey i am template name...", template_name);
 
   const [newBoxName, setNewBoxName] = useState("");
   const [image, setImage] = useState(null);
@@ -330,7 +328,7 @@ function Templateimage({ images, template_name }) {
                   childName = (childnumCount + 1).toString(); // Numeric names
                   break;
                 case "number1to0":
-                    // New logic for numbers 1 to 9, then 0
+                  // New logic for numbers 1 to 9, then 0
                   childName = (childCount % 10 === 9) ? "0" : (childCount % 10 + 1).toString();
                   break;
                 case "alphabet":
@@ -381,7 +379,7 @@ function Templateimage({ images, template_name }) {
 
   console.log("hey i am template_name ...", template_name);
 
-  
+
   const handleSave = async (template_name) => {
     console.log("Save button clicked");
     console.log("template_name...", template_name);
@@ -495,7 +493,7 @@ function Templateimage({ images, template_name }) {
 
 
     const boundary = -(Math.abs(canvasWidth) - 40);
-    
+
 
     if (zoomFactor > 1) {
       switch (direction) {
@@ -681,14 +679,14 @@ function Templateimage({ images, template_name }) {
   const [isBoxCopied, setIsBoxCopied] = useState(false);
 
   const handleSelectBoxClick = (index, event) => {
-  
+
 
     setSelectedBoxIndex(index);
     setSelectedchildBoxIndex(null); // Unselect child box if any
     setIsBoxCopied(false); // Reset copied flag
     setDraggedBoxIndex(true);
     setBoxes((prevBoxes) => {
-   
+
       const newBoxes = [...prevBoxes];
       const box = newBoxes[index];
       if (box.mode === "parent") {
@@ -700,7 +698,7 @@ function Templateimage({ images, template_name }) {
     // }
   };
   const handleSelectChildBoxClick = (childindex, index) => {
-  
+
     if (selectedchildBoxIndex === childindex) {
       // If the same child box is clicked again, unselect it
       setSelectedchildBoxIndex(null);
@@ -716,7 +714,7 @@ function Templateimage({ images, template_name }) {
     if (selectedBoxIndex !== null && boxes.length > 0) {
       // if (boxes[selectedBoxIndex].children.length > 0) {
       const selectedBox = boxes[selectedBoxIndex];
-    
+
 
       if (selectedBox.mode === "parent") {
         if (selectedBox.children.length <= 0) {
@@ -1153,7 +1151,7 @@ function Templateimage({ images, template_name }) {
           />
         </div>
         <div className="custom-select1">
-           <label
+          <label
             htmlFor="namingSchemeSelect"
             style={{ fontSize: '0.9rem' }} // Adjust the font size as needed
           >
@@ -1172,7 +1170,7 @@ function Templateimage({ images, template_name }) {
             <option value="hall_ticket_no_parent">hall_ticket_no_parent</option>
             <option value="center_code">center_code</option>
             <option value="test_booklet_parent">test_booklet_parent</option>
-           
+
           </select>
           {/* {selectedFruit && <p>You selected: {selectedFruit}</p>} */}
         </div>
@@ -1192,7 +1190,7 @@ function Templateimage({ images, template_name }) {
             <option value="roman">Roman Numerals</option>
             {/* <option value="alphanumeric">Alphanumeric</option> */}
             <option value="number">Numeric</option>
-            <option value="number1to0">Number (1 to 0)</option> 
+            <option value="number1to0">Number (1 to 0)</option>
             <option value="alphabet">Alphabetic</option>
           </select>
           {/* {selectedFruit && <p>You selected: {selectedFruit}</p>} */}

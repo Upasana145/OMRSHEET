@@ -212,14 +212,11 @@ exports.insertomrData = async (req, res) => {
 // POST/api/v1/master/deleteomrData
 exports.deleteomrData = async (req, res) => {
   const { template_name } = req.body;
-  console.log("Hey i am template_name..", template_name);
   let ngs_count = `SELECT COUNT(template_name) as count FROM template_image_json WHERE template_name = '${template_name}'`;
   const result1 = await query({
     query: ngs_count,
     values: [],
   });
-
-  console.log("hey i am result: ", result1[0].count);
 
   if (result1 && result1[0].count > 0) {
     try {
@@ -240,16 +237,12 @@ exports.deleteomrData = async (req, res) => {
 // POST/api/v1/master/editomrData
 exports.editomrData = async (req, res) => {
   const { template_name, map } = req.body;
-  console.log("hey i am template " + template_name);
   try {
     let name_count = `SELECT COUNT(template_name) as count FROM  WHERE template_name  = '${template_name}'`;
     const result2 = await query({
       query: name_count,
       values: [],
     });
-
-    console.log("hey i am result2", result2, name_count);
-    console.log("hey i am result2", result2[0].count);
 
     if (result2 && result2[0].count > 0) {
       const mapString = JSON.stringify(map);
@@ -298,7 +291,6 @@ exports.getall = async (req, res) => {
 
 exports.getspecifictemp = async (req, res) => {
   const { template_name } = req.body; // Assuming the template_name is provided as a query parameter
-  console.log("hey i am template name...", template_name);
   if (!template_name) {
     return resSend(res, false, 400, "Template name is required", null, null);
   }
@@ -537,33 +529,48 @@ exports.proc_omr_result_data = async (req, res) => {
       );
     }
 
-    // SQL query to select data
     const selectSql = `
       SELECT * 
       FROM processed_omr_results
       WHERE template_name = ? AND batch_name = ?
     `;
 
-    // Execute the SQL query with parameterized values
     const result = await query({
       query: selectSql,
       values: [template_name, batch_name],
     });
 
-    console.log("Query result:", result);
 
-    // Check if the result contains multiple rows
+    const checkCropSQL = `
+      SELECT count(ID) as count
+      FROM reviewer_reviews
+      WHERE template_name = ? AND batch_name = ? AND crop_flag = 0
+    `;
+
+    for (const item of result) {
+      const [{ count }] = await query({
+        query: checkCropSQL,
+        values: [item.template_name, item.batch_name],
+      });
+
+      console.log("item", item);
+      if (count > 0) {
+        item.crop_flag = 0;
+      } else {
+        item.crop_flag = 1;
+      }
+    }
+
     if (result && result.length > 0) {
       return resSend(
         res,
         true,
         200,
         "Processed OMR results corresponding to the given template name and batch name.",
-        result, // Return all matching rows
+        result,
         null
       );
     } else {
-      // Send response when no record is found
       return resSend(
         res,
         false,
@@ -579,16 +586,11 @@ exports.proc_omr_result_data = async (req, res) => {
   }
 };
 
+
+// revquesname
 exports.reviewer_reviews_ques_name = async (req, res) => {
   try {
     const { batch_name, question_paper_name } = req.body;
-
-    console.log(
-      "batch name... ",
-      batch_name,
-      "...question paper name...",
-      question_paper_name
-    );
     if (!batch_name || !question_paper_name) {
       return res
         .status(400)
@@ -606,8 +608,6 @@ exports.reviewer_reviews_ques_name = async (req, res) => {
       values: [batch_name, question_paper_name],
     });
 
-    console.log("Query result:", result);
-
     // Check if the result contains multiple rows
     if (result && result.length > 0) {
       return resSend(
@@ -615,11 +615,10 @@ exports.reviewer_reviews_ques_name = async (req, res) => {
         true,
         200,
         "Processed OMR results corresponding to the given template name and batch name.",
-        result, // Return all matching rows
+        result,
         null
       );
     } else {
-      // Send response when no record is found
       return resSend(
         res,
         false,
@@ -660,7 +659,6 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
       values: [batch_name],
     });
 
-    console.log("Query result:", result);
 
     // Check if the result contains multiple rows
     if (result && result.length > 0) {
@@ -690,106 +688,6 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
   }
 };
 
-// exports.processFoldersAndImages = async (req, res) => {
-//   try {
-//     const { template_name } = req.body; // Get t_name from the request body
-
-//     if (!template_name ) {
-//       return resSend(res, false, 400, 'Template name (template_name) is required.', null, null);
-//     }
-
-//     // Define the base path
-//     const desktopPath = 'C:\\Users\\User\\Desktop\\omrproject';
-
-//     // Log all the folders in the Desktop directory
-//     const allFoldersOnDesktop = fs.readdirSync(desktopPath).filter(item => {
-//       return fs.lstatSync(path.join(desktopPath, item)).isDirectory();
-//     });
-
-//     console.log("All folders present in 'C:\\Users\\User\\Desktop\\omrproject':", allFoldersOnDesktop);
-
-//     // Construct the base directory path using t_name
-//     const baseDir = path.join(desktopPath, template_name );
-
-//     // Check if the folder for t_name exists
-//     if (!fs.existsSync(baseDir)) {
-//       return resSend(res, false, 404, `Folder '${template_name }' not found in the base directory.`, null, null);
-//     }
-
-//     // Read all folders in the base directory (inside the folder corresponding to t_name)
-//     const folders = fs.readdirSync(baseDir);
-
-//     if (!folders || folders.length === 0) {
-//       return resSend(res, false, 200, 'the batch folders are missing', null, null);
-//     }
-
-//     console.log("Folders inside the base directory:", folders);
-
-//     // Array to store all image paths for bulk insertion
-//     let allImagePaths = [];
-
-//     // Iterate over each folder
-//     for (let folder of folders) {
-//       console.log("Processing folder name:", folder);
-//       if (folder === 'default') {
-//         console.log("Skipping folder 'default'");
-//         continue; // Skip to the next folder
-//       }
-//       const folderPath = path.join(baseDir, folder);
-
-//       // Check if the current item is a directory
-//       if (fs.lstatSync(folderPath).isDirectory()) {
-//         console.log(`Processing folder: ${folderPath}`);
-
-//         // Read all images in the current folder
-//         const files = fs.readdirSync(folderPath);
-
-//         if (files && files.length > 0) {
-//           // Iterate over each image in the folder
-//           for (let file of files) {
-//             console.log("Processing image name:", file);
-//             const filePath = path.join(folderPath, file);
-
-//             // Check if the file is an image
-//             if (fs.lstatSync(filePath).isFile()) {
-//               console.log(`Found image: ${filePath}`);
-
-//               // Store the folder path and image path for database insertion
-//               allImagePaths.push([folder, file]);
-//             }
-//           }
-//         } else {
-//           console.log(`No files found in folder: ${folderPath}`);
-//         }
-//       }
-//     }
-
-//     // Insert all image paths into the database
-//     if (allImagePaths.length > 0) {
-//       // Create placeholders for the query
-//       const placeholders = allImagePaths.map(() => '(?, ?)').join(', ');
-//       const sqlQuery = `INSERT INTO images_path (folder_path, image_path) VALUES ${placeholders}`;
-
-//       // Flatten the array to pass as values
-//       const flattenedValues = allImagePaths.flat();
-
-//       // Execute the SQL query
-//       const result = await query({
-//         query: sqlQuery,
-//         values: flattenedValues,
-//       });
-
-//       console.log('Inserted image paths into the database:', result);
-//       return resSend(res, true, 200, 'Image processing completed successfully.', result, null);
-//     } else {
-//       return resSend(res, false, 404, 'No images found in the folders.', null, null);
-//     }
-
-//   } catch (error) {
-//     console.error('Error processing images:', error);
-//     return resSend(res, false, 500, 'Internal server error.', error, null);
-//   }
-// };
 
 exports.processFoldersAndImages = async (req, res) => {
   try {
@@ -891,7 +789,6 @@ exports.processFoldersAndImages = async (req, res) => {
 
         // Read all images in the current folder
         const files = fs.readdirSync(folderPath);
-        console.log("hey i am file", files);
 
         if (!files || files.length === 0) {
           // If no files are found, stop further processing and send a Toastify message
@@ -974,7 +871,7 @@ exports.processFoldersAndImages = async (req, res) => {
 
 exports.getimgprocessFoldersAndImages = async (req, res) => {
   try {
-    const { template_name,batch_name } = req.body; // Get template_name from the request body
+    const { template_name, batch_name } = req.body; // Get template_name from the request body
 
     if (!template_name) {
       return resSend(
@@ -1025,9 +922,7 @@ exports.getimgprocessFoldersAndImages = async (req, res) => {
 
     // Construct the base directory path using template_name
     const baseDir = path.join(desktopPath, template_name);
-console.log("hey i am baseDir...", baseDir);
-const batch_baseDir = path.join( baseDir , batch_name );
-console.log("hey i am batch_name...", batch_baseDir);
+    const batch_baseDir = path.join(baseDir, batch_name);
 
     // Check if the folder for template_name exists
     if (!fs.existsSync(baseDir)) {
@@ -1075,7 +970,6 @@ console.log("hey i am batch_name...", batch_baseDir);
 
         // Read all images in the current folder
         const files = fs.readdirSync(folderPath);
-        console.log("hey i am file", files);
 
         if (!files || files.length === 0) {
           // If no files are found, stop further processing and send a Toastify message
@@ -1112,8 +1006,8 @@ console.log("hey i am batch_name...", batch_baseDir);
         }
       }
     }
-return;
-   
+    return;
+
   } catch (error) {
     console.error("Error processing images:", error);
     return resSend(res, false, 500, "Internal server error.", error, null);

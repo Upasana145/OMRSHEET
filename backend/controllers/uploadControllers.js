@@ -21,7 +21,6 @@ exports.uploadprocessomrimages = async (req, res) => {
       null
     );
   }
-  console.log("hey i am req.file..........", req.file);
 
   if (!req.file) {
     return resSend(
@@ -97,43 +96,21 @@ exports.uploadprocessomrimages = async (req, res) => {
 };
 
 exports.processcropimage = async (req, res) => {
-  // Handle Image Upload
-  console.log("hello");
-
   const { template_name, batch_name, question_paper_name, ID } = req.body;
 
-  console.log(
-    "hey i am template_name, batch_name,question_paper_name,id...",
-    template_name,
-    batch_name,
-    question_paper_name,
-    ID
-  );
   let fileData = {};
 
-  console.log("i am req.fileeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", req.file);
   if (req.file) {
-    console.log("hey i am request.file", req.file.filename);
-
-    // fileData = {
-    //   fileName: req.file.filename,
-    //   filePath: req.file.path,
-    //   fileType: req.file.mimetype,
-    //   fileSize: req.file.size,
-    // };
-
-    // Escape backslashes in the file path
-    // const escapedPath = req.file.path.replace(/\\/g, "\\\\"); // for sending as path
-
     try {
-      // SQL query to update the cropped_image column in reviewer_reviews
+      // SQL query to update the cropped_image column and set crop_flag to 1
       let sql = `
         UPDATE reviewer_reviews 
-        SET cropped_image = '${req.file.filename}' 
+        SET cropped_image = '${req.file.filename}', crop_flag = 1 
         WHERE template_name = '${template_name}' 
         AND batch_name = '${batch_name}' 
         AND question_paper_name = '${question_paper_name}' 
         AND ID = '${ID}'`;
+
       // Execute the query
       const result = await query({
         query: sql,
@@ -141,12 +118,12 @@ exports.processcropimage = async (req, res) => {
       });
 
       if (result.affectedRows > 0) {
-        console.log("Cropped image updated successfully!");
+        console.log("Cropped image and crop_flag updated successfully!");
         resSend(
           res,
           true,
           200,
-          "Cropped image updated successfully!",
+          "Cropped image and crop_flag updated successfully!",
           result,
           null
         );
@@ -155,11 +132,9 @@ exports.processcropimage = async (req, res) => {
         resSend(res, false, 200, "No record found!", result, null);
       }
     } catch (error) {
-      console.log("Error while updating cropped_image:", error);
-      resSend(res, false, 400, "Error updating cropped image", error, null);
+      console.log("Error while updating cropped_image and crop_flag:", error);
+      resSend(res, false, 400, "Error updating cropped image and crop_flag", error, null);
     }
-
-    // resSend(res, true, 200, "file uploaded!", fileData, null);
   } else {
     resSend(res, false, 200, "Please upload a valid image", fileData, null);
   }
@@ -262,11 +237,8 @@ exports.uploadFile = async (req, res) => {
 
 exports.saveImgToDB = async (req, res) => {
   const { dept_name, camera, image, alarm_type } = req.body;
-  // console.log("hey i am req.body", req.body);
-  // let image = req.file;
   const currentDate = new Date();
-  // Set the time zone offset for IST, which is UTC+5:30
-  const istOffset = 330; // 5 hours and 30 minutes
+  const istOffset = 330;
   currentDate.setMinutes(currentDate.getMinutes() + istOffset);
   const datetime = currentDate.toISOString();
 
@@ -277,14 +249,12 @@ exports.saveImgToDB = async (req, res) => {
       query: sql,
       values: [],
     });
-    // console.log("hey i am depts details", result);
     let sql3 = `SELECT * FROM mail_log`;
 
     const result3 = await query({
       query: sql3,
       values: [],
     });
-    // console.log("hey i am sql3 details", result3);
 
     let sql2 = `SELECT emails FROM depts WHERE dept_name= '${dept_name}'`;
 
@@ -292,7 +262,6 @@ exports.saveImgToDB = async (req, res) => {
       query: sql2,
       values: [],
     });
-    // console.log("hey i am depts details", result2[0].emails);
 
     if (result && result.length > 0) {
       let dept_id = result[0]?.dept_id;
@@ -645,8 +614,6 @@ exports.updateJsonResult = async (req, res) => {
       jsonData[innerKey] = innerData; // Update the inner data in the outer structure
       const updatedJsonString = JSON.stringify(jsonData);
 
-      console.log("hey I am updatedJsonString.....", updatedJsonString);
-
       // SQL query to update the modified JSON data and set the status to 1
       const updateJsonQuery = `
         UPDATE reviewer_reviews
@@ -698,156 +665,6 @@ exports.getupdateJsonResult = async (req, res) => {
   }
 };
 
-
-// exports.submitupdateJsonResult = async (req, res) => {
-//   try {
-//     const { template_name, batch_name, question_paper_name } = req.body;
-
-//     // Query to select the existing JSON data
-
-//     // Query to check if the flag is already set to 1
-//     const checkFlagQuery = `
-//    SELECT flag 
-//    FROM processed_omr_results
-//    WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?;
-//  `;
-
-//     const flagData = await query({
-//       query: checkFlagQuery,
-//       values: [template_name, batch_name, question_paper_name],
-//     });
-
-//     console.log("hey i am flagData...", flagData);
-
-//     //  console.log("hey i am flagData[0].flag....", flagData[0].flag);
-//     if (flagData[0].flag == 1) {
-//       // console.log("hello buddy");
-//       return resSend(
-//         res,
-//         true,
-//         200,
-//         "Submit process is already done.",
-//         flagData[0],
-//         null
-//       );
-//     }
-
-//     const selectJsonQuery = `
-//       SELECT under_review
-//       FROM reviewer_reviews 
-//       WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND status = 1
-//     `;
-
-//     const existingData = await query({
-//       query: selectJsonQuery,
-//       values: [template_name, batch_name, question_paper_name],
-//     });
-
-//     console.log("existingData...", existingData);
-//     if (existingData.length === 0) {
-//       return resSend(
-//         res,
-//         false,
-//         200,
-//         "These data is already submitted",
-//         null,
-//         null
-//       );
-//     }
-
-//     // Query to select the current JSON data from correct_result
-//     const selectCorrectResultQuery = `
-//       SELECT correct_result
-//       FROM processed_omr_results 
-//       WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? ;
-//     `;
-
-//     const correctResultData = await query({
-//       query: selectCorrectResultQuery,
-//       values: [template_name, batch_name, question_paper_name],
-//     });
-
-//     console.log("correctResultData....", correctResultData);
-
-//     // Initialize correctResultJson based on the presence of data in correct_result
-//     let correctResultJson = [];
-//     if (correctResultData.length > 0) {
-//       // Check if the correct_result is not empty before parsing
-//       const correctResultString = correctResultData[0].correct_result;
-//       if (correctResultString) {
-//         correctResultJson = JSON.parse(correctResultString);
-//       }
-//     }
-
-//     // Parse the JSON objects in under_review and append them to correct_result
-//     existingData.forEach((item) => {
-//       let underReviewObject = JSON.parse(item.under_review);
-//       correctResultJson.push(underReviewObject);
-//     });
-
-//     // Convert the updated JSON back to a string
-//     const updatedCorrectResult = JSON.stringify(correctResultJson);
-
-//     console.log("hey i am updatedCorrectResult....", updatedCorrectResult);
-
-//     // Update the correct_result column with the merged JSON data
-//     const updateQuery = `
-//       UPDATE processed_omr_results 
-//       SET correct_result = ? , flag = 1
-//       WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
-//     `;
-
-//     const updateResult = await query({
-//       query: updateQuery,
-//       values: [
-//         updatedCorrectResult,
-//         template_name,
-//         batch_name,
-//         question_paper_name,
-//       ],
-//     });
-
-//     console.log("Update result:", updateResult);
-//     resSend(
-//       res,
-//       true,
-//       200,
-//       "Data updated successfully in correct_result.",
-//       null,
-//       null
-//     );
-
-//     // Update the flag from 0 to 1
-//     //   const updateFlagQuery = `
-//     //    UPDATE processed_omr_results
-//     //    SET flag = 1
-//     //    WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND flag = 0
-//     //  `;
-
-//     //   const updateFlagResult = await query({
-//     //     query: updateFlagQuery,
-//     //     values: [template_name, batch_name, question_paper_name],
-//     //   });
-
-//     //   console.log("Flag update result:", updateFlagResult);
-
-//     // Step 4: Update the status in reviewer_reviews to 2
-//     const updateReviewerQuery = `
-//       UPDATE reviewer_reviews 
-//       SET status = 2 
-//       WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND status = 1`;
-
-//     const updateReviewerResult = await query({
-//       query: updateReviewerQuery,
-//       values: [template_name, batch_name, question_paper_name],
-//     });
-
-//     console.log("Reviewer status updated:", updateReviewerResult);
-//   } catch (error) {
-//     console.log(error);
-//     resSend(res, false, 400, "Error", error, null);
-//   }
-// };
 
 exports.submitupdateJsonResult = async (req, res) => {
   try {

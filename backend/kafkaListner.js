@@ -17,9 +17,6 @@ const processJsonResults = (data) => {
   //   .filter(([key, item], i) => !item.flag)
   //   .map(([key, item], i) => ({ [key]: item }));
 
-  console.log("filteredJsonRR.length", filteredJsonRR.length);
-  console.log("filteredJsonCorrect.length", filteredJsonCorrect.length);
-
   return { filteredJsonRR, filteredJsonCorrect };
 };
 
@@ -110,7 +107,6 @@ const getKafkaResults = async (key, value) => {
         processJsonResults(dataObj);
 
       // Insert "RR" data into the reviewer_reviews table
-      console.log("filteredJsonRR", filteredJsonRR.length);
       if (filteredJsonRR.length > 0) {
         const valuesRR = filteredJsonRR.flatMap((item) => [
           JSON.stringify(item),
@@ -148,7 +144,6 @@ const getKafkaResults = async (key, value) => {
             values: insertReviewerAssignValues,
           });
 
-          console.log("insertReviewResult:", insertReviewerAssignResult);
         } catch (error) {
           return {
             status: false,

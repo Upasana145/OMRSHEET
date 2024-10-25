@@ -18,7 +18,6 @@ const Review = () => {
 
   const handleTemplateChange = async () => {
     const templateName = selectedTemplate;
-    console.log("selectedTemplate", selectedTemplate);
 
     if (templateName) {
       try {
@@ -34,20 +33,16 @@ const Review = () => {
         );
 
         const data = await response.json();
-        console.log("Data received from POST API:", data);
-
         if (data.status && data.data) {
-          const batchNamesList = data.data.map((item) => item.batch_name);
-          console.log("Extracted Batch Names:", batchNamesList);
+          // const batchNamesList = data.data.map((item) => item.batch_name);
 
           const batchDetails = data.data.reduce((acc, item) => {
             acc[item.batch_name] = {
               ...item,
-              status: item.status || "Pending", // Set status from API, default to "Pending" if not available
+              status: item.status || "Pending",
             };
             return acc;
           }, {});
-          console.log("Extracted Batch Details:", batchDetails);
 
           // setBatchNames(batchNamesList);
           setBatches(batchDetails);
@@ -59,7 +54,6 @@ const Review = () => {
   };
 
   useEffect(() => {
-    console.log("selectedTemplate2", selectedTemplate);
     if (selectedTemplate && selectedTemplate !== "") {
       handleTemplateChange();
     }
@@ -69,40 +63,7 @@ const Review = () => {
     if (batches[batch].assign_to !== username) {
       return toast.error("You are not authorised!");
     }
-    console.log("hey i am batch...", batch);
-    console.log("hey i am ...selectedTemplate", selectedTemplate);
-
-    setSelectedBatch(batch);
-    setShowModal(true);
-    await fetchImages(batch); // Fetch images for the selected batch
-
-    const requestData = {
-      template_name: selectedTemplate, // Replace with actual template name or a variable
-      batch_name: batch, // Use the batch name
-    };
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/master/proc_data`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestData), // Convert data to JSON string
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Data fetched successfully:", data);
-      } else {
-        console.error("Failed to fetch data:", response.statusText);
-        toast.error("You are not authorised!");
-      }
-    } catch (error) {
-      console.error("An error occurred while fetching data:", error);
-    }
+    await fetchImages(batch);
   };
 
   const fetchImages = async (batch) => {
@@ -122,10 +83,11 @@ const Review = () => {
       );
 
       const data = await response.json();
-      console.log("API Response for images:", data);
 
       if (response.ok) {
-        setImages(data.data || []); // Ensure `data.data` is set to an empty array if undefined
+        setImages(data.data || []);
+        setSelectedBatch(batch);
+        setShowModal(true);
       } else {
         console.error("Failed to fetch images:", data.message);
       }
@@ -134,7 +96,6 @@ const Review = () => {
     }
   };
 
-  console.log("hey i am imagesssssssssssssssss", images);
   const closeModal = () => {
     setShowModal(false);
     setImages([]);
@@ -254,13 +215,9 @@ const Review = () => {
       );
       const data = await response.json();
 
-      console.log("API Response Data:", data);
-
       const names = Array.from(
         new Set(data.data.map((item) => item.template_name))
       );
-      console.log("Extracted Unique Template Names:", names);
-
       setTemplateNames(names);
     } catch (error) {
       console.error("Error fetching templates:", error);
@@ -346,6 +303,7 @@ const Review = () => {
         selectedBatch={selectedBatch}
         handleTemplateChange={handleTemplateChange}
         images={images}
+        fetchImages={fetchImages}
       />
     </div>
   );
