@@ -105,7 +105,7 @@ exports.processcropimage = async (req, res) => {
       // SQL query to update the cropped_image column and set crop_flag to 1
       let sql = `
         UPDATE reviewer_reviews 
-        SET cropped_image = '${req.file.filename}', crop_flag = 1 
+        SET cropped_image = '${req.file.filename}', crop_flag = '1' 
         WHERE template_name = '${template_name}' 
         AND batch_name = '${batch_name}' 
         AND question_paper_name = '${question_paper_name}' 
@@ -133,7 +133,14 @@ exports.processcropimage = async (req, res) => {
       }
     } catch (error) {
       console.log("Error while updating cropped_image and crop_flag:", error);
-      resSend(res, false, 400, "Error updating cropped image and crop_flag", error, null);
+      resSend(
+        res,
+        false,
+        400,
+        "Error updating cropped image and crop_flag",
+        error,
+        null
+      );
     }
   } else {
     resSend(res, false, 200, "Please upload a valid image", fileData, null);
@@ -665,7 +672,6 @@ exports.getupdateJsonResult = async (req, res) => {
   }
 };
 
-
 exports.submitupdateJsonResult = async (req, res) => {
   try {
     const { template_name, batch_name, question_paper_name } = req.body;
@@ -685,7 +691,14 @@ exports.submitupdateJsonResult = async (req, res) => {
     console.log("Flag data:", flagData);
 
     if (flagData[0]?.flag == 1) {
-      return resSend(res, true, 200, "Submit process is already done.", flagData[0], null);
+      return resSend(
+        res,
+        true,
+        200,
+        "Submit process is already done.",
+        flagData[0],
+        null
+      );
     }
 
     const selectJsonQuery = `
@@ -702,7 +715,14 @@ exports.submitupdateJsonResult = async (req, res) => {
     console.log("Existing data:", existingData);
 
     if (existingData.length === 0) {
-      return resSend(res, false, 200, "These data is already submitted", null, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "These data is already submitted",
+        null,
+        null
+      );
     }
 
     const selectCorrectResultQuery = `
@@ -741,7 +761,12 @@ exports.submitupdateJsonResult = async (req, res) => {
 
     const updateResult = await query({
       query: updateQuery,
-      values: [updatedCorrectResult, template_name, batch_name, question_paper_name],
+      values: [
+        updatedCorrectResult,
+        template_name,
+        batch_name,
+        question_paper_name,
+      ],
     });
 
     console.log("Update result:", updateResult);
@@ -791,22 +816,11 @@ exports.submitupdateJsonResult = async (req, res) => {
     }
 
     return resSend(res, true, 200, "Data updated successfully.", null, null);
-
   } catch (error) {
     console.log(error);
     return resSend(res, false, 400, "Error", error, null);
   }
 };
-
-
-
-
-
-
-
-
-
-
 
 exports.csvresult = async (req, res) => {
   try {

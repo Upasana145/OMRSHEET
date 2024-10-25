@@ -8,13 +8,13 @@ const ReviewModal = ({
   closeModal,
   selectedBatch,
   handleTemplateChange,
-  images = [], fetchImages
+  images = [],
+  fetchImages,
 }) => {
   const [selectedData, setSelectedData] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
   const canvasRef = useRef(null);
-
 
   const parseUnderReview = (under_review) => {
     console.log("Received under_review data:", under_review);
@@ -50,10 +50,7 @@ const ReviewModal = ({
   //   setShowDetails(true);
   // };
 
-
-
   const handleViewClick = async (image) => {
-
     const { ques_paper_image_path, question_paper_name, batch_name } = image;
 
     if (!ques_paper_image_path || !batch_name) {
@@ -81,9 +78,7 @@ const ReviewModal = ({
       const data = await response.json();
       if (response.ok) {
         setSelectedData(data);
-
         setShowDetails(true);
-
       } else {
         toast.error(`Failed to crop  ${data.message}`);
       }
@@ -93,20 +88,7 @@ const ReviewModal = ({
     }
   };
 
-
-
-
-
-
-
-
-
-
-
-
-
   const cropHandler = async (image) => {
-
     const { ques_paper_image_path, question_paper_name, batch_name } = image;
 
     if (!ques_paper_image_path || !batch_name) {
@@ -135,7 +117,6 @@ const ReviewModal = ({
       if (response.ok) {
         setSelectedData(data);
         cropImage(data.data);
-
       } else {
         toast.error(`Failed to crop  ${data.message}`);
       }
@@ -144,9 +125,6 @@ const ReviewModal = ({
       toast.error("Error fetching cropping image.");
     }
   };
-
-
-
 
   const dataURLtoBlob = (dataURL) => {
     const [header, data] = dataURL.split(",");
@@ -166,8 +144,6 @@ const ReviewModal = ({
 
     for (const item of data) {
       const imagePath = `${process.env.REACT_APP_FILE_URI}${item.template_name}/${item.batch_name}/${item.ques_paper_image_path}`;
-
-
 
       const img = new Image();
       img.crossOrigin = "anonymous"; // Allow cross-origin
@@ -193,7 +169,6 @@ const ReviewModal = ({
 
       // If coordinates exist, apply cropping
       if (coordinates) {
-
         const [y1, y2, x1, x2] = coordinates;
 
         // Calculate crop dimensions
@@ -234,7 +209,7 @@ const ReviewModal = ({
           const responseData = await apiResponse.json();
           if (apiResponse.ok) {
             console.log("Cropped image processed successfully:", responseData);
-            fetchImages(selectedBatch)
+            fetchImages(selectedBatch);
           } else {
             console.error(
               "Failed to process cropped image:",
@@ -274,7 +249,6 @@ const ReviewModal = ({
               <th>Image</th>
               <th style={{ textAlign: "center" }}>Status</th>
               <th style={{ textAlign: "center" }}>Action</th>
-
             </tr>
           </thead>
           <tbody>
@@ -294,14 +268,15 @@ const ReviewModal = ({
                 <td>
                   <button
                     className="view-button"
-                    onClick={() => image?.crop_flag === 1 ? handleViewClick(image) : cropHandler(image)}
+                    onClick={() =>
+                      image?.crop_flag === "1"
+                        ? handleViewClick(image)
+                        : cropHandler(image)
+                    }
                   >
-                    {image?.crop_flag === 1 ? "View" : "Process"}
+                    {image?.crop_flag === "1" ? "View" : "Process"}
                   </button>
                 </td>
-
-
-
               </tr>
             ))}
           </tbody>

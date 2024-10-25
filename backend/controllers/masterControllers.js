@@ -540,7 +540,6 @@ exports.proc_omr_result_data = async (req, res) => {
       values: [template_name, batch_name],
     });
 
-
     const checkCropSQL = `
       SELECT count(ID) as count
       FROM reviewer_reviews
@@ -555,9 +554,9 @@ exports.proc_omr_result_data = async (req, res) => {
 
       console.log("item", item);
       if (count > 0) {
-        item.crop_flag = 0;
+        item.crop_flag = "0";
       } else {
-        item.crop_flag = 1;
+        item.crop_flag = "1";
       }
     }
 
@@ -585,7 +584,6 @@ exports.proc_omr_result_data = async (req, res) => {
     return resSend(res, false, 500, "Internal server error.", error, null);
   }
 };
-
 
 // revquesname
 exports.reviewer_reviews_ques_name = async (req, res) => {
@@ -659,7 +657,6 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
       values: [batch_name],
     });
 
-
     // Check if the result contains multiple rows
     if (result && result.length > 0) {
       return resSend(
@@ -687,7 +684,6 @@ exports.reviewer_reviews_data_batchwise = async (req, res) => {
     return resSend(res, false, 500, "Internal server error.", error, null);
   }
 };
-
 
 exports.processFoldersAndImages = async (req, res) => {
   try {
@@ -867,8 +863,6 @@ exports.processFoldersAndImages = async (req, res) => {
   }
 };
 
-
-
 exports.getimgprocessFoldersAndImages = async (req, res) => {
   try {
     const { template_name, batch_name } = req.body; // Get template_name from the request body
@@ -1007,7 +1001,6 @@ exports.getimgprocessFoldersAndImages = async (req, res) => {
       }
     }
     return;
-
   } catch (error) {
     console.error("Error processing images:", error);
     return resSend(res, false, 500, "Internal server error.", error, null);
