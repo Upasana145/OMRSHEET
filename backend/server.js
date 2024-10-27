@@ -22,8 +22,7 @@ app.use(bodyParser.urlencoded({ limit: "1gb", extended: true }));
 app.use(cors());
 app.use("/uploads", express.static("uploads"));
 const uploadsDirectory = process.env.PROJECT_FOLDER_PATH;
-app.use('/uploads', express.static(uploadsDirectory));
-
+app.use("/uploads", express.static(uploadsDirectory));
 
 // use routes
 app.use("/api/v1/auth", authRoutes);

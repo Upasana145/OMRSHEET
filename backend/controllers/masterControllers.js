@@ -1,3 +1,4 @@
+const { createCanvas, loadImage } = require("canvas");
 const { resSend } = require("../utils/resSend");
 const { query } = require("../db/db.js");
 const { dateSqlType } = require("../utils/dateFormat");
@@ -543,7 +544,7 @@ exports.proc_omr_result_data = async (req, res) => {
     const checkCropSQL = `
       SELECT count(ID) as count
       FROM reviewer_reviews
-      WHERE template_name = ? AND batch_name = ? AND crop_flag = 0
+      WHERE template_name = ? AND batch_name = ?
     `;
 
     for (const item of result) {
@@ -553,11 +554,6 @@ exports.proc_omr_result_data = async (req, res) => {
       });
 
       console.log("item", item);
-      if (count > 0) {
-        item.crop_flag = "0";
-      } else {
-        item.crop_flag = "1";
-      }
     }
 
     if (result && result.length > 0) {
@@ -1004,5 +1000,166 @@ exports.getimgprocessFoldersAndImages = async (req, res) => {
   } catch (error) {
     console.error("Error processing images:", error);
     return resSend(res, false, 500, "Internal server error.", error, null);
+  }
+};
+
+exports.processSingleOMR = async (req, res) => {
+  try {
+    const { template_name, batch_name, question_paper_name } = req.body;
+
+    if (
+      !template_name ||
+      template_name === "" ||
+      !batch_name ||
+      batch_name === "" ||
+      !question_paper_name ||
+      question_paper_name === ""
+    ) {
+      return resSend(
+        res,
+        false,
+        200,
+        "Template Name / Batch Name / OMR missing.",
+        null,
+        null
+      );
+    }
+
+    // Check if crop image is present or not
+    const sqlqu = `SELECT * FROM reviewer_reviews 
+    WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND cropped_image = '0';`;
+    // Execute the SQL query with parameterized values
+    const data = await query({
+      query: sqlqu,
+      values: [template_name, batch_name, question_paper_name],
+    });
+
+    if (data && data.length > 0) {
+      // If Not present, crop and update the cropped_image
+      for (const item of data) {
+        let d = await cropHandler(item);
+        console.log("item", item);
+        console.log("d", d);
+        if (d.stat) {
+          const sqluci = `UPDATE reviewer_reviews 
+            SET cropped_image = '${d?.imgName}'
+            WHERE template_name = ? AND batch_name = ? AND question_paper_name = ? AND under_review = ?`;
+          const sqlRes = await query({
+            query: sqluci,
+            values: [
+              template_name,
+              batch_name,
+              question_paper_name,
+              item.under_review,
+            ],
+          });
+        }
+      }
+    }
+
+    // Check if crop image is present or not
+    const sqlur = `SELECT * FROM reviewer_reviews 
+    WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?`;
+    const result = await query({
+      query: sqlur,
+      values: [template_name, batch_name, question_paper_name],
+    });
+
+    // Share the under_review
+    return resSend(res, true, 200, "TEST", result, null);
+  } catch (error) {
+    console.log("ERROR:", error);
+    return resSend(res, false, 500, "SERVER ERROR!", null, null);
+  }
+};
+
+const cropHandler = async (item) => {
+  const imagePath = `${process.env.PROJECT_FOLDER_PATH}/${item.template_name}/${item.batch_name}/${item.question_paper_name}`;
+
+  try {
+    const img = await loadImage(imagePath);
+
+    // Resize image to 800x1200
+    const canvas = createCanvas(800, 1200);
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, 800, 1200);
+
+    // Save the resized image
+    const resizedBuffer = canvas.toBuffer("image/png");
+
+    // Store cropped URLs for each image
+    // const croppedUrls = [];
+    const coordinates = parseUnderReview(item.under_review)?.coord?.region;
+
+    if (coordinates) {
+      const [y1, y2, x1, x2] = coordinates;
+      const cropWidth = x2 - x1;
+      const cropHeight = y2 - y1;
+
+      // Extract and save cropped region
+      const croppedCanvas = createCanvas(cropWidth, cropHeight);
+      const croppedCtx = croppedCanvas.getContext("2d");
+      croppedCtx.putImageData(
+        ctx.getImageData(x1, y1, cropWidth, cropHeight),
+        0,
+        0
+      );
+      const croppedBuffer = croppedCanvas.toBuffer("image/png");
+
+      // Define the directory and file path
+      const uploadDir = path.join(__dirname, "../uploads");
+      const templatePath = path.join(uploadDir, `${item.template_name}`);
+      const batchPath = path.join(templatePath, `${item.batch_name}`);
+      let imgName = `${Math.round(
+        Math.random() * 1000
+      )}-${Date.now()}-cropped.png`;
+      const croppedFilePath = path.join(batchPath, imgName);
+
+      // Create the directory if it doesn't exist
+      if (!fs.existsSync(batchPath)) {
+        fs.mkdirSync(batchPath, { recursive: true });
+      }
+
+      // Save the cropped image
+      fs.writeFileSync(croppedFilePath, croppedBuffer);
+
+      // croppedUrls.push(croppedFilePath);
+      // console.log("croppedUrls", croppedUrls);
+
+      return { stat: true, imgName, croppedFilePath };
+    }
+  } catch (error) {
+    console.error("Error processing image:", error);
+    return { stat: false, imgName: null, croppedFilePath: null };
+  }
+};
+
+const parseUnderReview = (under_review) => {
+  try {
+    if (typeof under_review === "string") {
+      const parsedData = JSON.parse(under_review);
+
+      // Check if the data is wrapped in an additional key like "htn10"
+      const keys = Object.keys(parsedData);
+      if (keys.length === 1 && typeof parsedData[keys[0]] === "object") {
+        const innerData = parsedData[keys[0]]; // Extract the inner object
+        if (innerData && innerData.coord) {
+          return innerData; // Return the inner object
+        }
+      }
+
+      // If no nested key, return the parsedData directly
+      if (parsedData && parsedData.coord) {
+        return parsedData;
+      }
+
+      return null; // Return null if no coord found
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error parsing under_review:", error);
+    return null;
   }
 };

@@ -149,30 +149,31 @@ function TemplateContent({ users, fetchUsers, templates }) {
     console.log("headersSet", headersSet);
 
     // const headers = Array.from(headersSet).sort();
+    const headers = Array.from(headersSet);
     csvRows.push(["Batch", ...headersSet].join(","));
 
-    // data.forEach((item) => {
-    //   if (item?.correct_result && item.correct_result !== "") {
-    //     const batchName = item.batch_name;
-    //     const correctResult = JSON.parse(item.correct_result);
+    data.forEach((item) => {
+      if (item?.correct_result && item.correct_result !== "") {
+        const batchName = item.batch_name;
+        const correctResult = JSON.parse(item.correct_result);
 
-    //     // Create an object to hold results for the current item
-    //     const results = {};
-    //     correctResult.forEach((q) => {
-    //       for (const key in q) {
-    //         results[key] = q[key].result;
-    //       }
-    //     });
+        // Create an object to hold results for the current item
+        const results = {};
+        correctResult.forEach((q) => {
+          for (const key in q) {
+            results[key] = q[key].result;
+          }
+        });
 
-    //     // Create a row with batch name, question paper name, and results
-    //     const row = [batchName];
-    //     headers.forEach((header) => {
-    //       row.push(results[header] || "");
-    //     });
+        // Create a row with batch name, question paper name, and results
+        const row = [batchName];
+        headers.forEach((header) => {
+          row.push(results[header] || "");
+        });
 
-    //     csvRows.push(row.join(","));
-    //   }
-    // });
+        csvRows.push(row.join(","));
+      }
+    });
 
     return csvRows.join("\n"); // Join rows with newline
   };
@@ -222,6 +223,7 @@ function TemplateContent({ users, fetchUsers, templates }) {
         downloadCSV(data.results, template_name);
       } else {
         console.warn(data.details);
+        toast.error(data.details);
       }
     } catch (error) {
       console.error("Failed to fetch data from the API:", error);

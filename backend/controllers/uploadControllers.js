@@ -102,10 +102,10 @@ exports.processcropimage = async (req, res) => {
 
   if (req.file) {
     try {
-      // SQL query to update the cropped_image column and set crop_flag to 1
+      // SQL query to update the cropped_image column
       let sql = `
         UPDATE reviewer_reviews 
-        SET cropped_image = '${req.file.filename}', crop_flag = '1' 
+        SET cropped_image = '${req.file.filename}' 
         WHERE template_name = '${template_name}' 
         AND batch_name = '${batch_name}' 
         AND question_paper_name = '${question_paper_name}' 
@@ -118,12 +118,12 @@ exports.processcropimage = async (req, res) => {
       });
 
       if (result.affectedRows > 0) {
-        console.log("Cropped image and crop_flag updated successfully!");
+        console.log("Cropped image updated successfully!");
         resSend(
           res,
           true,
           200,
-          "Cropped image and crop_flag updated successfully!",
+          "Cropped image updated successfully!",
           result,
           null
         );
@@ -132,15 +132,8 @@ exports.processcropimage = async (req, res) => {
         resSend(res, false, 200, "No record found!", result, null);
       }
     } catch (error) {
-      console.log("Error while updating cropped_image and crop_flag:", error);
-      resSend(
-        res,
-        false,
-        400,
-        "Error updating cropped image and crop_flag",
-        error,
-        null
-      );
+      console.log("Error while updating cropped_image:", error);
+      resSend(res, false, 400, "Error updating cropped image", error, null);
     }
   } else {
     resSend(res, false, 200, "Please upload a valid image", fileData, null);
@@ -579,7 +572,7 @@ exports.updateJsonResult = async (req, res) => {
     if (action === "skip") {
       // Update the result to "skip" and set flag to false
       if (innerData) {
-        innerData.result = "skip"; // Set result to "skip"
+        innerData.result = ""; // Set result to "skip"
         innerData.flag = false; // Update the flag to false
       }
 

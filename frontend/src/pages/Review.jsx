@@ -10,7 +10,6 @@ const Review = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  // const [batchNames, setBatchNames] = useState([]);
   const [batches, setBatches] = useState({});
   const { username } = useSelector((state) => state.auth);
   const [selectedBatch, setSelectedBatch] = useState("");
@@ -34,8 +33,6 @@ const Review = () => {
 
         const data = await response.json();
         if (data.status && data.data) {
-          // const batchNamesList = data.data.map((item) => item.batch_name);
-
           const batchDetails = data.data.reduce((acc, item) => {
             acc[item.batch_name] = {
               ...item,
@@ -44,7 +41,6 @@ const Review = () => {
             return acc;
           }, {});
 
-          // setBatchNames(batchNamesList);
           setBatches(batchDetails);
         }
       } catch (error) {
@@ -99,6 +95,7 @@ const Review = () => {
   const closeModal = () => {
     setShowModal(false);
     setImages([]);
+    setSelectedBatch("");
   };
 
   const handleAssignToMe = async (batchName) => {
@@ -245,7 +242,6 @@ const Review = () => {
             </option>
           ))}
         </select>
-        <p>Selected Template: {selectedTemplate}</p>
       </div>
 
       {selectedTemplate && (

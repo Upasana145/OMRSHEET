@@ -796,7 +796,7 @@ p {
   border-radius: 5px;
   text-align: center;
   max-width: 1000px;
-  height: auto;
+  height: 95vh;
   width: 100%;
   overflow: auto;
 }
@@ -936,6 +936,10 @@ p {
 
 .view-button:hover {
   background-color: #0056b3;
+}
+.view-button:disabled {
+  background-color: #0056b3;
+  cursor: not-allowed;
 }
 
 /* after */
@@ -1318,4 +1322,16 @@ p {
   /* Gray background when disabled */
   cursor: not-allowed;
   /* Change cursor to not-allowed when disabled */
+}
+.options p {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+.options > label {
+  margin-right: 8px;
+  cursor: pointer;
+}
+.options > label > input {
+  margin-right: 5px;
+  cursor: pointer;
 }
