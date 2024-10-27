@@ -23,8 +23,8 @@ const {
   reviewer_reviews_ques_name,
   updatestatussubmit,
   processFoldersAndImages,
-  getimgprocessFoldersAndImages
-
+  getimgprocessFoldersAndImages,
+  processSingleOMR,
 } = require("../controllers/masterControllers");
 const router = express.Router();
 
@@ -48,20 +48,16 @@ router.post("/deleteomrData", deleteomrData);
 router.get("/getalltempbatch", getalltempbatch);
 router.post("/alltempbatches", alltempbatches);
 
-
 router.post("/updatestatusbatches", updatestatusbatches);
 router.post("/reviewerassign", reviewerassign);
 router.post("/updatestatussubmit", updatestatussubmit);
-
-
-
 
 //processed_omr_results
 router.post("/proc_data", proc_omr_result_data);
 router.post("/revbatchdata", reviewer_reviews_data_batchwise);
 router.post("/revquesname", reviewer_reviews_ques_name);
+router.post("/processSingleOMR", processSingleOMR);
 // Define a route to trigger the folder and image processing
-
 
 router.post("/process-images", processFoldersAndImages);
 router.post("/getprocess-images", getimgprocessFoldersAndImages);
@@ -69,8 +65,6 @@ router.post("/getprocess-images", getimgprocessFoldersAndImages);
 //   processFoldersAndImages();
 //   res.send('Image processing started. Check console for details.');
 // });
-
-
 
 router.get("/getall", getall);
 router.post("/getspecifictemp", getspecifictemp);
