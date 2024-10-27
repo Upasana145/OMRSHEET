@@ -796,7 +796,7 @@ p {
   border-radius: 5px;
   text-align: center;
   max-width: 1000px;
-  height: auto;
+  height: 95vh;
   width: 100%;
   overflow: auto;
 }
