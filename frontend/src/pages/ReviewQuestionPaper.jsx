@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { checkTypeArr } from "../utils/smallFun";
 
 const ReviewQuestionPaper = ({
   data,
@@ -17,7 +18,6 @@ const ReviewQuestionPaper = ({
   // Always call useEffect, handle the condition inside
   useEffect(() => {
     if (data && data.data) {
-      console.log("hey buddy i am data", data);
       const allTickEnabled = data.data.every((image) => tickStatus[image.ID]);
       setIsSubmitEnabled(allTickEnabled);
     }
@@ -59,7 +59,6 @@ const ReviewQuestionPaper = ({
 
         // Check if the data is wrapped in an additional key like "htn10"
         const keys = Object.keys(parsedData);
-        console.log("keys[0]", keys[0]);
         if (keys.length === 1) {
           const innerData = keys[0];
           if (innerData) {
@@ -118,8 +117,11 @@ const ReviewQuestionPaper = ({
           {Object.keys(coord)
             .filter((key) => key.length === 1) // && key.match(/[A-Z]/) Filtering only keys like 'a', 'b', 'c', 'd'
             .map((key, index) => {
+              console.log("result", result, index, key);
               const isChecked =
-                isStatusOneOrTwo && result && result.toLowerCase() === key;
+                isStatusOneOrTwo &&
+                checkTypeArr(result) &&
+                result.filter((re) => re.toUpperCase() === key).length > 0;
 
               return (
                 <label key={index}>
@@ -137,7 +139,7 @@ const ReviewQuestionPaper = ({
                       )
                     }
                   />
-                  {key.toUpperCase()}
+                  <span>{key.toUpperCase()}</span>
                 </label>
               );
             })}
@@ -156,7 +158,7 @@ const ReviewQuestionPaper = ({
     resultValue = resultValue
       ? resultValue.map((option) => option.toLowerCase())
       : [];
-    resultValue = resultValue.length === 1 ? resultValue[0] : resultValue;
+    // resultValue = resultValue.length === 1 ? resultValue[0] : resultValue;
 
     if (action === "save" && (!resultValue || resultValue.length === 0)) {
       toast.error("Please select a checkbox before saving.");
@@ -192,7 +194,7 @@ const ReviewQuestionPaper = ({
         setTickStatus((prevStatus) => ({ ...prevStatus, [image.ID]: true }));
 
         // Crop the image after saving
-        const coordinates = parseUnderReview(image.under_review)?.coord?.region;
+        // const coordinates = parseUnderReview(image.under_review)?.coord?.region;
       } else {
         toast.error("Failed to update the result.");
         console.error("API request failed:", response.statusText);

@@ -552,8 +552,6 @@ exports.proc_omr_result_data = async (req, res) => {
         query: checkCropSQL,
         values: [item.template_name, item.batch_name],
       });
-
-      console.log("item", item);
     }
 
     if (result && result.length > 0) {
@@ -1038,8 +1036,6 @@ exports.processSingleOMR = async (req, res) => {
       // If Not present, crop and update the cropped_image
       for (const item of data) {
         let d = await cropHandler(item);
-        console.log("item", item);
-        console.log("d", d);
         if (d.stat) {
           const sqluci = `UPDATE reviewer_reviews 
             SET cropped_image = '${d?.imgName}'

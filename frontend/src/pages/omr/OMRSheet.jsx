@@ -94,8 +94,6 @@ const OMRSheet = () => {
     return config;
   };
 
-  console.log("Items", items);
-
   const handleButtonClick = async (temp) => {
     const { template_name, map, t_name, batch_name } = temp;
 
