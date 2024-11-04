@@ -106,9 +106,10 @@ const OMRSheet = () => {
     try {
       // Parse the map JSON
       const parsedMap = JSON.parse(map);
-      console.log("parsedMap", parsedMap);
+
       // Generate type_config from the parsed map
       const typeConfig = generateTypeConfig(parsedMap);
+      console.log("typeConfig", typeConfig);
       const payload = {
         template: parsedMap,
         template_image: `${process.env.REACT_APP_AI_DATA}${template_name}/default/${t_name}`,
@@ -119,6 +120,7 @@ const OMRSheet = () => {
         batch_name: `${batch_name}`,
         // processed_omr_result_id: `${ID}`
       };
+      console.log("hey i am payload", payload);
       const response = await fetch(process.env.REACT_APP_AI_API, {
         method: "POST",
         headers: {
