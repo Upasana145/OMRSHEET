@@ -102,10 +102,10 @@ exports.processcropimage = async (req, res) => {
 
   if (req.file) {
     try {
-      // SQL query to update the cropped_image column and set crop_flag to 1
+      // SQL query to update the cropped_image column
       let sql = `
         UPDATE reviewer_reviews 
-        SET cropped_image = '${req.file.filename}', crop_flag = 1 
+        SET cropped_image = '${req.file.filename}' 
         WHERE template_name = '${template_name}' 
         AND batch_name = '${batch_name}' 
         AND question_paper_name = '${question_paper_name}' 
@@ -118,12 +118,12 @@ exports.processcropimage = async (req, res) => {
       });
 
       if (result.affectedRows > 0) {
-        console.log("Cropped image and crop_flag updated successfully!");
+        console.log("Cropped image updated successfully!");
         resSend(
           res,
           true,
           200,
-          "Cropped image and crop_flag updated successfully!",
+          "Cropped image updated successfully!",
           result,
           null
         );
@@ -132,8 +132,8 @@ exports.processcropimage = async (req, res) => {
         resSend(res, false, 200, "No record found!", result, null);
       }
     } catch (error) {
-      console.log("Error while updating cropped_image and crop_flag:", error);
-      resSend(res, false, 400, "Error updating cropped image and crop_flag", error, null);
+      console.log("Error while updating cropped_image:", error);
+      resSend(res, false, 400, "Error updating cropped image", error, null);
     }
   } else {
     resSend(res, false, 200, "Please upload a valid image", fileData, null);
@@ -319,6 +319,183 @@ exports.allomrimages = async (req, res) => {
   }
 };
 
+// exports.seperate_result = async (req, res) => {
+//   try {
+//     const {
+//       template_name,
+//       batch_name,
+//       question_paper_name,
+//       ques_paper_image_path,
+//       t_name,
+//     } = req.body;
+
+//     const selectJsonQuery = `
+//       SELECT result 
+//       FROM processed_omr_results 
+//       WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
+//     `;
+
+//     const result = await query({
+//       query: selectJsonQuery,
+//       values: [template_name, batch_name, question_paper_name],
+//     });
+
+//     console.log("Parsed result:", result);
+
+//     const parsedResult = result.map((item) => ({
+//       data: JSON.parse(item.result),
+//     }));
+
+//     if (parsedResult && parsedResult.length > 0) {
+//       // Access the first result's data object
+//       const dataObject = parsedResult[0].data;
+
+//       // Filter JSON objects with "result": "RR" and "flag": true, including the key
+//       const filteredJsonRR = Object.entries(dataObject)
+//         .filter(([key, item]) => item.result === "RR" && item.flag === true)
+//         .map(([key, item]) => ({ [key]: item }));
+
+//       // Filter JSON objects except those with "result": "RR", including the key
+//       const filteredJsonCorrect = Object.entries(dataObject)
+//         .filter(([key, item]) => item.result !== "RR")
+//         .map(([key, item]) => ({ [key]: item }));
+
+//       // Insert "RR" data into the reviewer_reviews table
+//       if (filteredJsonRR.length > 0) {
+//         const valuesRR = filteredJsonRR.flatMap((item) => [
+//           JSON.stringify(item), // under_review
+//           template_name,
+//           batch_name,
+//           question_paper_name,
+//           ques_paper_image_path,
+//         ]);
+
+//         console.log("Insert values for reviewer_reviews:", valuesRR);
+
+//         const insertRRQuery = `
+//           INSERT INTO reviewer_reviews (under_review, template_name, batch_name, question_paper_name,ques_paper_image_path)
+//           VALUES ${filteredJsonRR.map(() => "(?, ?, ?, ?,?)").join(", ")}
+//         `;
+
+//         try {
+//           const insertRRResult = await query({
+//             query: insertRRQuery,
+//             values: valuesRR,
+//           });
+
+//           console.log("Insert result for reviewer_reviews:", insertRRResult);
+
+//           // Insert data into reviewer_assign table after successful insert into reviewer_reviews
+//           const insertReviewerAssignQuery = `
+//             INSERT INTO reviewer_assign (template_name, t_name, batch_name)
+//             VALUES (?, ?, ?)
+//           `;
+
+//           const insertReviewerAssignValues = [
+//             template_name,
+//             t_name,
+//             batch_name,
+//           ];
+
+//           try {
+//             console.log("hello buddy");
+//             const insertReviewerAssignResult = await query({
+//               query: insertReviewerAssignQuery,
+//               values: insertReviewerAssignValues,
+//             });
+
+//             console.log(
+//               "Insert result for reviewer_assign:",
+//               insertReviewerAssignResult
+//             );
+//           } catch (error) {
+//             console.error("Error inserting into reviewer_assign:", error);
+//             return resSend(
+//               res,
+//               false,
+//               500,
+//               "Error storing reviewer assignment data.",
+//               null,
+//               error
+//             );
+//           }
+//         } catch (error) {
+//           console.error("Error inserting into reviewer_reviews:", error);
+//           return resSend(
+//             res,
+//             false,
+//             500,
+//             "Error storing RR data.",
+//             null,
+//             error
+//           );
+//         }
+//       }
+
+//       // Update correct results in the processed_omr_results table
+//       if (filteredJsonCorrect.length > 0) {
+//         const correctDataJson = JSON.stringify(filteredJsonCorrect);
+//         const updateCorrectQuery = `
+//           UPDATE processed_omr_results
+//           SET correct_result = ?
+//           WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
+//         `;
+
+//         try {
+//           const updateCorrectResult = await query({
+//             query: updateCorrectQuery,
+//             values: [
+//               correctDataJson,
+//               template_name,
+//               batch_name,
+//               question_paper_name,
+//             ],
+//           });
+
+//           console.log("Update result for correct_result:", updateCorrectResult);
+
+//           resSend(
+//             res,
+//             true,
+//             200,
+//             "Data stored successfully. RR data in reviewer_reviews and correct data in processed_omr_results.",
+//             {
+//               under_review: filteredJsonRR,
+//               correct_result: filteredJsonCorrect,
+//             },
+//             null
+//           );
+//         } catch (error) {
+//           console.error("Error updating correct_result:", error);
+//           return resSend(
+//             res,
+//             false,
+//             500,
+//             "Error storing correct data.",
+//             null,
+//             error
+//           );
+//         }
+//       } else {
+//         resSend(
+//           res,
+//           false,
+//           200,
+//           "No matching JSON found for correct data!",
+//           parsedResult,
+//           null
+//         );
+//       }
+//     } else {
+//       resSend(res, false, 200, "No Record Found!", parsedResult, null);
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     resSend(res, false, 400, "Error", error, null);
+//   }
+// };
+
+
 exports.seperate_result = async (req, res) => {
   try {
     const {
@@ -360,8 +537,11 @@ exports.seperate_result = async (req, res) => {
         .filter(([key, item]) => item.result !== "RR")
         .map(([key, item]) => ({ [key]: item }));
 
-      // Insert "RR" data into the reviewer_reviews table
+      // Check if there are any entries with "flag": true
+      const hasFlagTrue = Object.values(dataObject).some((item) => item.flag === true);
+
       if (filteredJsonRR.length > 0) {
+        // Insert "RR" data into the reviewer_reviews table
         const valuesRR = filteredJsonRR.flatMap((item) => [
           JSON.stringify(item), // under_review
           template_name,
@@ -373,8 +553,8 @@ exports.seperate_result = async (req, res) => {
         console.log("Insert values for reviewer_reviews:", valuesRR);
 
         const insertRRQuery = `
-          INSERT INTO reviewer_reviews (under_review, template_name, batch_name, question_paper_name,ques_paper_image_path)
-          VALUES ${filteredJsonRR.map(() => "(?, ?, ?, ?,?)").join(", ")}
+          INSERT INTO reviewer_reviews (under_review, template_name, batch_name, question_paper_name, ques_paper_image_path)
+          VALUES ${filteredJsonRR.map(() => "(?, ?, ?, ?, ?)").join(", ")}
         `;
 
         try {
@@ -398,93 +578,60 @@ exports.seperate_result = async (req, res) => {
           ];
 
           try {
-            console.log("hello buddy");
             const insertReviewerAssignResult = await query({
               query: insertReviewerAssignQuery,
               values: insertReviewerAssignValues,
             });
 
-            console.log(
-              "Insert result for reviewer_assign:",
-              insertReviewerAssignResult
-            );
+            console.log("Insert result for reviewer_assign:", insertReviewerAssignResult);
           } catch (error) {
             console.error("Error inserting into reviewer_assign:", error);
-            return resSend(
-              res,
-              false,
-              500,
-              "Error storing reviewer assignment data.",
-              null,
-              error
-            );
+            return resSend(res, false, 500, "Error storing reviewer assignment data.", null, error);
           }
         } catch (error) {
           console.error("Error inserting into reviewer_reviews:", error);
-          return resSend(
-            res,
-            false,
-            500,
-            "Error storing RR data.",
-            null,
-            error
-          );
+          return resSend(res, false, 500, "Error storing RR data.", null, error);
         }
       }
 
-      // Update correct results in the processed_omr_results table
-      if (filteredJsonCorrect.length > 0) {
-        const correctDataJson = JSON.stringify(filteredJsonCorrect);
-        const updateCorrectQuery = `
-          UPDATE processed_omr_results
-          SET correct_result = ?
-          WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
-        `;
+      // Update correct results and flag in the processed_omr_results table
+      const correctDataJson = JSON.stringify(filteredJsonCorrect);
+      const updateCorrectQuery = `
+        UPDATE processed_omr_results
+        SET correct_result = ?, flag = ?
+        WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?
+      `;
 
-        try {
-          const updateCorrectResult = await query({
-            query: updateCorrectQuery,
-            values: [
-              correctDataJson,
-              template_name,
-              batch_name,
-              question_paper_name,
-            ],
-          });
+      const flagValue = hasFlagTrue ? 0 : 1; // Set flag to 1 if no entry has "flag": true
 
-          console.log("Update result for correct_result:", updateCorrectResult);
+      try {
+        const updateCorrectResult = await query({
+          query: updateCorrectQuery,
+          values: [
+            correctDataJson,
+            flagValue,
+            template_name,
+            batch_name,
+            question_paper_name,
+          ],
+        });
 
-          resSend(
-            res,
-            true,
-            200,
-            "Data stored successfully. RR data in reviewer_reviews and correct data in processed_omr_results.",
-            {
-              under_review: filteredJsonRR,
-              correct_result: filteredJsonCorrect,
-            },
-            null
-          );
-        } catch (error) {
-          console.error("Error updating correct_result:", error);
-          return resSend(
-            res,
-            false,
-            500,
-            "Error storing correct data.",
-            null,
-            error
-          );
-        }
-      } else {
+        console.log("Update result for correct_result and flag:", updateCorrectResult);
+
         resSend(
           res,
-          false,
+          true,
           200,
-          "No matching JSON found for correct data!",
-          parsedResult,
+          "Data stored successfully. RR data in reviewer_reviews and correct data in processed_omr_results.",
+          {
+            under_review: filteredJsonRR,
+            correct_result: filteredJsonCorrect,
+          },
           null
         );
+      } catch (error) {
+        console.error("Error updating correct_result and flag:", error);
+        return resSend(res, false, 500, "Error storing correct data.", null, error);
       }
     } else {
       resSend(res, false, 200, "No Record Found!", parsedResult, null);
@@ -494,6 +641,9 @@ exports.seperate_result = async (req, res) => {
     resSend(res, false, 400, "Error", error, null);
   }
 };
+
+
+
 
 exports.updateJsonResult = async (req, res) => {
   try {
@@ -572,7 +722,7 @@ exports.updateJsonResult = async (req, res) => {
     if (action === "skip") {
       // Update the result to "skip" and set flag to false
       if (innerData) {
-        innerData.result = "skip"; // Set result to "skip"
+        innerData.result = ""; // Set result to "skip"
         innerData.flag = false; // Update the flag to false
       }
 
@@ -665,7 +815,6 @@ exports.getupdateJsonResult = async (req, res) => {
   }
 };
 
-
 exports.submitupdateJsonResult = async (req, res) => {
   try {
     const { template_name, batch_name, question_paper_name } = req.body;
@@ -685,7 +834,14 @@ exports.submitupdateJsonResult = async (req, res) => {
     console.log("Flag data:", flagData);
 
     if (flagData[0]?.flag == 1) {
-      return resSend(res, true, 200, "Submit process is already done.", flagData[0], null);
+      return resSend(
+        res,
+        true,
+        200,
+        "Submit process is already done.",
+        flagData[0],
+        null
+      );
     }
 
     const selectJsonQuery = `
@@ -702,14 +858,18 @@ exports.submitupdateJsonResult = async (req, res) => {
     console.log("Existing data:", existingData);
 
     if (existingData.length === 0) {
-      return resSend(res, false, 200, "These data is already submitted", null, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "These data is already submitted",
+        null,
+        null
+      );
     }
 
-    const selectCorrectResultQuery = `
-      SELECT correct_result
-      FROM processed_omr_results 
-      WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?;
-    `;
+    const selectCorrectResultQuery = `SELECT correct_result FROM processed_omr_results 
+      WHERE template_name = ? AND batch_name = ? AND question_paper_name = ?;`;
 
     const correctResultData = await query({
       query: selectCorrectResultQuery,
@@ -741,7 +901,12 @@ exports.submitupdateJsonResult = async (req, res) => {
 
     const updateResult = await query({
       query: updateQuery,
-      values: [updatedCorrectResult, template_name, batch_name, question_paper_name],
+      values: [
+        updatedCorrectResult,
+        template_name,
+        batch_name,
+        question_paper_name,
+      ],
     });
 
     console.log("Update result:", updateResult);
@@ -791,22 +956,11 @@ exports.submitupdateJsonResult = async (req, res) => {
     }
 
     return resSend(res, true, 200, "Data updated successfully.", null, null);
-
   } catch (error) {
     console.log(error);
     return resSend(res, false, 400, "Error", error, null);
   }
 };
-
-
-
-
-
-
-
-
-
-
 
 exports.csvresult = async (req, res) => {
   try {

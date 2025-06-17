@@ -1,0 +1,72 @@
+{
+    "id": 952896,
+    "name": "MATHEMATIC & SCIENCE",
+    "start": {
+        "x": 596,
+        "y": 432
+    },
+    "end": {
+        "x": 760,
+        "y": 453
+    },
+    "mode": "parent",
+    "type": "subject_group",
+    "namingScheme": "number1to0",
+    "height": 21,
+    "width": 164,
+    "children": [
+        {
+            "id": 628416,
+            "name": "1",
+            "start": {
+                "x": 734,
+                "y": 435
+            },
+            "end": {
+                "x": 755,
+                "y": 451
+            },
+            "mode": "child",
+            "type": "option",
+            "height": 16,
+            "width": 21
+        }
+    ],
+    "isOpen": true
+},
+{
+    "id": 462976,
+    "name": "SOCIAL STUDIES",
+    "start": {
+        "x": 596,
+        "y": 449
+    },
+    "end": {
+        "x": 760,
+        "y": 470
+    },
+    "mode": "parent",
+    "type": "subject_group",
+    "namingScheme": "number1to0",
+    "height": 21,
+    "width": 164,
+    "children": [
+        {
+            "id": 577664,
+            "name": "1",
+            "start": {
+                "x": 734,
+                "y": 452
+            },
+            "end": {
+                "x": 755,
+                "y": 468
+            },
+            "mode": "child",
+            "type": "option",
+            "height": 16,
+            "width": 21
+        }
+    ],
+    "isOpen": true
+}

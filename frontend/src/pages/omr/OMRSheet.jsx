@@ -94,13 +94,11 @@ const OMRSheet = () => {
     return config;
   };
 
-  console.log("Items", items);
-
   const handleButtonClick = async (temp) => {
     const { template_name, map, t_name, batch_name } = temp;
 
     if (!map || !JSON.parse(map) || map === "") {
-      return toast.warn("Mapping is required.");
+      return toast.warn("Please annoted before processing.");
     }
     console.log("t_info", template_name, t_name, batch_name);
     try {

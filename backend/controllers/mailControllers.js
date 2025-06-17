@@ -10,8 +10,7 @@ exports.mailController = async () => {
       query: sql,
       values: [],
     });
-
-
+    
     if (result && result.length > 0) {
       const { id, body, is_sent, emails, datetime } = result[0];
 

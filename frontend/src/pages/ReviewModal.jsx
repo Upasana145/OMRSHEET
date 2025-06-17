@@ -1,256 +1,31 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import ReviewQuestionPaper from "./ReviewQuestionPaper";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { postAPI } from "../utils/fetchapi";
+import DynamicButton from "../Helpers/DynamicButton";
 
 const ReviewModal = ({
   showModal,
   closeModal,
   selectedBatch,
   handleTemplateChange,
-  images = [], fetchImages
+  images = [],
+  fetchImages,
 }) => {
   const [selectedData, setSelectedData] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
-  const canvasRef = useRef(null);
-
-
-  const parseUnderReview = (under_review) => {
-    console.log("Received under_review data:", under_review);
-
-    try {
-      if (typeof under_review === "string") {
-        const parsedData = JSON.parse(under_review);
-
-        // Check if the data is wrapped in an additional key like "htn10"
-        const keys = Object.keys(parsedData);
-        if (keys.length === 1 && typeof parsedData[keys[0]] === "object") {
-          const innerData = parsedData[keys[0]]; // Extract the inner object
-          if (innerData && innerData.coord) {
-            return innerData; // Return the inner object
-          }
-        }
-
-        // If no nested key, return the parsedData directly
-        if (parsedData && parsedData.coord) {
-          return parsedData;
-        }
-
-        return null; // Return null if no coord found
-      }
-
-      return null;
-    } catch (error) {
-      console.error("Error parsing under_review:", error);
-      return null;
-    }
-  };
-  // const handleViewClick = async () => {
-  //   setShowDetails(true);
-  // };
-
-
-
-  const handleViewClick = async (image) => {
-
-    const { ques_paper_image_path, question_paper_name, batch_name } = image;
-
-    if (!ques_paper_image_path || !batch_name) {
-      console.error(
-        "Missing required data: question paper name or batch name."
-      );
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/master/revquesname`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            question_paper_name,
-            batch_name,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        setSelectedData(data);
-
-        setShowDetails(true);
-
-      } else {
-        toast.error(`Failed to crop  ${data.message}`);
-      }
-    } catch (error) {
-      console.error("Error fetching cropping image.", error);
-      toast.error("Error fetching cropping image.");
-    }
-  };
-
-
-
-
-
-
-
-
-
-
-
-
-
-  const cropHandler = async (image) => {
-
-    const { ques_paper_image_path, question_paper_name, batch_name } = image;
-
-    if (!ques_paper_image_path || !batch_name) {
-      console.error(
-        "Missing required data: question paper name or batch name."
-      );
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/master/revquesname`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            question_paper_name,
-            batch_name,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        setSelectedData(data);
-        cropImage(data.data);
-
-      } else {
-        toast.error(`Failed to crop  ${data.message}`);
-      }
-    } catch (error) {
-      console.error("Error fetching cropping image.", error);
-      toast.error("Error fetching cropping image.");
-    }
-  };
-
-
-
-
-  const dataURLtoBlob = (dataURL) => {
-    const [header, data] = dataURL.split(",");
-    const mime = header.match(/:(.*?);/)[1];
-    const binary = atob(data);
-    const array = [];
-    for (let i = 0; i < binary.length; i++) {
-      array.push(binary.charCodeAt(i));
-    }
-    return new Blob([new Uint8Array(array)], { type: mime });
-  };
-  const cropImage = async (data) => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    const imageGroups = []; // Array to store resized images along with their cropped images
-
-    for (const item of data) {
-      const imagePath = `${process.env.REACT_APP_FILE_URI}${item.template_name}/${item.batch_name}/${item.ques_paper_image_path}`;
-
-
-
-      const img = new Image();
-      img.crossOrigin = "anonymous"; // Allow cross-origin
-      img.src = imagePath;
-
-      // Wait for the image to load
-      await new Promise((resolve) => (img.onload = resolve));
-
-      // Resize image to 800x1200
-      canvas.width = 800;
-      canvas.height = 1200;
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-      ctx.drawImage(img, 0, 0, 800, 1200);
-
-      // Save the resized image
-      const resizedUrl = canvas.toDataURL("image/png");
-
-      // Array to store cropped URLs for this specific resized image
-      const croppedUrls = [];
-
-      // Get crop coordinates from under_review
-      const coordinates = parseUnderReview(item.under_review)?.coord?.region;
-
-      // If coordinates exist, apply cropping
-      if (coordinates) {
-
-        const [y1, y2, x1, x2] = coordinates;
-
-        // Calculate crop dimensions
-        const cropWidth = x2 - x1;
-        const cropHeight = y2 - y1;
-
-        // Extract cropped region from resized image
-        const croppedData = ctx.getImageData(x1, y1, cropWidth, cropHeight);
-
-        // Create a new canvas for cropping
-        canvas.width = cropWidth;
-        canvas.height = cropHeight;
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-        ctx.putImageData(croppedData, 0, 0);
-
-        // Convert cropped image to URL
-        const croppedUrl = canvas.toDataURL("image/png");
-
-        croppedUrls.push(croppedUrl);
-
-        const formData = new FormData();
-        const croppedBlob = dataURLtoBlob(croppedUrl);
-        formData.append("image", croppedBlob, "croppedBlob");
-        formData.append("template_name", item.template_name);
-        formData.append("batch_name", item.batch_name);
-        formData.append("question_paper_name", item.question_paper_name);
-        formData.append("ID", item.ID);
-
-        try {
-          const apiResponse = await fetch(
-            `${process.env.REACT_APP_API_URI}/upload/processcropimage`,
-            {
-              method: "POST",
-              body: formData,
-            }
-          );
-
-          const responseData = await apiResponse.json();
-          if (apiResponse.ok) {
-            console.log("Cropped image processed successfully:", responseData);
-            fetchImages(selectedBatch)
-          } else {
-            console.error(
-              "Failed to process cropped image:",
-              responseData.message
-            );
-          }
-        } catch (error) {
-          console.error("Error processing cropped image:", error);
-        }
-      }
-
-      // Add resized image and its corresponding cropped images to the imageGroups array
-      imageGroups.push({
-        resizedUrl,
-        croppedUrls,
-      });
+  const processSingleOMR = async (item) => {
+    // setIsLoading(true);
+    let data = await postAPI("master/processSingleOMR", item, null);
+    if (data?.status) {
+      setSelectedData(data);
+      setShowDetails(true);
+      // setIsLoading(false);
+    } else {
+      toast.error(data?.message);
+      // setIsLoading(false);
     }
   };
 
@@ -274,7 +49,6 @@ const ReviewModal = ({
               <th>Image</th>
               <th style={{ textAlign: "center" }}>Status</th>
               <th style={{ textAlign: "center" }}>Action</th>
-
             </tr>
           </thead>
           <tbody>
@@ -292,28 +66,22 @@ const ReviewModal = ({
                   {image.flag === "1" ? "Completed" : "Pending"}
                 </td>
                 <td>
-                  <button
+                  {/* <button
                     className="view-button"
-                    onClick={() => image?.crop_flag === 1 ? handleViewClick(image) : cropHandler(image)}
+                    onClick={() => processSingleOMR(image)}
                   >
-                    {image?.crop_flag === 1 ? "View" : "Process"}
-                  </button>
+                    {false ? "Loading..." : "View"}
+                  </button> */}
+                  <DynamicButton
+                    label={"View"}
+                    onClick={() => processSingleOMR(image)}
+                    className="view-button"
+                  />
                 </td>
-
-
-
               </tr>
             ))}
           </tbody>
         </table>
-        <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
-
-        {/* Submit button at the bottom
-        <div className="submit-section1">
-          <button className="submit-button1" onClick={handleSubmitClick}>
-            Submit
-          </button>
-        </div> */}
 
         {showDetails && (
           <ReviewQuestionPaper

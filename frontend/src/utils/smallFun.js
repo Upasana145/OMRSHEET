@@ -10,3 +10,7 @@ export const getStatusColor = (status) => {
       return "black";
   }
 };
+
+export const checkTypeArr = (data) => {
+  return data && Array.isArray(data);
+};

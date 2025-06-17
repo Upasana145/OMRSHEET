@@ -7,6 +7,7 @@ import Safty from "./Safty";
 
 const Layout = () => {
   const auth = useSelector((state) => state.auth.value);
+  console.log("hey i am auth", auth);
 
   return (
     <>

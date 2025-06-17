@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { checkTypeArr } from "../utils/smallFun";
 
-const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch }) => {
+const ReviewQuestionPaper = ({
+  data,
+  closeDetails,
+  fetchImages,
+  selectedBatch,
+}) => {
   const [selectedOptions, setSelectedOptions] = useState({});
   const [actionStatus, setActionStatus] = useState({});
   const [tickStatus, setTickStatus] = useState({});
@@ -12,17 +18,12 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
   // Always call useEffect, handle the condition inside
   useEffect(() => {
     if (data && data.data) {
-      console.log("hey buddy i am data", data);
       const allTickEnabled = data.data.every((image) => tickStatus[image.ID]);
       setIsSubmitEnabled(allTickEnabled);
     }
-  }, [tickStatus, data]); // Make sure the hook depends on the necessary state and props
-  console.log("data.data....", data.data);
-
+  }, [tickStatus, data]);
 
   const parseUnderReview = (under_review) => {
-    console.log("Received under_review data:", under_review);
-
     try {
       if (typeof under_review === "string") {
         const parsedData = JSON.parse(under_review);
@@ -58,7 +59,6 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
 
         // Check if the data is wrapped in an additional key like "htn10"
         const keys = Object.keys(parsedData);
-        console.log("keys[0]", keys[0]);
         if (keys.length === 1) {
           const innerData = keys[0];
           if (innerData) {
@@ -93,9 +93,6 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
   useEffect(() => {
     // Only update the tick status once, not during the render
     data.data.forEach((image) => {
-      console.log("Image ID:", image.ID, "Status:", image.status);
-
-      // You can process each image's status here
       if (image.status === "1" || image.status === "2") {
         setTickStatus((prevStatus) => ({ ...prevStatus, [image.ID]: true }));
       }
@@ -114,21 +111,20 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
 
     if (coord) {
       return (
-        <div>
-          {/* Display parsedData2 on the screen */}
-          <div style={{ marginBottom: "10px", fontWeight: "bold" }}>
-            {parsedData2}
-          </div>
+        <>
+          <p>{parsedData2}</p>
 
-          {/* Render the checkboxes */}
           {Object.keys(coord)
             .filter((key) => key.length === 1) // && key.match(/[A-Z]/) Filtering only keys like 'a', 'b', 'c', 'd'
             .map((key, index) => {
+              console.log("result", result, index, key);
               const isChecked =
-                isStatusOneOrTwo && result && result.toLowerCase() === key;
+                isStatusOneOrTwo &&
+                checkTypeArr(result) &&
+                result.filter((re) => re.toUpperCase() === key).length > 0;
 
               return (
-                <label key={index} style={{ marginRight: "8px" }}>
+                <label key={index}>
                   <input
                     type="checkbox"
                     name={key}
@@ -143,11 +139,11 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
                       )
                     }
                   />
-                  {key.toUpperCase()}
+                  <span>{key.toUpperCase()}</span>
                 </label>
               );
             })}
-        </div>
+        </>
       );
     } else if (type === "roll_number") {
       return <input type="text" placeholder="Enter Rollnumber" />;
@@ -157,13 +153,12 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
   };
 
   const handleAction = async (action, image) => {
-
     let resultValue = selectedOptions[image.ID];
 
     resultValue = resultValue
       ? resultValue.map((option) => option.toLowerCase())
       : [];
-    resultValue = resultValue.length === 1 ? resultValue[0] : resultValue;
+    // resultValue = resultValue.length === 1 ? resultValue[0] : resultValue;
 
     if (action === "save" && (!resultValue || resultValue.length === 0)) {
       toast.error("Please select a checkbox before saving.");
@@ -192,9 +187,6 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
       );
 
       if (response.ok) {
-        // toast.success(
-        //   `Successfully ${action === "save" ? "saved" : "skipped"} the result!`
-        // );
         setActionStatus((prevStatus) => ({
           ...prevStatus,
           [image.ID]: action,
@@ -202,7 +194,7 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
         setTickStatus((prevStatus) => ({ ...prevStatus, [image.ID]: true }));
 
         // Crop the image after saving
-        const coordinates = parseUnderReview(image.under_review)?.coord?.region;
+        // const coordinates = parseUnderReview(image.under_review)?.coord?.region;
       } else {
         toast.error("Failed to update the result.");
         console.error("API request failed:", response.statusText);
@@ -239,7 +231,7 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
       if (!data.status) {
         return toast.error(data.message);
       } else {
-        await fetchImages(selectedBatch)
+        await fetchImages(selectedBatch);
         closeDetails();
         return toast.success("All data submitted successfully!");
       }
@@ -263,7 +255,6 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
 
   return (
     <div className="details-modal">
-      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
       <div className="details-modal-content">
         <span className="close-button" onClick={closeDetails}>
           &times;
@@ -282,38 +273,14 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
           <tbody>
             {data.data.map((image, index) => (
               <tr key={index}>
-                {/* <td>
-                  <img
-                    // src={`${process.env.REACT_APP_FILE_URI}${image.ques_paper_image_path}`}
-                    src={`${process.env.REACT_APP_FILE_URI}${image.template_name}/${image.batch_name}/${image.ques_paper_image_path}`}
-                    alt={image.ques_paper_image_path}
-                    className="table-image"
-                  />
-                </td> */}
                 <td>
                   <img
-                    src={`${process.env.REACT_APP_FILE_URI}${image.cropped_image}`}
+                    src={`${process.env.REACT_APP_FILE_URI}${image.template_name}/${image.batch_name}/${image.cropped_image}`}
                     alt={image.ques_paper_image_path}
                     className="table-image"
                   />
                 </td>
-                <td>{renderInputBasedOnType(image)}</td>
-                {/* <td>
-                  <button className="save-button" onClick={() => handleAction("save", image)}>
-                    Save
-                  </button>
-                  <button
-                    className="skip-button"
-                    onClick={() => handleAction("skip", image)}
-                    disabled={!!selectedOptions[image.ID]?.length}
-                    style={{
-                      backgroundColor: !!selectedOptions[image.ID]?.length ? "#ccc" : "#f44336",
-                      cursor: !!selectedOptions[image.ID]?.length ? "not-allowed" : "pointer",
-                    }}
-                  >
-                    Skip
-                  </button>
-                </td> */}
+                <td className="options">{renderInputBasedOnType(image)}</td>
                 <td>
                   {image.status !== "1" && image.status !== "2" && (
                     <>
@@ -367,8 +334,6 @@ const ReviewQuestionPaper = ({ data, closeDetails, fetchImages, selectedBatch })
         </table>
 
         <div className="submit-container">
-          {/* Check if flagData exists and flagData.data.flag is not 1 */}
-
           {isSubmit && (
             <button
               className="submit-button"

@@ -46,13 +46,15 @@ const getKafkaResults = async (key, value) => {
     }
 
     // Check OMR Exists (question_paper_name) w.r.t template_name, batch_name from reviewer_reviews, processed_omr_results
-    const OMRExistsSQL = `SELECT count(ID) as count FROM processed_omr_results WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`;
+    const OMRExistsSQL = `SELECT count(ID) as count FROM processed_omr_results
+    WHERE t_name = ? AND batch_name = ? AND question_paper_name = ? AND result = '0'`;
     const [row] = await query({
       query: OMRExistsSQL,
       values: [t_name, batch_name, question_paper_name],
     });
 
-    if (row.count) {
+    console.log("row", row);
+    if (!row.count) {
       return {
         status: true,
         message: "Ignore the existing kafka response.",
@@ -143,7 +145,6 @@ const getKafkaResults = async (key, value) => {
             query: insertReviewerAssignQuery,
             values: insertReviewerAssignValues,
           });
-
         } catch (error) {
           return {
             status: false,
