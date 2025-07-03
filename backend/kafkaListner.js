@@ -73,13 +73,7 @@ const getKafkaResults = async (key, value) => {
       return { status: false, message: "The batch is not added." };
     }
 
-    console.log(
-      "resu1",
-      template_name,
-      t_name,
-      batch_name,
-      question_paper_name
-    );
+    console.log("resu1", template_name, t_name, batch_name, question_paper_name);
     // await query({
     //   query: `UPDATE processed_omr_results SET result = ? WHERE t_name = ? AND batch_name = ? AND question_paper_name = ?`,
     //   values: [value, t_name, batch_name, question_paper_name],
@@ -105,18 +99,11 @@ const getKafkaResults = async (key, value) => {
     if (parsedResult) {
       let dataObj = parsedResult[0].data;
 
-      const { filteredJsonRR, filteredJsonCorrect } =
-        processJsonResults(dataObj);
+      const { filteredJsonRR, filteredJsonCorrect } = processJsonResults(dataObj);
 
       // Insert "RR" data into the reviewer_reviews table
       if (filteredJsonRR.length > 0) {
-        const valuesRR = filteredJsonRR.flatMap((item) => [
-          JSON.stringify(item),
-          template_name,
-          batch_name,
-          question_paper_name,
-          question_paper_name,
-        ]);
+        const valuesRR = filteredJsonRR.flatMap((item) => [JSON.stringify(item), template_name, batch_name, question_paper_name, question_paper_name]);
 
         const insertRRQuery = `
           INSERT INTO reviewer_reviews (under_review, template_name, batch_name, question_paper_name,ques_paper_image_path)
@@ -134,12 +121,7 @@ const getKafkaResults = async (key, value) => {
             INSERT INTO reviewer_assign (template_name, t_name, batch_name, status)
             VALUES (?, ?, ?, ?)`;
 
-          const insertReviewerAssignValues = [
-            template_name,
-            t_name,
-            batch_name,
-            "Pending",
-          ];
+          const insertReviewerAssignValues = [template_name, t_name, batch_name, "Pending"];
 
           const insertReviewerAssignResult = await query({
             query: insertReviewerAssignQuery,
@@ -165,13 +147,7 @@ const getKafkaResults = async (key, value) => {
         try {
           const updateCorrectResult = await query({
             query: updateCorrectQuery,
-            values: [
-              correctDataJson,
-              value,
-              template_name,
-              batch_name,
-              question_paper_name,
-            ],
+            values: [correctDataJson, value, template_name, batch_name, question_paper_name],
           });
 
           console.log("updateCorrectResult", updateCorrectResult);
@@ -198,7 +174,7 @@ const getKafkaResults = async (key, value) => {
 };
 const kafkaListenerHandler = () => {
   const kafka = new Kafka({
-    brokers: ["157.173.222.15:9092"],
+    brokers: ["10.12.1.123:9092"],
   });
 
   // Create a consumer instance
@@ -239,10 +215,7 @@ const kafkaListenerHandler = () => {
           //     offset: (parseInt(message.offset) + 1).toString(),
           //   },
           // ]);
-          let response = await getKafkaResults(
-            message.key.toString(),
-            message.value.toString()
-          );
+          let response = await getKafkaResults(message.key.toString(), message.value.toString());
           if (response?.status) {
             console.log("response: " + response.message);
           } else {
